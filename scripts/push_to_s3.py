@@ -75,24 +75,8 @@ def _upload(s3: BaseClient, local_path: Path, s3_url: str) -> None:
     logger.info(f"  → s3://{S3_BUCKET}/{key}")
 
 
-def push_manifest_artifacts(manifest: Manifest) -> None:
-    """Upload manifest.yaml + every URL-referenced artifact in it."""
-    s3 = _s3_client()
-    _ensure_bucket(s3, S3_BUCKET)
-
-    # Manifest itself
-    s3.upload_file(str(MANIFEST_FILE), S3_BUCKET, "manifest.yaml")
-    logger.info(f"  → s3://{S3_BUCKET}/manifest.yaml")
-
-    # Equipment specs + envelopes
-    for equipment_id, spec_url in manifest.specs.items():
-        _upload(s3, REPO_ROOT / "equipment" / equipment_id / "spec.yaml", spec_url)
-    for equipment_id, geom in manifest.geometry.items():
-        _upload(
-            s3, REPO_ROOT / "equipment" / equipment_id / "envelope.step", geom.envelope
-        )
-
-    # Assemblies
+def _upload_assemblies(s3: BaseClient, manifest: Manifest) -> None:
+    """Upload all assembly artifacts (bom + step + glb + variants + topology)."""
     for asm_type, variants in manifest.assemblies.items():
         type_dir_name = asm_type.replace("_", "-")
         for variant, av in variants.items():
@@ -104,8 +88,12 @@ def push_manifest_artifacts(manifest: Manifest) -> None:
                 _upload(s3, base / "assembly-exploded.glb", av.glb_exploded)
             if av.step_exploded:
                 _upload(s3, base / "assembly-exploded.step", av.step_exploded)
+            if av.topology_yaml:
+                _upload(s3, base / "topology.yaml", av.topology_yaml)
 
-    # Plates from sibling repo
+
+def _upload_plates(s3: BaseClient, manifest: Manifest) -> None:
+    """Upload plate artifacts from sibling edp-interface-plates repo."""
     plates_curation = yaml.safe_load(PLATES_FILE.read_text())
     for plate_id, plate_urls in manifest.plates.items():
         entry = plates_curation["plates"][plate_id]
@@ -119,6 +107,25 @@ def push_manifest_artifacts(manifest: Manifest) -> None:
                 PLATES_REPO_ROOT / entry["drawing_meta_relpath"],
                 plate_urls.drawing_meta,
             )
+
+
+def push_manifest_artifacts(manifest: Manifest) -> None:
+    """Upload manifest.yaml + every URL-referenced artifact in it."""
+    s3 = _s3_client()
+    _ensure_bucket(s3, S3_BUCKET)
+
+    s3.upload_file(str(MANIFEST_FILE), S3_BUCKET, "manifest.yaml")
+    logger.info(f"  → s3://{S3_BUCKET}/manifest.yaml")
+
+    for equipment_id, spec_url in manifest.specs.items():
+        _upload(s3, REPO_ROOT / "equipment" / equipment_id / "spec.yaml", spec_url)
+    for equipment_id, geom in manifest.geometry.items():
+        _upload(
+            s3, REPO_ROOT / "equipment" / equipment_id / "envelope.step", geom.envelope
+        )
+
+    _upload_assemblies(s3, manifest)
+    _upload_plates(s3, manifest)
 
 
 def main() -> None:

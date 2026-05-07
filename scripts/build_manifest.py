@@ -80,6 +80,7 @@ def _collect_assemblies() -> dict[str, dict[str, AssemblyVariant]]:
             base = f"{S3_BASE}/assemblies/{type_dir.name}/{variant}"
             glb_exploded_local = variant_dir / "assembly-exploded.glb"
             step_exploded_local = variant_dir / "assembly-exploded.step"
+            topology_local = variant_dir / "topology.yaml"
             assemblies[type_key][variant] = AssemblyVariant(
                 bom=f"{base}/bom.yaml",
                 step=f"{base}/assembly.step",
@@ -94,7 +95,9 @@ def _collect_assemblies() -> dict[str, dict[str, AssemblyVariant]]:
                     if step_exploded_local.exists()
                     else None
                 ),
-                topology_yaml=None,
+                topology_yaml=(
+                    f"{base}/topology.yaml" if topology_local.exists() else None
+                ),
             )
     return assemblies
 

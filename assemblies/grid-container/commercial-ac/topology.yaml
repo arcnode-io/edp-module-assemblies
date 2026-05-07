@@ -1,0 +1,47 @@
+# Grid container device topology (step 6.6).
+# SafeGear MV cells, SEL relay, ION9000 meter. Trihal is passive — its
+# integrated thermometer is Modbus RTU which DTM v1 schema doesn't model
+# (no MODBUS_RTU enum); add when a Modbus RTU/TCP gateway is selected.
+
+devices:
+  # SafeGear MV switchgear — Modbus TCP via integrated relay
+  - device_type: switchgear
+    description: ABB SafeGear 15kV cell (GRD-SWG-001)
+    host: mock-modbus-server
+    port: 502
+    protocol_config:
+      protocol: modbus_tcp
+      unit_id: 1
+      point_maps:
+        - { name: breaker_state, function_code: 3, start_address: 0, count: 1 }
+        - { name: bus_voltage, function_code: 4, start_address: 100, count: 6 }
+        - { name: bus_current, function_code: 4, start_address: 110, count: 6 }
+
+  # SEL-351-7 protective relay — DNP3 TCP
+  - device_type: protective_relay
+    description: SEL-351-7 distribution feeder relay (GRD-RLY-001)
+    host: mock-dnp3-server
+    port: 20000
+    protocol_config:
+      protocol: dnp3_tcp
+      master_addr: 1
+      outstation_addr: 100
+      point_maps:
+        - { name: phase_currents, function_code: 4, start_address: 0, count: 3 }
+        - { name: line_voltages, function_code: 4, start_address: 10, count: 3 }
+        - { name: trip_status, function_code: 3, start_address: 100, count: 1 }
+        - { name: ground_fault, function_code: 3, start_address: 110, count: 1 }
+
+  # ION9000 revenue meter — Modbus TCP
+  - device_type: revenue_meter
+    description: Schneider PowerLogic ION9000 (GRD-MTR-001)
+    host: mock-modbus-server
+    port: 502
+    protocol_config:
+      protocol: modbus_tcp
+      unit_id: 2
+      point_maps:
+        - { name: kwh_delivered, function_code: 3, start_address: 4000, count: 2 }
+        - { name: kwh_received, function_code: 3, start_address: 4002, count: 2 }
+        - { name: power_factor, function_code: 3, start_address: 4010, count: 1 }
+        - { name: thd_voltage, function_code: 3, start_address: 4020, count: 3 }
