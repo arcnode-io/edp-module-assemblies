@@ -1,0 +1,13 @@
+# Curated plate registry consumed by build_manifest.py.
+# Each entry maps plate_id → version + sibling-repo location for v1.
+# Step 6 will replace this with manifest discovery from edp-interface-plates'
+# CI-published artifacts; for now it's curated here so build_manifest can
+# generate plate URLs without cross-repo coupling.
+
+plates:
+  CG:
+    version: v1
+    spec_relpath: cad/specs/CG/spec.yaml
+    step_relpath: cad/CG.step
+    dxf_relpath: cad/CG.dxf
+    drawing_meta_relpath: cad/CG_drawing_meta.json

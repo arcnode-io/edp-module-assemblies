@@ -1,0 +1,201 @@
+equipment_id: CMP-PDU-001
+schema_version: "0.7"
+category: pdu
+vendor: Server Technology (Legrand)
+model_number: PRO3X C3W36RL (Switched, 60A 3ph, 17.3kW, 36 outlets)
+description: 0U vertical intelligent rack PDU, 415V 3ph 60A 43kW, per-outlet metered + switched, 18 C13 + 18 HDOT Cx outlets, Xerus platform
+datasheet_url: https://www.servertech.com/power-distribution-unit-pdu/switched-pdu/0u-vertical-3F06
+datasheet_hash: TBD_compute_at_pipeline_run
+step_source: null
+fab_tier: dod_eligible
+restricted_entities: null
+lead_time_weeks: 4
+unit_cost_usd: null
+
+spec:
+  electrical:
+    voltage_v: 415.0                  # 3-phase line-to-line
+    voltage_range_v: [380.0, 440.0]
+    current_a: 60.0
+    phase: 3ph
+    frequency_hz: 60.0
+    power_kw: 43.0                    # 415V × 60A × √3 = 43.1 kW
+    power_factor_range: null
+    efficiency_pct: null
+    breaker_size_a: 60.0
+    aic_rating_ka: null
+    thd_pct: null
+    fault_current_contribution_pu: null
+
+  thermal:
+    heat_load_kw: 0.05
+    heat_rejection_kw: null
+    coolant_compatibility: null
+    flow_rate_lpm: null
+    supply_temp_c: null
+    return_temp_c: null
+    pump_head_kpa: null
+    internal_pressure_drop_kpa: null
+    port_size_dn: null
+
+  mechanical:
+    weight_kg: null
+    dimensions_mm: [1778, 56, 56]
+    container_type: 10ft_ISO_high_cube
+    mounting: rack_19in
+    mounting_notes: |
+      0U vertical mount on rack frame side rails, does not consume rack U
+      space. ARCNODE Compute Container deployment uses 4× PDUs per rack
+      in 2N redundant configuration (2× A-side, 2× B-side). Each PDU
+      carries ~20 kW under normal balanced operation. Under single-feed
+      failure surviving side carries full ~80 kW across 2 PDUs at
+      ~40 kW each — within 43 kW rating. True 2N at the 80 kW Compute
+      Container load, enabled by 415V LV from GRD-XFM-001 secondary.
+    rack_units: 0
+    ip_rating: null
+    lift_points: null
+    ambient_temp_range_c: [-15, 60]
+    max_elevation_m: null
+    noise_dba_at_1m: null
+
+  ports:
+    - port_id: PWR_IN
+      type: ac_power
+      role: input
+      connector_spec: IEC 60309 60A 3P+PE pin and sleeve
+      mating_part: matching IEC 60309 60A 3P+PE socket
+      qty: 1
+    - port_id: PWR_OUT_C13
+      type: ac_power
+      role: output
+      connector_spec: IEC 60320 C13 with RamLock self-locking mechanism (240V phase-to-neutral)
+      mating_part: C14 plug
+      qty: 18
+    - port_id: PWR_OUT_HDOT_CX
+      type: ac_power
+      role: output
+      connector_spec: HDOT Cx hybrid (240V phase-to-neutral, accepts C14 or C20 plug)
+      mating_part: C14 or C20 plug
+      qty: 18
+    - port_id: NET_PRIMARY
+      type: ethernet
+      role: bidirectional
+      connector_spec: RJ45 (Gigabit Ethernet)
+      mating_part: null
+      qty: 1
+    - port_id: NET_SECONDARY
+      type: ethernet
+      role: bidirectional
+      connector_spec: RJ45 (Gigabit Ethernet, redundant network)
+      mating_part: null
+      qty: 1
+    - port_id: USB
+      type: usb
+      role: bidirectional
+      connector_spec: USB-A
+      mating_part: null
+      qty: 1
+    - port_id: SENSOR
+      type: signal_digital
+      role: input
+      connector_spec: RJ45 (Legrand SmartSensor bus)
+      mating_part: SmartSensor
+      qty: 2
+
+  control:
+    protocol: snmp
+    register_map_url: https://www.servertech.com/support/technical-references/manuals
+    command_latency_ms: null
+    step_response_ms: null
+    control_modes:
+      - autonomous_local
+      - external_setpoint
+      - per_outlet_switching
+      - last_known_value_fallback
+    black_start_capable: null
+
+geometry:
+  source: synthesized
+  fidelity: bounding_box
+  equipment_envelope_path: geometry/envelopes/CMP-PDU-001-equipment.step
+  service_envelope_path: geometry/envelopes/CMP-PDU-001-service.step
+  bounding_box:
+    L_mm: 1778.0
+    W_mm: 56.0
+    H_mm: 56.0
+  service_clearance:
+    front: 600.0
+    rear: 0.0
+    left: 50.0
+    right: 50.0
+    top: 100.0
+    bottom: 100.0
+    install_clearance: null
+
+provenance:
+  authored_by: skill:datasheet_extractor
+  authored_date: 2026-04-28
+  reviewed_by: TBD_pending_human_review
+  reviewed_date: null
+  confidence_flags:
+    - field: spec.mechanical.weight_kg
+      flag: missing
+      note: Typical 0U vertical PDU weight 6-9 kg.
+    - field: spec.mechanical.dimensions_mm
+      flag: assumed_default
+      note: 1778mm vertical length spans 42U rack height. Cross-section ~56×56mm. Verify with Server Technology mechanical drawing.
+    - field: spec.electrical.aic_rating_ka
+      flag: missing
+    - field: spec.thermal.heat_load_kw
+      flag: assumed_default
+      note: ~50W typical for intelligent PDU electronics.
+    - field: control.command_latency_ms
+      flag: missing
+    - field: unit_cost_usd
+      flag: missing
+    - field: lead_time_weeks
+      flag: low_confidence_extraction
+      note: Server Technology typical 4 weeks for stocked SKUs; longer for custom configurations.
+
+notes: |
+  Server Technology PRO3X is the v1 reference rack PDU for the ARCNODE
+  Compute Container. Selected over APC AP8866 (same 17.3 kW capacity)
+  because PRO3X supports per-outlet metering and switching natively, and
+  the Xerus Technology Platform exposes a richer API surface (SNMP,
+  Modbus TCP, Redfish, JSON-RPC) for EMS integration.
+
+  Sizing math for v1 HGX Compute Container (80 kW sustained):
+  - 4× PRO3X per Compute Container (2× A-side feed, 2× B-side feed)
+  - Normal balanced operation: ~20 kW per PDU (well under 43 kW rating)
+  - Single-feed failure mode: surviving 2 PDUs carry full 80 kW = 40 kW
+    each, within 43 kW rating. TRUE 2N redundancy.
+  - Headroom for B300/Blackwell Ultra upgrade (10% higher TDP per node):
+    surviving-side load at ~88 kW = 44 kW per PDU. Marginal — would
+    require a 5th PDU per side or load-shedding priority list.
+
+  HGX B200 power architecture (per CMP-NODE-001):
+  - 4× 6600W Titanium PSUs per node (2+2 redundant), 200–240V AC input
+  - Each PSU connects phase-to-neutral on 415Y/240V wye = 240V
+  - Per-node sustained: ~10.5 kW; peak PSU capacity: 26.4 kW
+  - PDU outlets per node: 4× C19 (one per PSU), distributed 2 A-side
+    + 2 B-side per node for PSU-level redundancy
+  - 7 nodes × 4 C19 = 28 C19 outlets needed across all PDUs
+  - Plus 2× C13 per ToR switch, 1× C13 per CDU, 1× C13 for ancillary
+
+  HDOT Cx outlets accept either C14 or C20 plugs — flexibility for
+  HGX node C20 plugs and switch/CDU C14 plugs without separate PDU SKUs.
+
+  EMS integration: Modbus TCP register map and Redfish API both supported
+  via Xerus platform. SNMP MIB available for legacy infrastructure.
+  Per-outlet on/off control supported, useful for remote node power
+  cycling without crash-cart access.
+
+  Cybersecurity: Xerus platform supports HTTPS, SSH, SNMPv3, RADIUS,
+  LDAPS, 802.1X, and signed firmware updates. NERC CIP eligible.
+
+  ITAR-domestic: Server Technology (Legrand) has US fab in Reno NV.
+  Per-unit fab origin verification at procurement for DOD-eligible.
+
+  ADR-005 (415V LV architecture): Trihal secondary set to 415Y/240V
+  enables this PDU sizing. 480V LV would require step-down or accept
+  non-2N redundancy with 6× lower-density PDUs.

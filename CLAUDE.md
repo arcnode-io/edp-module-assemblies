@@ -54,21 +54,6 @@ Never present a recommendation without a reason.
 ---
 
 
-## Implementation Methodology
-
-When presented with a request YOU MUST:
-
-1. Use context7 mcp server or websearch tool to get the latest related documentation. Understand the API deeply and all of its nuances and options.
-2. Use TDD: derive expected behavior first, write the failing test, then build until it passes.
-3. Start with the simplest happy path test.
-4. Think about what the assert should look like.
-5. See the test fail.
-6. Make the smallest change possible.
-7. Check if test passes.
-8. Repeat steps 6-7 until it passes.
-9. YOU MUST NOT move on until assertions pass.
-
-
 ## Debugging Methodology
 
 ### Phase I: Information Gathering
@@ -100,21 +85,6 @@ When presented with a request YOU MUST:
 - **Keep class names generic:** `TimeseriesClient` not `TimescaleClient`.
 - **Use generics judiciously.** If generics don't provide a clear benefit in code reuse, type safety, or API design — use concrete types instead.
 
-
-## Testing & Reliability
-
-When engaging in TDD:
-1. Think about one useful happy path assert.
-2. Write the failing test.
-3. Write the function with `unimplemented!()` (Rust), `NotImplementedError` (Python), or `throw Error("Not Implemented")` (TypeScript).
-4. See the not-implemented error.
-5. Make the smallest change until it passes.
-
-- **Use AAA (Arrange, Act, Assert) pattern for all tests.**
-- **Unit tests colocated in `src/`.**
-- **Integration tests in `tests/`.**
-- **Use testcontainers for integration tests** — spin up real databases/services in Docker, session-scoped for performance.
-- **Fail fast, fail early.** Detect errors as early as possible and halt. Rely on the runtime to handle the error and provide a stack trace. Do NOT write defensive error handling without a good reason.
 
 
 ## Style

@@ -1,0 +1,201 @@
+equipment_id: GRD-PCS-001
+schema_version: "0"
+category: pcs
+vendor: EPC Power
+model_number: PD500/AC-480 (50-100195)
+description: 500 kW bidirectional grid-forming PCS, 480 VAC, liquid-cooled rack module
+datasheet_url: https://cdn.prod.website-files.com/665e2b85042bf6bc36c01479/67588b7148b5cdaf6ec56b40_PD%20Family%2012.9.24.pdf
+datasheet_hash: TBD_compute_at_pipeline_run
+step_source: null
+fab_tier: dod_eligible
+restricted_entities: null
+lead_time_weeks: null
+unit_cost_usd: null
+
+spec:
+  electrical:
+    voltage_v: 480.0
+    voltage_range_v: [422.4, 528.0]   # 480 +10%/-12%
+    current_a: 602.0
+    phase: 3ph
+    frequency_hz: 60.0                # 50/60 configurable
+    power_kw: 500.0
+    power_factor_range: [-1.0, 1.0]   # full 4-quadrant
+    efficiency_pct: 98.4              # peak DC-AC at 480 VAC
+    breaker_size_a: null
+    aic_rating_ka: 65.0               # 35 or 65 kA option, max captured
+    thd_pct: 3.0                      # <3% TDDi per IEEE 519
+    fault_current_contribution_pu: null
+
+  thermal:
+    heat_load_kw: 8.13                # computed: 500/0.984 - 500
+    heat_rejection_kw: null
+    coolant_compatibility: [egw_30, egw_50, pgw_30, pgw_50]
+    flow_rate_lpm: null
+    supply_temp_c: null
+    return_temp_c: null
+    pressure_drop_kpa: null
+    port_size_dn: null
+
+  mechanical:
+    weight_kg: 328.0
+    dimensions_mm: [1045, 530, 670]   # L x W x D, vendor stated H x W x D = 670 x 530 x 1045
+    container_type: 10ft_ISO_high_cube
+    mounting: proprietary_oem
+    mounting_notes: |
+      530mm wide chassis, neither 19" nor 23" rack standard. Vendor-designed
+      for installation in EPC CAB1000 cabinet or equivalent custom enclosure.
+      IP00 — requires external enclosure.
+    rack_units: null
+    ip_rating: IP00
+    lift_points: null
+    ambient_temp_range_c: [-40, 50]
+    max_elevation_m: 2000
+    noise_dba_at_1m: 75.0
+
+  ports:
+    - port_id: AC1
+      type: ac_power
+      role: bidirectional
+      connector_spec: TBD
+      mating_part: null
+      qty: 1
+    - port_id: DC1
+      type: dc_power
+      role: bidirectional
+      connector_spec: TBD
+      mating_part: null
+      qty: 1
+    - port_id: COOL_S
+      type: coolant_supply
+      role: input
+      connector_spec: TBD
+      mating_part: null
+      qty: 1
+    - port_id: COOL_R
+      type: coolant_return
+      role: output
+      connector_spec: TBD
+      mating_part: null
+      qty: 1
+    - port_id: ETH0
+      type: ethernet
+      role: bidirectional
+      connector_spec: RJ45 (assumed for Modbus TCP)
+      mating_part: null
+      qty: 1
+    - port_id: RS485
+      type: serial
+      role: bidirectional
+      connector_spec: TBD
+      mating_part: null
+      qty: 1
+    - port_id: CAN0
+      type: can
+      role: bidirectional
+      connector_spec: TBD
+      mating_part: null
+      qty: 1
+    - port_id: CTRL_PWR
+      type: control_power
+      role: input
+      connector_spec: TBD
+      mating_part: null
+      qty: 1
+
+  control:
+    protocol: modbus_tcp              # vendor-recommended primary
+    register_map_url: null
+    command_latency_ms: 1.0
+    step_response_ms: 2.0
+    control_modes:
+      - grid_forming                  # V&f islanded mode, datasheet line "Islanded control modes: V&f"
+      - voltage_mode
+      - pq
+      - dq
+      - cos_phi
+      - statcom
+    black_start_capable: true         # optional feature, requires external control power
+
+geometry:
+  source: synthesized
+  fidelity: bounding_box
+  equipment_envelope_path: geometry/envelopes/GRD-PCS-001-equipment.step
+  service_envelope_path: geometry/envelopes/GRD-PCS-001-service.step
+  bounding_box:
+    L_mm: 1045.0
+    W_mm: 530.0
+    H_mm: 670.0
+  service_clearance:
+    front: 1000.0                     # AC breaker, display, control panel access
+    rear: 800.0                       # DC, coolant, comms
+    left: 50.0
+    right: 50.0
+    top: 500.0                        # lift access
+    bottom: 0.0
+    install_clearance: null
+
+provenance:
+  authored_by: skill:datasheet_extractor
+  authored_date: 2026-04-28
+  reviewed_by: TBD_pending_human_review   # DRAFT — will fail validation until reviewed
+  reviewed_date: null
+  confidence_flags:
+    - field: spec.electrical.breaker_size_a
+      flag: missing
+      note: Datasheet specifies AIC (35/65 kA) but not breaker frame size. Inferable from 602 A nominal but not vendor-stated.
+    - field: spec.electrical.fault_current_contribution_pu
+      flag: missing
+      note: Per §6.1, vendor-published only. Not in public datasheet. Sales touch follow-up.
+    - field: spec.thermal.heat_load_kw
+      flag: assumed_default
+      note: Computed from efficiency (500/0.984 - 500 = 8.13 kW). Vendor does not state heat dissipation directly.
+    - field: spec.thermal.flow_rate_lpm
+      flag: missing
+      note: Pump curve / flow specification not in public datasheet.
+    - field: spec.thermal.supply_temp_c
+      flag: missing
+    - field: spec.thermal.return_temp_c
+      flag: missing
+    - field: spec.thermal.pressure_drop_kpa
+      flag: missing
+    - field: spec.thermal.port_size_dn
+      flag: missing
+      note: Coolant port size not in public datasheet — needed for Compute Container CDU loop integration. Sales touch required.
+    - field: spec.mechanical.lift_points
+      flag: missing
+    - field: spec.ports.connector_spec
+      flag: missing
+      note: Datasheet enumerates port types and counts but not connector specifications. Applies to AC1, DC1, COOL_S, COOL_R, RS485, CAN0, CTRL_PWR. Sales touch or mechanical drawing required.
+    - field: control.register_map_url
+      flag: missing
+      note: Modbus register map not published. Sales touch required.
+    - field: geometry.service_clearance
+      flag: assumed_default
+      note: All clearance values are industry defaults for switchgear-class equipment, not vendor-stated. Confirm with installation manual when available.
+    - field: unit_cost_usd
+      flag: missing
+    - field: lead_time_weeks
+      flag: missing
+
+notes: |
+  EPC Power PD500 is the seed entry for the Grid Container PCS class. Selected over
+  EPC M System for v1 because PD500's liquid cooling integrates with the
+  ARCNODE Compute Container CDU loop, while M is air-cooled. Both
+  EPC products confirm grid-forming via explicit V&f islanded mode and
+  optional black-start capability.
+
+  STEP file not advertised on EPC public site or CDN. Mechanical drawings
+  may be available via sales contact (no NDA expected per §6.1 of curation
+  pipeline doc). Envelope synthesized from datasheet dimensions (Sub-pipeline
+  3A). Upgrade to Sub-pipeline 3B (drawing tracing) recommended before
+  Interface Plate cutout generation.
+
+  Black-start requires external control power per datasheet — implication
+  for off-grid deployments: an independent control-power source (e.g., small
+  UPS or 24 VDC battery) must be specified as a companion item. Capture
+  in BOM generator dependency rules.
+
+  CTRL_PWR port accepts any of: 100-120 VAC, 208-240 VAC, or 24 VDC.
+  Schema represents this as a single control_power port; deployment-specific
+  selection of which mode to wire is captured at sizing-engine time.

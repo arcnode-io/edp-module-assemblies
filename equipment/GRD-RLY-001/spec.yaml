@@ -1,0 +1,216 @@
+equipment_id: GRD-RLY-001
+schema_version: "0.7"
+category: protective_relay
+vendor: Schweitzer Engineering Laboratories (SEL)
+model_number: SEL-351-7 (Protection System with Voltage Sag/Swell/Interrupt + IEC 61850)
+description: Microprocessor-based feeder protection relay with overcurrent, voltage, frequency, and synchrocheck functions, IEC 61850 + DNP3 + Modbus TCP
+datasheet_url: https://selinc.com/products/351/docs/
+datasheet_hash: TBD_compute_at_pipeline_run
+step_source: null
+fab_tier: dod_eligible
+restricted_entities: null
+lead_time_weeks: 8
+unit_cost_usd: null
+
+spec:
+  electrical:
+    voltage_v: 125.0
+    voltage_range_v: [38.0, 280.0]
+    current_a: 0.5
+    phase: dc
+    frequency_hz: null
+    power_kw: 0.04
+    power_factor_range: null
+    efficiency_pct: null
+    breaker_size_a: null
+    aic_rating_ka: null
+    thd_pct: null
+    fault_current_contribution_pu: null
+
+  thermal:
+    heat_load_kw: 0.04
+    heat_rejection_kw: null
+    coolant_compatibility: null
+    flow_rate_lpm: null
+    supply_temp_c: null
+    return_temp_c: null
+    pump_head_kpa: null
+    internal_pressure_drop_kpa: null
+    port_size_dn: null
+
+  mechanical:
+    weight_kg: 5.0
+    dimensions_mm: [369, 215, 178]
+    container_type: 10ft_ISO_high_cube
+    mounting: rack_19in
+    mounting_notes: |
+      Horizontal 4U panel mount in switchgear low-voltage compartment, or
+      vertical mount (4U rotated 90° CCW). Installed inside SafeGear LV
+      compartment (GRD-SWG-001). Wiring to switchgear CTs/PTs and trip/
+      close coils via terminal blocks on rear.
+    rack_units: 4
+    ip_rating: null
+    lift_points: null
+    ambient_temp_range_c: [-40, 85]
+    max_elevation_m: 2000
+    noise_dba_at_1m: null
+
+  ports:
+    - port_id: AC_INPUTS
+      type: signal_analog
+      role: input
+      connector_spec: terminal block (4× current inputs, 4× voltage inputs)
+      mating_part: null
+      qty: 8
+    - port_id: TRIP_OUT
+      type: dry_contact
+      role: output
+      connector_spec: terminal block (high-current interrupting contact)
+      mating_part: null
+      qty: 4
+    - port_id: STATUS_IN
+      type: dry_contact
+      role: input
+      connector_spec: terminal block
+      mating_part: null
+      qty: 8
+    - port_id: PWR
+      type: control_power
+      role: input
+      connector_spec: terminal block (38–280 VDC or 85–264 VAC)
+      mating_part: null
+      qty: 1
+    - port_id: ETH_PRIMARY
+      type: ethernet
+      role: bidirectional
+      connector_spec: RJ45 or LC fiber (10/100 Mbps)
+      mating_part: null
+      qty: 1
+    - port_id: ETH_SECONDARY
+      type: ethernet
+      role: bidirectional
+      connector_spec: RJ45 or LC fiber (PRP redundant)
+      mating_part: null
+      qty: 1
+    - port_id: SERIAL
+      type: serial
+      role: bidirectional
+      connector_spec: EIA-485 (engineering access)
+      mating_part: null
+      qty: 1
+    - port_id: IRIG_B
+      type: signal_digital
+      role: input
+      connector_spec: BNC (time synchronization)
+      mating_part: null
+      qty: 1
+
+  control:
+    protocol: dnp3
+    register_map_url: https://selinc.com/products/351/docs/
+    command_latency_ms: 4
+    step_response_ms: 16
+    control_modes:
+      - autonomous_local
+      - external_setpoint
+      - manual_trip
+      - manual_close
+      - mirrored_bits
+      - last_known_value_fallback
+    black_start_capable: null
+
+geometry:
+  source: synthesized
+  fidelity: bounding_box
+  equipment_envelope_path: geometry/envelopes/GRD-RLY-001-equipment.step
+  service_envelope_path: geometry/envelopes/GRD-RLY-001-service.step
+  bounding_box:
+    L_mm: 369.0
+    W_mm: 215.0
+    H_mm: 178.0
+  service_clearance:
+    front: 600.0
+    rear: 400.0
+    left: 0.0
+    right: 0.0
+    top: 50.0
+    bottom: 50.0
+    install_clearance: null
+
+provenance:
+  authored_by: skill:datasheet_extractor
+  authored_date: 2026-04-28
+  reviewed_by: TBD_pending_human_review
+  reviewed_date: null
+  confidence_flags:
+    - field: spec.mechanical.dimensions_mm
+      flag: assumed_default
+      note: Standard 4U horizontal panel mount, ~14.5" × 8.5" × 7" (369 × 215 × 178 mm). Verify with full SEL-351-7 instruction manual.
+    - field: spec.mechanical.weight_kg
+      flag: assumed_default
+      note: ~5 kg typical for SEL relays of this class.
+    - field: control.command_latency_ms
+      flag: assumed_default
+      note: 4 ms response time for trip output is typical for SEL protective relays. SEL publishes detailed timing in Application Guide AG2018-09.
+    - field: control.step_response_ms
+      flag: assumed_default
+      note: 16 ms = 1 cycle at 60 Hz (standard SEL trip element response).
+    - field: spec.thermal.heat_load_kw
+      flag: assumed_default
+      note: ~40 W typical for SEL-351 family.
+    - field: unit_cost_usd
+      flag: missing
+    - field: lead_time_weeks
+      flag: low_confidence_extraction
+      note: SEL typical 8 weeks; volatile based on demand.
+
+notes: |
+  SEL-351-7 is the v1 reference protective relay for the ARCNODE Grid
+  Container. SEL is the US protective relay incumbent, paired routinely
+  with ABB SafeGear (GRD-SWG-001) in industrial and utility deployments.
+
+  Device numbers (ANSI/IEEE C37.2):
+  - 50/51: Phase, ground, negative-sequence overcurrent (instantaneous + time)
+  - 67: Directional overcurrent
+  - 27/59: Under/overvoltage
+  - 81U/81O: Under/overfrequency
+  - 25: Synchronism check
+  - 79: Reclosing
+  - 32: Directional power
+  - 21: Distance (line backup)
+
+  Anti-islanding for grid-tied deployments handled by 81U/81O + 27/59
+  setpoints per IEEE 1547. For grid-forming Megapack deployments, the
+  relay coordinates with Megapack's grid-forming inverter for intentional
+  islanding ride-through.
+
+  Communications stack:
+  - DNP3 LAN/WAN + serial (Level 2, 6 simultaneous sessions)
+  - Modbus TCP + RTU (3 simultaneous sessions)
+  - IEC 61850 MMS + GOOSE (optional, recommended for utility interconnect)
+  - Mirrored Bits for relay-to-relay communication
+  - IEEE C37.118 synchrophasors
+
+  EMS integration: ARCNODE EMS supervises via DNP3 (primary) or Modbus
+  TCP (secondary). Relay operates autonomously on its protection settings
+  and reports state/events to EMS. EMS does not change protection
+  settings at runtime — settings are commissioning-time and locked.
+
+  Time sync: IRIG-B input from SEL-2407 satellite-synchronized clock or
+  PTP via Ethernet for synchrophasor accuracy. Required for sequence-of-
+  events recording with sub-millisecond accuracy.
+
+  Cybersecurity: Role-based access, secure firmware updates, port
+  hardening per SEL Cybersecurity Application Guide. NERC CIP-eligible.
+
+  ITAR-domestic: SEL is US-fab in Pullman WA, employee-owned. No foreign
+  manufacturing. fab_tier dod_eligible without per-unit verification.
+
+  Alternates: GE Multilin F35 (industrial common), ABB REF615 (ABB-aligned
+  if SafeGear deployment integrates ABB controls). SEL is the v1 default;
+  alternates as v2 if customer has existing relay vendor relationships.
+
+  Settings configuration: SEL settings groups (6 available) allow
+  deployment-specific configuration without hardware changes — deployment
+  EDP includes the settings file (.txt format) generated by acSELerator
+  QuickSet, signed and version-controlled.

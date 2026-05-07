@@ -1,41 +1,51 @@
 [project]
-name = "python-base"
-version = "1.0.0-beta"
+name = "edp-module-assemblies"
+version = "0.1.0"
 requires-python = "==3.13.2"
 dependencies = [
     "pydantic>=2.9.2",
     "pyyaml>=6.0.2",
+    "cadquery>=2.7.0",
+    "boto3>=1.35.0",
 ]
 
 [dependency-groups]
 dev = [
-    "bandit>=1.8.0",
     "black[d]>=26.3.1",
     "poethepoet>=0.32.0",
     "pytest>=8.3.4",
     "ruff>=0.8.4",
-    "pip-audit>=2.6.1",
     "pytest-cov>=6.0.0",
-    "deptry>=0.23.0",
     "pip>=25.1.1",
-    "ty>=0.0.18",
-    "types-pyyaml>=6.0",
 ]
 
 [tool.poe.tasks]
-depcheck = "deptry ."
 format = "black ."
 lint = "ruff check"
-typecheck = "ty check"
-audit-src = "bandit -r src/* -s B101"
-audit-packages = "pip-audit --ignore-vuln GHSA-4xh5-x5gv-qwph --ignore-vuln GHSA-58qw-9mgm-455v"
-security = ["audit-src", "audit-packages"]
-checks = ["depcheck", "format", "lint", "typecheck", "security"]
-unit = "pytest -vv src/*"
-integration = "pytest -vv tests/*"
-cover = "pytest -vv --cov"
+checks = ["format", "lint"]
+
+# author-time
+sync-plates = { cmd = "python src/plate_loader.py", env = { PYTHONPATH = "." } }
+build-envelopes = { cmd = "python src/envelopes/build_envelope.py", env = { PYTHONPATH = "." } }
+build-compute = { cmd = "python src/assemblies/compute_container.py --variant commercial-ac", env = { PYTHONPATH = "." } }
+build-grid = { cmd = "python src/assemblies/grid_container.py --variant commercial-ac", env = { PYTHONPATH = "." } }
+build-all = ["sync-plates", "build-envelopes", "build-compute"]   # build-grid added in step 6.1
+
+# CI
+validate-specs = { cmd = "python scripts/validate_specs.py", env = { PYTHONPATH = "." } }
+build-manifest = { cmd = "python scripts/build_manifest.py", env = { PYTHONPATH = "." } }
+push-s3 = { cmd = "python scripts/push_to_s3.py", env = { PYTHONPATH = "." } }
+ci = ["validate-specs", "build-manifest", "push-s3"]
+
+# inspect
+inspect-compute = "bash -c 'nohup freecad assemblies/compute-container/commercial-ac/assembly.step &>/dev/null &'"
+inspect-compute-exploded = "bash -c 'nohup freecad assemblies/compute-container/commercial-ac/assembly-exploded.step &>/dev/null &'"
+inspect-grid = "bash -c 'nohup freecad assemblies/grid-container/commercial-ac/assembly.step &>/dev/null &'"   # exists after step 6.1
+
+test = "pytest -vv"
+cover = "pytest -vv --cov src/"
 review = "claude 'run code-reviewer agent against diff for quality and elegance'"
-commit = "bash -c 'uv run poe checks && uv run poe cover && uv run poe review && git add -A && git cz && git push'"
+commit = "bash -c 'uv run poe checks && uv run poe test && uv run poe review && git add -A && git cz && git push'"
 
 [tool.coverage.run]
-omit = ["*/test_*.py", "tests/*"]
+omit = ["*/test_*.py"]

@@ -6,8 +6,11 @@ checks:
   stage: check
   script:
     - uv run poe checks
-    - uv run pytest --junitxml=junit.xml
-    - uv run poe cover
+    - uv run poe build-envelopes
+    # TODO: build-compute + build-manifest need plate STEP from sibling
+    # edp-interface-plates repo; add cross-repo artifact pull when CI
+    # plumbing for that lands. For now skip plate-dependent tests in CI.
+    - uv run pytest --junitxml=junit.xml --deselect src/assemblies/test_compute_container.py --cov src/
     - uv run coverage xml
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
@@ -25,6 +28,6 @@ mirror:
     GIT_DEPTH: 0
   script:
     - git checkout -B main
-    - git push --mirror git@github.com:engineering-with-ai/python-base.git
+    - git push --mirror git@github.com:arcnode-io/edp-module-assemblies.git
   only:
     - main

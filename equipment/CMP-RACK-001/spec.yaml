@@ -1,0 +1,162 @@
+equipment_id: CMP-RACK-001
+schema_version: "0"
+category: rack
+vendor: Schneider Electric (APC brand)
+model_number: NetShelter SX Advanced AR9658
+description: 52U 19" 750mm wide × 1200mm deep server rack with rPDU support, perforated front/rear doors, suitable for HGX rack-mount AI servers
+datasheet_url: https://www.se.com/us/en/product/AR9658/netshelter-sx-advanced-server-rack-52u-3000lbs-750mm-x-1200mm/
+datasheet_hash: TBD_compute_at_pipeline_run
+step_source: null
+fab_tier: dod_eligible
+restricted_entities: null
+lead_time_weeks: null
+unit_cost_usd: null
+
+spec:
+  electrical:
+    voltage_v: null                   # rack itself is passive; rPDUs are separate
+    voltage_range_v: null
+    current_a: null
+    phase: null
+    frequency_hz: null
+    power_kw: null
+    power_factor_range: null
+    efficiency_pct: null
+    breaker_size_a: null
+    aic_rating_ka: null
+    thd_pct: null
+    fault_current_contribution_pu: null
+
+  thermal: null                        # passive rack; thermal handled by node + CDU + container
+
+  mechanical:
+    weight_kg: 161.0                   # empty rack weight; max payload 1361 kg (3000 lb)
+    dimensions_mm: [1200, 750, 2477]  # L × W × H, 52U
+    container_type: 10ft_ISO_high_cube
+    mounting: floor
+    mounting_notes: |
+      Free-standing on casters (factory-installed) or leveling feet.
+      Adjustable mounting rails at front and rear for 19" EIA equipment.
+      Perforated front and rear doors (74% open area) for air-cooled
+      heat rejection. Side panels removable for ganging adjacent racks.
+      Cable management via vertical rails on either side and roof brush
+      strip cable entry.
+    rack_units: 52                     # capacity for installed equipment
+    ip_rating: null
+    lift_points: 4                     # standard for 52U racks; lifting eyes at corners
+    ambient_temp_range_c: [10, 35]
+    max_elevation_m: 3000
+    noise_dba_at_1m: null
+
+  ports:
+    - port_id: CABLE_ENTRY_TOP
+      type: signal_analog              # cable pass-through (not electrical port per se)
+      role: bidirectional
+      connector_spec: brush strip cable entry
+      mating_part: null
+      qty: 1
+    - port_id: CABLE_ENTRY_BOTTOM
+      type: signal_analog
+      role: bidirectional
+      connector_spec: cable entry / floor cutout
+      mating_part: null
+      qty: 1
+    - port_id: GND
+      type: dc_power
+      role: input                      # earth bonding stud
+      connector_spec: M8 ground stud
+      mating_part: null
+      qty: 1
+
+  control: null                        # passive rack; no integrated control
+
+geometry:
+  source: synthesized
+  fidelity: bounding_box
+  equipment_envelope_path: geometry/envelopes/CMP-RACK-001-equipment.step
+  service_envelope_path: geometry/envelopes/CMP-RACK-001-service.step
+  bounding_box:
+    L_mm: 1200.0
+    W_mm: 750.0
+    H_mm: 2477.0
+  service_clearance:
+    front: 1067.0                      # 42" (NEC 110.26 working clearance)
+    rear: 1067.0                       # 42" rear access for cable, plumbing, service
+    left: 25.0                         # adjacent rack ganging or end panel
+    right: 25.0
+    top: 600.0                         # cable tray, busway, manifold supply clearance
+    bottom: 0.0                        # floor mount
+    install_clearance:
+      direction: top
+      value_mm: 2700.0                 # 2477 (rack) + 200 (lift eye margin) ≈ 2700; verify door height
+
+provenance:
+  authored_by: skill:datasheet_extractor
+  authored_date: 2026-04-28
+  reviewed_by: TBD_pending_human_review
+  reviewed_date: null
+  confidence_flags:
+    - field: spec.mechanical.weight_kg
+      flag: assumed_default
+      note: 161 kg empty weight typical for 52U NetShelter SX. Verify with Schneider product page.
+    - field: spec.mechanical.dimensions_mm
+      flag: low_confidence_extraction
+      note: 750 × 1200 × 2477 mm derived from product naming and standard NetShelter SX Advanced family. Verify exact dims from Schneider catalog.
+    - field: spec.mechanical.lift_points
+      flag: assumed_default
+    - field: spec.mechanical.noise_dba_at_1m
+      flag: missing
+    - field: unit_cost_usd
+      flag: missing
+    - field: lead_time_weeks
+      flag: missing
+
+notes: |
+  Schneider NetShelter SX Advanced (AR9658 family) is the v1 reference
+  rack for the ARCNODE Compute Container per ADR-002. 52U × 750mm wide ×
+  1200mm deep, 19" EIA mounting rails, ANSI/EIA-310-E compliant.
+
+  Form factor compatibility:
+  - Compatible with: 19" 4U HGX servers (Supermicro CMP-NODE-001, Dell
+    XE9680 6U, HPE XD685 5U, Lenovo SR780a V3 5U)
+  - NOT compatible with: NVIDIA MGX 600mm OCP ORV3 1U sleds (different
+    rack standard; need 600mm-wide MGX rack reference design instead)
+  Per ADR-002, MGX is deferred to v2 — NetShelter SX is correctly chosen
+  for HGX-only v1.
+
+  Capacity per ARCNODE container:
+  - Up to 7 HGX 4U nodes (CMP-NODE-001) at ~10.5 kW each = ~74 kW + ~7 kW overhead = ~80 kW
+  - Plus 1-2 ToR switches at ~2 kW each
+  - Plus rPDU for power distribution
+  - Compute Container total: ~80 kW well within rack thermal envelope and
+    power budget
+
+  Power distribution: NetShelter SX accommodates two rPDUs per rack
+  (front + rear or both at rear). For ARCNODE: NetShelter Rack PDU
+  Advanced 60A or 63A, 1+1 redundant, monitored. Captured as a separate
+  equipment_spec (CMP-PDU-001) — TBD authoring.
+
+  Ganging: side panels removable for adjacent rack ganging if multi-rack
+  Compute Container configurations are needed. v1 default is single-rack
+  per Compute Container.
+
+  Cable management: vertical cable managers integrate at rack sides;
+  brush strip cable entry at top supports the dense 8× 400G NIC routing
+  of HGX nodes. Roof-mounted busway (separate equipment_spec) supports
+  high-current power distribution.
+
+  Liquid cooling integration: NetShelter SX is rack-vendor-neutral on
+  liquid cooling. CDU manifold (rear-of-rack, vertical or horizontal)
+  is sourced separately and mounted to rack rails. ARCNODE pairs with
+  Motivair or vendor-supplied manifold equipment.
+
+  Schneider AI Reference Design Library (Designs 95, 99, 102) explicitly
+  diagram NetShelter SX with liquid-cooled HGX deployments — useful as
+  reference architecture validation for the ARCNODE Compute Container.
+
+  ITAR-domestic: Schneider/APC has US fabrication for NetShelter SX
+  family. dod_eligible default.
+
+  Alternates (kept as v2 candidates):
+  - Vertiv VRC-S / Smart Cabinet (similar 19" 750mm class)
+  - nVent Hoffman / Eldon (rack-vendor-neutral chassis option)

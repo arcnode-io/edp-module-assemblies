@@ -1,0 +1,182 @@
+equipment_id: GRD-SWG-001
+schema_version: "0"
+category: switchgear
+vendor: ABB
+model_number: SafeGear 15kV / 1200A / 50kA (single section, indoor)
+description: Medium-voltage arc-resistant metal-clad switchgear, 15kV class, vacuum interrupter, indoor NEMA 1
+datasheet_url: https://library.e.abb.com/public/c2d10a62bbf790ec832572ab00541d13/Safegear_sell_sheet.pdf
+datasheet_hash: TBD_compute_at_pipeline_run
+step_source: null
+fab_tier: dod_eligible
+restricted_entities: null
+lead_time_weeks: null
+unit_cost_usd: null
+
+spec:
+  electrical:
+    voltage_v: 15000.0                # 15 kV class (covers 4.16, 8.25, 13.8 kV interconnect)
+    voltage_range_v: [4160.0, 15000.0]
+    current_a: 1200.0                 # nominal continuous; 2000A and 3000A also available
+    phase: 3ph
+    frequency_hz: 60.0
+    power_kw: null                    # switchgear does not consume nameplate power
+    power_factor_range: null
+    efficiency_pct: null
+    breaker_size_a: 1200.0            # frame size, vacuum interrupter
+    aic_rating_ka: 50.0               # arc-resistant up to 50 kA per IEEE C37.20.7
+    thd_pct: null
+    fault_current_contribution_pu: null
+
+  thermal: null                        # passive equipment; minimal thermal load
+
+  mechanical:
+    weight_kg: null                    # not in public datasheet excerpts
+    dimensions_mm: [2159, 914, 2413]  # L × W × H, single section: 85" × 36" × 95" indoor frame
+    container_type: 10ft_ISO_high_cube
+    mounting: floor
+    mounting_notes: |
+      Indoor free-standing, NEMA 1 (or NEMA 1A gasket, NEMA 3R outdoor).
+      Single-section dimensions; multi-section lineup is configurable.
+      Bus bars run between sections.
+    rack_units: null
+    ip_rating: null                    # NEMA-rated, not IP-rated
+    lift_points: null
+    ambient_temp_range_c: null
+    max_elevation_m: null
+    noise_dba_at_1m: null
+
+  ports:
+    - port_id: HV_BUS
+      type: ac_power
+      role: bidirectional              # 15 kV main bus connection
+      connector_spec: bolted bus bar (silver or tin plated)
+      mating_part: null
+      qty: 1
+    - port_id: LV_FEEDER
+      type: ac_power
+      role: output                     # feeder to downstream transformer / distribution
+      connector_spec: cable lugs in cable compartment
+      mating_part: null
+      qty: 1                           # configuration-dependent; deployment-specific
+    - port_id: CTRL_DC
+      type: control_power
+      role: input                      # 125 VDC or 24 VDC for breaker close/trip circuits
+      connector_spec: terminal block, low-voltage compartment
+      mating_part: null
+      qty: 1
+    - port_id: COMMS
+      type: ethernet
+      role: bidirectional              # protective relay (SEL or Multilin) Modbus / DNP3
+      connector_spec: RJ45 (relay-dependent)
+      mating_part: null
+      qty: 1
+
+  control:
+    protocol: modbus_tcp                # via protective relay (SEL-351, Multilin F35, etc.)
+    register_map_url: null              # relay-vendor-specific
+    command_latency_ms: null
+    step_response_ms: null
+    control_modes:
+      - local
+      - remote
+      - manual_close
+      - manual_trip
+      - auto_protective_trip
+    black_start_capable: null           # not applicable (passive switching device)
+
+geometry:
+  source: synthesized
+  fidelity: bounding_box
+  equipment_envelope_path: geometry/envelopes/GRD-SWG-001-equipment.step
+  service_envelope_path: geometry/envelopes/GRD-SWG-001-service.step
+  bounding_box:
+    L_mm: 2159.0
+    W_mm: 914.0
+    H_mm: 2413.0
+  service_clearance:
+    front: 1067.0                      # 36" minimum personnel aisle per IEEE C37.20.7
+    rear: 1000.0                       # rear cable access
+    left: 25.0                         # end-of-lineup dress panel
+    right: 25.0                        # adjacent section connection
+    top: 600.0                         # arc-flash vent clearance above unit
+    bottom: 0.0                        # floor mount
+    install_clearance:
+      direction: top
+      value_mm: 1500.0                 # crane lift / breaker withdrawal clearance
+
+provenance:
+  authored_by: skill:datasheet_extractor
+  authored_date: 2026-04-28
+  reviewed_by: TBD_pending_human_review
+  reviewed_date: null
+  confidence_flags:
+    - field: spec.mechanical.weight_kg
+      flag: missing
+      note: Single-section weight not in public datasheet excerpts. Typical 15kV metal-clad section is 1500–2500 kg. Verify at procurement.
+    - field: spec.mechanical.lift_points
+      flag: missing
+    - field: spec.mechanical.ambient_temp_range_c
+      flag: missing
+      note: Ratings per ANSI C37.20 typically -30°C to +40°C indoor. Confirm with full ABB ANSI catalog.
+    - field: spec.mechanical.max_elevation_m
+      flag: missing
+    - field: spec.electrical.fault_current_contribution_pu
+      flag: missing
+      note: Not applicable in the usual sense for switchgear; the AIC rating (50 kA) is the relevant value. Field left null.
+    - field: spec.ports.LV_FEEDER.qty
+      flag: ambiguous
+      note: Feeder breaker count is deployment-specific. Single-section can hold 1-2 breakers; multi-section lineups scale. Sizing engine sets qty per deployment.
+    - field: spec.ports.CTRL_DC.connector_spec
+      flag: assumed_default
+      note: Terminal block in low-voltage compartment per ABB convention. Specific terminal type not stated.
+    - field: control.register_map_url
+      flag: missing
+      note: Switchgear protocol surface is via the protective relay (typically SEL-351, GE Multilin F35, ABB REF-class). Register map is relay-vendor-specific, not switchgear-vendor.
+    - field: control.command_latency_ms
+      flag: missing
+    - field: control.step_response_ms
+      flag: missing
+    - field: unit_cost_usd
+      flag: missing
+    - field: lead_time_weeks
+      flag: missing
+
+notes: |
+  ABB SafeGear 15kV is the v1 reference switchgear for the ARCNODE Grid
+  Module. Specified at 1200A continuous / 50 kA AIC as a typical mid-band
+  configuration. Actual deployment configurations vary in:
+
+  - Voltage class (4.76 / 8.25 / 15 kV — pick the lowest that meets utility
+    interconnect requirement; 15 kV covers most cases)
+  - Continuous current (1200A / 2000A / 3000A — 1200A is sufficient for
+    most ARCNODE deployments at 1 MVA scale)
+  - Number of sections (single main, or main + tie + N feeders for larger
+    deployments)
+  - NEMA rating (NEMA 1 indoor standard; NEMA 3R outdoor walk-in for sites
+    without indoor switchgear room)
+
+  Sizing engine selects configuration per deployment based on customer
+  utility interconnect specifications and ARCNODE deployment scale.
+
+  Arc-resistant rating (per IEEE C37.20.7) is a meaningful safety feature
+  for the off-grid resilience use case — internal arc faults vent
+  controlled to top of unit, protecting personnel and adjacent equipment.
+  Standard SafeGear feature, not an option.
+
+  Protective relay selection: SafeGear ships with a vendor-agnostic
+  protective relay socket. Common choices: SEL-351 (most common in US
+  utility deployments), GE Multilin F35 (common in industrial), ABB REF
+  series (when ABB-aligned). Relay choice drives the EMS comms protocol
+  surface — most modern relays speak Modbus TCP and DNP3; some also
+  IEC 61850. Capture relay selection as a deployment decision in BOM
+  generator dependency rules.
+
+  ITAR-domestic: ABB has US fabrication for ANSI-rated SafeGear
+  (Pinetops NC and other US plants). Verify per-unit fab origin at
+  procurement for DOD-eligible deployments. fab_tier set to dod_eligible
+  with no restricted_entities flag, but per-unit verification is
+  required for sovereign work.
+
+  Alternates: Eaton Magnum, Siemens 8DJ, GE-Hitachi MV-class are
+  functionally equivalent at 15 kV class. Add as v2 alternates if a
+  deployment forces them; not seeded in v1.

@@ -1,0 +1,13 @@
+# Curated profile→asset mapping consumed by build_manifest.py.
+# Per ADR-006: this file (in this repo) is the source of truth for which
+# variants/plates each deployment profile requires.
+#
+# Profiles in this file may reference assemblies/plates that don't exist
+# yet; build_manifest.py validates and emits warnings for missing refs.
+# v1 ships only `commercial_ac` end-to-end (per Q9-C step 5 success bar).
+
+profiles:
+  commercial_ac:
+    compute_container: commercial-ac
+    grid_container: commercial-ac   # built in step 6.1
+    interface_plates: [CG]          # BG-AC, CD, EX-G, EX-C land in step 6.2/6.3

@@ -1,0 +1,174 @@
+equipment_id: CMP-SWITCH-002
+schema_version: "0"
+category: network_switch
+vendor: NVIDIA (Mellanox)
+model_number: Quantum-2 QM9700 (MQM9700-NS2F / MQM9700-NS2R)
+description: 64-port NDR 400Gb/s InfiniBand switch, 1U 19" rack-mount, training-cluster fabric
+datasheet_url: https://solutions.asbis.com/api/uploads/files/40/infiniband-quantum-2-qm9700-series-datasheet-us-nvidia-1751454-r8-web-1.pdf
+datasheet_hash: TBD_compute_at_pipeline_run
+step_source: null
+fab_tier: federal_civilian
+restricted_entities: null
+lead_time_weeks: null
+unit_cost_usd: null
+
+spec:
+  electrical:
+    voltage_v: 240.0
+    voltage_range_v: [100.0, 240.0]
+    current_a: null
+    phase: 1ph
+    frequency_hz: 60.0
+    power_kw: 2.0                     # ~2 kW typical at rated load; dual PSU redundant
+    power_factor_range: null
+    efficiency_pct: null
+    breaker_size_a: null
+    aic_rating_ka: null
+    thd_pct: null
+    fault_current_contribution_pu: null
+
+  thermal:
+    heat_load_kw: 2.0                 # air-cooled; all heat exits as hot exhaust air
+    heat_rejection_kw: null
+    coolant_compatibility: null
+    flow_rate_lpm: null
+    supply_temp_c: null
+    return_temp_c: null
+    pump_head_kpa: null
+    internal_pressure_drop_kpa: null
+    port_size_dn: null
+
+  mechanical:
+    weight_kg: null
+    dimensions_mm: [560, 482, 44]     # 1U × 19" × ~560mm depth
+    container_type: 10ft_ISO_high_cube
+    mounting: rack_19in
+    mounting_notes: |
+      1U 19" rack-mount. P2C (power-to-connector, front intake) or C2P
+      (connector-to-power, rear intake) airflow variants available.
+      Select airflow direction to match Compute Container rack air management
+      (hot-aisle/cold-aisle containment). Includes rail kit.
+    rack_units: 1
+    ip_rating: null
+    lift_points: null
+    ambient_temp_range_c: null
+    max_elevation_m: null
+    noise_dba_at_1m: null
+
+  ports:
+    - port_id: IB_DATA
+      type: infiniband               # NDR 400G InfiniBand
+      role: bidirectional
+      connector_spec: OSFP (32 physical ports × 2 = 64 logical 400G ports)
+      mating_part: null
+      qty: 64
+    - port_id: MGMT
+      type: ethernet
+      role: bidirectional
+      connector_spec: RJ45 (1 GbE out-of-band management)
+      mating_part: null
+      qty: 1
+    - port_id: PWR
+      type: ac_power
+      role: input
+      connector_spec: C13 or C14 (2× redundant PSUs)
+      mating_part: null
+      qty: 2
+
+  control:
+    protocol: snmp                    # primary; gNMI streaming also supported
+    register_map_url: https://docs.nvidia.com/networking/display/qm97x0pub
+    command_latency_ms: null
+    step_response_ms: null
+    control_modes:
+      - autonomous_local              # MLNX-OS self-manages fabric
+      - subnet_manager                # on-board SM for up to 2,000 nodes
+      - external_orchestration        # NVIDIA UFM for large-scale fabric management
+    black_start_capable: null
+
+geometry:
+  source: synthesized
+  fidelity: bounding_box
+  equipment_envelope_path: geometry/envelopes/CMP-SWITCH-002-equipment.step
+  service_envelope_path: geometry/envelopes/CMP-SWITCH-002-service.step
+  bounding_box:
+    L_mm: 560.0
+    W_mm: 482.0
+    H_mm: 44.0
+  service_clearance:
+    front: 1000.0
+    rear: 600.0
+    left: 0.0
+    right: 0.0
+    top: 0.0
+    bottom: 0.0
+    install_clearance: null
+
+provenance:
+  authored_by: skill:datasheet_extractor
+  authored_date: 2026-04-28
+  reviewed_by: TBD_pending_human_review
+  reviewed_date: null
+  confidence_flags:
+    - field: spec.electrical.power_kw
+      flag: assumed_default
+      note: ~2 kW typical per Compute Chrome session and NVIDIA documentation. Exact max not surfaced in public datasheet excerpts.
+    - field: spec.mechanical.weight_kg
+      flag: missing
+    - field: spec.mechanical.dimensions_mm
+      flag: assumed_default
+      note: 1U × 19" confirmed; ~560mm depth estimated. Verify with full datasheet.
+    - field: spec.mechanical.ambient_temp_range_c
+      flag: missing
+    - field: spec.mechanical.noise_dba_at_1m
+      flag: missing
+      note: Air-cooled 2 kW switch in 1U — fans likely audible (~60-70 dBA at 1m). Not critical but capture for container acoustic design.
+    - field: spec.ports.IB_DATA.connector_spec
+      flag: ambiguous
+      note: |
+        Port type field uses "ethernet" as closest schema match; InfiniBand
+        NDR is not Ethernet. Schema v0.7 may need an infiniband port type.
+        Port count: 32 OSFP physical ports, each presents as 2× 400G
+        logical ports = 64 ports total.
+    - field: unit_cost_usd
+      flag: missing
+    - field: lead_time_weeks
+      flag: missing
+
+notes: |
+  NVIDIA Quantum-2 QM9700 is the v1 InfiniBand fabric switch for ARCNODE
+  Compute Containers targeting AI training workloads. Paired with
+  CMP-SWITCH-001 (Spectrum-X SN5600 for inference/Ethernet) to give
+  ARCNODE operators a workload-appropriate fabric choice.
+
+  Use case split:
+  - CMP-SWITCH-001 (Spectrum-X SN5600): 800GbE Ethernet with RoCE
+    acceleration. Best for inference-focused deployments, existing
+    Ethernet infrastructure, or when InfiniBand is not required.
+  - CMP-SWITCH-002 (QM9700): NDR 400G InfiniBand. Best for training
+    workloads requiring maximum GPU-to-GPU bandwidth, GPUDirect RDMA,
+    and SHARP in-network collective operations.
+
+  For ARCNODE v1 single-rack HGX deployments (up to 7 nodes, 56 GPUs),
+  a single QM9700 provides 64 NDR 400G ports — sufficient for 48 GPU
+  NICs at 1:1 NIC:port ratio with 16 uplink ports for spine connectivity.
+  No additional spine switch required in the single-container deployment.
+
+  SHARPv3: QM9700 supports NVIDIA Scalable Hierarchical Aggregation and
+  Reduction Protocol v3, offloading collective MPI operations (AllReduce,
+  Broadcast) to the switch fabric. Meaningful performance gain for
+  training workloads on Transformer models with large gradient tensors.
+
+  Fabric topology: QM9700 supports Fat Tree, SlimFly, DragonFly+,
+  multi-dimensional Torus. For ARCNODE v1 single-switch deployment,
+  topology is trivial (non-blocking ToR). Multi-container cluster
+  deployments can use QM9700 as leaf with QM9790 (same ASIC, more
+  ports) as spine. Deferred to v2.
+
+  Backward compatibility: QM9700 NDR connects to QDR/FDR/HDR endpoints.
+  Relevant for defense/sovereign customers with legacy IB-attached storage.
+
+  Fab tier note: NVIDIA Quantum-2 ASICs are TSMC-fab; switch systems
+  assembled in Israel (ex-Mellanox facility). Not US-fab; not DOD-eligible
+  for procurement. Set to federal_civilian. For DOD-eligible InfiniBand
+  requirements, no current clean domestic alternative — flag as risk.

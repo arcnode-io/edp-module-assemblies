@@ -1,0 +1,15 @@
+parts:
+- equipment_id: CMP-NODE-001
+  qty: 7
+- equipment_id: CMP-RACK-001
+  qty: 1
+- equipment_id: CMP-CDU-001
+  qty: 1
+- equipment_id: CMP-SWITCH-001
+  qty: 1
+- equipment_id: CMP-PDU-001
+  qty: 4
+plates:
+- id: CG
+  version: v1
+  qty: 1

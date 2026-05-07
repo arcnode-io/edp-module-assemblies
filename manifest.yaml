@@ -1,0 +1,78 @@
+version: 0.1.0
+specs:
+  CMP-CDU-001: s3://arcnode-artifacts/equipment/CMP-CDU-001/spec.yaml
+  CMP-NODE-001: s3://arcnode-artifacts/equipment/CMP-NODE-001/spec.yaml
+  CMP-PDU-001: s3://arcnode-artifacts/equipment/CMP-PDU-001/spec.yaml
+  CMP-RACK-001: s3://arcnode-artifacts/equipment/CMP-RACK-001/spec.yaml
+  CMP-SWITCH-001: s3://arcnode-artifacts/equipment/CMP-SWITCH-001/spec.yaml
+  CMP-SWITCH-002: s3://arcnode-artifacts/equipment/CMP-SWITCH-002/spec.yaml
+  EXT-BESS-001: s3://arcnode-artifacts/equipment/EXT-BESS-001/spec.yaml
+  EXT-BESS-002: s3://arcnode-artifacts/equipment/EXT-BESS-002/spec.yaml
+  EXT-DC-001: s3://arcnode-artifacts/equipment/EXT-DC-001/spec.yaml
+  EXT-DC-002: s3://arcnode-artifacts/equipment/EXT-DC-002/spec.yaml
+  GRD-MTR-001: s3://arcnode-artifacts/equipment/GRD-MTR-001/spec.yaml
+  GRD-PCS-001: s3://arcnode-artifacts/equipment/GRD-PCS-001/spec.yaml
+  GRD-RLY-001: s3://arcnode-artifacts/equipment/GRD-RLY-001/spec.yaml
+  GRD-SWG-001: s3://arcnode-artifacts/equipment/GRD-SWG-001/spec.yaml
+  GRD-XFM-001: s3://arcnode-artifacts/equipment/GRD-XFM-001/spec.yaml
+geometry:
+  CMP-CDU-001:
+    envelope: s3://arcnode-artifacts/equipment/CMP-CDU-001/envelope.step
+    vendor_step: null
+  CMP-NODE-001:
+    envelope: s3://arcnode-artifacts/equipment/CMP-NODE-001/envelope.step
+    vendor_step: null
+  CMP-PDU-001:
+    envelope: s3://arcnode-artifacts/equipment/CMP-PDU-001/envelope.step
+    vendor_step: null
+  CMP-RACK-001:
+    envelope: s3://arcnode-artifacts/equipment/CMP-RACK-001/envelope.step
+    vendor_step: null
+  CMP-SWITCH-001:
+    envelope: s3://arcnode-artifacts/equipment/CMP-SWITCH-001/envelope.step
+    vendor_step: null
+  CMP-SWITCH-002:
+    envelope: s3://arcnode-artifacts/equipment/CMP-SWITCH-002/envelope.step
+    vendor_step: null
+  EXT-BESS-001:
+    envelope: s3://arcnode-artifacts/equipment/EXT-BESS-001/envelope.step
+    vendor_step: null
+  EXT-BESS-002:
+    envelope: s3://arcnode-artifacts/equipment/EXT-BESS-002/envelope.step
+    vendor_step: null
+  GRD-MTR-001:
+    envelope: s3://arcnode-artifacts/equipment/GRD-MTR-001/envelope.step
+    vendor_step: null
+  GRD-PCS-001:
+    envelope: s3://arcnode-artifacts/equipment/GRD-PCS-001/envelope.step
+    vendor_step: null
+  GRD-RLY-001:
+    envelope: s3://arcnode-artifacts/equipment/GRD-RLY-001/envelope.step
+    vendor_step: null
+  GRD-SWG-001:
+    envelope: s3://arcnode-artifacts/equipment/GRD-SWG-001/envelope.step
+    vendor_step: null
+  GRD-XFM-001:
+    envelope: s3://arcnode-artifacts/equipment/GRD-XFM-001/envelope.step
+    vendor_step: null
+assemblies:
+  compute_container:
+    commercial-ac:
+      bom: s3://arcnode-artifacts/assemblies/compute-container/commercial-ac/bom.yaml
+      step: s3://arcnode-artifacts/assemblies/compute-container/commercial-ac/assembly.step
+      glb: s3://arcnode-artifacts/assemblies/compute-container/commercial-ac/assembly.glb
+      glb_exploded: s3://arcnode-artifacts/assemblies/compute-container/commercial-ac/assembly-exploded.glb
+      step_exploded: s3://arcnode-artifacts/assemblies/compute-container/commercial-ac/assembly-exploded.step
+      topology_yaml: null
+plates:
+  CG:
+    spec: s3://arcnode-artifacts/plates/CG/v1/spec.yaml
+    step: s3://arcnode-artifacts/plates/CG/v1/plate.step
+    dxf: s3://arcnode-artifacts/plates/CG/v1/plate.dxf
+    drawing_meta: s3://arcnode-artifacts/plates/CG/v1/drawing_meta.json
+profiles:
+  commercial_ac:
+    compute_container: commercial-ac
+    grid_container: commercial-ac
+    interface_plates:
+    - CG

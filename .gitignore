@@ -16,3 +16,9 @@ wheels/
 .coverage
 **/.coverage
 secrets.env
+
+# Local plate STEP cache (symlinks to sibling edp-interface-plates repo)
+.cache/
+
+# pytest
+.pytest_cache/

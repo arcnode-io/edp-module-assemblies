@@ -1,0 +1,282 @@
+equipment_id: CMP-NODE-001
+schema_version: "0"
+category: gpu_node
+vendor: Supermicro (Super Micro Computer Inc.)
+model_number: SYS-421GE-NBRT-LCC
+description: 4U liquid-cooled GPU server, dual Intel Xeon, 8× NVIDIA HGX B200 SXM GPUs (180GB HBM3e), 1.4TB GPU memory total
+datasheet_url: https://www.supermicro.com/en/products/system/datasheet/sys-421ge-nbrt-lcc
+datasheet_hash: TBD_compute_at_pipeline_run
+step_source: null
+fab_tier: dod_eligible
+restricted_entities: null
+lead_time_weeks: 4
+unit_cost_usd: null
+
+spec:
+  electrical:
+    voltage_v: 240.0                  # phase-to-neutral on 415Y/240V wye
+    voltage_range_v: [200.0, 240.0]
+    current_a: 44.0                   # 10.5 kW / 240V
+    phase: 1ph
+    frequency_hz: 60.0
+    power_kw: 10.5
+    power_factor_range: [0.99, 1.0]
+    efficiency_pct: 96.0
+    breaker_size_a: null
+    aic_rating_ka: null
+    thd_pct: null
+    fault_current_contribution_pu: null
+
+  thermal:
+    heat_load_kw: 10.0
+    heat_rejection_kw: null
+    coolant_compatibility:
+      - dei_water
+      - pgw_25
+    flow_rate_lpm: null
+    supply_temp_c: null
+    return_temp_c: null
+    pump_head_kpa: null
+    internal_pressure_drop_kpa: null
+    port_size_dn: null
+
+  mechanical:
+    weight_kg: null
+    dimensions_mm: [900, 482, 178]
+    container_type: 10ft_ISO_high_cube
+    mounting: rack_19in
+    mounting_notes: |
+      4U 19" rack-mount. Supermicro requires "complete rack" purchase
+      configuration — node procured as part of integrated rack-scale
+      solution including DLC manifolds and CDU. ARCNODE procurement
+      path: order as 1-node SuperCluster building block with onsite
+      Supermicro liquid-cooling integration service. Cannot be procured
+      as standalone bare chassis.
+    rack_units: 4
+    ip_rating: null
+    lift_points: null
+    ambient_temp_range_c: null
+    max_elevation_m: null
+    noise_dba_at_1m: null
+
+  ports:
+    - port_id: GPU_LIQ_SUPPLY
+      type: liquid_supply
+      role: input
+      connector_spec: blind-mate quick-disconnect (Supermicro DLC-2 manifold)
+      mating_part: rack-rear blind-mate manifold
+      qty: 1
+    - port_id: GPU_LIQ_RETURN
+      type: liquid_return
+      role: output
+      connector_spec: blind-mate quick-disconnect (Supermicro DLC-2 manifold)
+      mating_part: rack-rear blind-mate manifold
+      qty: 1
+    - port_id: PWR
+      type: ac_power
+      role: input
+      connector_spec: C19
+      mating_part: null
+      qty: 4
+    - port_id: NET_GPU
+      type: ethernet
+      role: bidirectional
+      connector_spec: OSFP or QSFP-DD (400G ConnectX-7)
+      mating_part: null
+      qty: 8
+    - port_id: NET_DPU
+      type: ethernet
+      role: bidirectional
+      connector_spec: QSFP-DD (BlueField-3 DPU)
+      mating_part: null
+      qty: 2
+    - port_id: MGMT
+      type: ethernet
+      role: bidirectional
+      connector_spec: RJ45 (1 GbE dedicated BMC)
+      mating_part: null
+      qty: 1
+    - port_id: HOST_NET
+      type: ethernet
+      role: bidirectional
+      connector_spec: RJ45 (10GbE)
+      mating_part: null
+      qty: 2
+
+  control:
+    protocol: redfish
+    register_map_url: null
+    command_latency_ms: null
+    step_response_ms: null
+    control_modes:
+      - autonomous_local
+      - external_setpoint
+      - last_known_value_fallback
+    black_start_capable: null
+
+geometry:
+  source: synthesized
+  fidelity: bounding_box
+  equipment_envelope_path: geometry/envelopes/CMP-NODE-001-equipment.step
+  service_envelope_path: geometry/envelopes/CMP-NODE-001-service.step
+  bounding_box:
+    L_mm: 900.0
+    W_mm: 482.0
+    H_mm: 178.0
+  service_clearance:
+    front: 1000.0
+    rear: 800.0
+    left: 0.0
+    right: 0.0
+    top: 0.0
+    bottom: 0.0
+    install_clearance: null
+
+provenance:
+  authored_by: skill:datasheet_extractor
+  authored_date: 2026-04-28
+  reviewed_by: TBD_pending_human_review
+  reviewed_date: null
+  confidence_flags:
+    - field: spec.electrical.power_kw
+      flag: assumed_default
+      note: |
+        ~10.5 kW typical sustained at full GPU load. First-principles:
+        8× B200 SXM @ 1000W TDP = 8,000W + 2× Xeon @ 350W = 700W +
+        32× DDR5 RDIMM @ 9W = 288W + 8× NVMe @ 12W = 96W +
+        8× ConnectX-7 @ 35W = 280W + 2× BF3 DPU @ 75W = 150W +
+        VRM losses ~5% = 450W + fans/BMC/misc = 150W = 10,114W internal;
+        at 96% Titanium PSU efficiency = ~10.5 kW AC draw.
+        Do not use PSU nameplate (26.4 kW) for power budgeting.
+    - field: spec.thermal.heat_load_kw
+      flag: assumed_default
+      note: |
+        ~10.0 kW = ~95% of 10.5 kW total power captured by DLC-2 cold
+        plates. Residual ~0.5 kW air-cooled via fan exhaust.
+        Per-container thermal budget at 7 nodes = 70 kW nodes + ~7 kW
+        overhead (switch, CDU pump, PDU losses) = ~77 kW; round to 80 kW.
+    - field: spec.electrical.voltage_v
+      flag: ambiguous
+      note: |
+        4× 6600W Titanium PSUs accept 200-240V AC single-phase. ARCNODE
+        deployment uses 415Y/240V wye from Trihal secondary, giving
+        240V phase-to-neutral to each PSU via C19 outlet on PRO3X PDU.
+    - field: spec.electrical.current_a
+      flag: assumed_default
+      note: 10.5 kW / 240V ≈ 44A typical sustained per node, drawn 4× across PSUs.
+    - field: spec.mechanical.dimensions_mm
+      flag: assumed_default
+      note: 4U height = 178mm; 19" width = 482mm; depth ~900mm typical for HGX 4U liquid-cooled chassis. Verify with full datasheet PDF.
+    - field: spec.mechanical.weight_kg
+      flag: missing
+      note: Loaded weight 80-120 kg typical for 8-GPU + dual Xeon + 32 DIMMs + 8 NVMe + DLC plumbing. Required for rack-loading calculations.
+    - field: spec.mechanical.lift_points
+      flag: missing
+    - field: spec.mechanical.ip_rating
+      flag: missing
+    - field: spec.mechanical.ambient_temp_range_c
+      flag: missing
+    - field: spec.mechanical.noise_dba_at_1m
+      flag: missing
+      note: Liquid-cooled HGX nodes are notably quieter than air-cooled; ~50-60 dBA typical at 1m.
+    - field: spec.thermal.flow_rate_lpm
+      flag: missing
+      note: GPU cold plate flow rate per node not stated. Critical for CDU-to-rack manifold sizing.
+    - field: spec.thermal.supply_temp_c
+      flag: missing
+    - field: spec.thermal.return_temp_c
+      flag: missing
+    - field: spec.thermal.internal_pressure_drop_kpa
+      flag: missing
+    - field: spec.ports.GPU_LIQ_SUPPLY.connector_spec
+      flag: ambiguous
+      note: Blind-mate QD type is Supermicro DLC-2 specific. Connector profile not published; integration via Supermicro complete-rack solution.
+    - field: control.register_map_url
+      flag: missing
+      note: Redfish schema standardized; Supermicro BMC implements OEM extensions documented in BMC user manual (gated behind product registration).
+    - field: control.command_latency_ms
+      flag: missing
+    - field: control.step_response_ms
+      flag: missing
+    - field: unit_cost_usd
+      flag: missing
+      note: Market rate $340K-$500K for HGX B200 8-GPU server; Supermicro typically lower-end of band.
+
+notes: |
+  Supermicro SYS-421GE-NBRT-LCC is the v1 reference GPU node for the
+  ARCNODE Compute Container per ADR-002 (v1 targets HGX generation).
+
+  SKU correction note: the Compute Chrome session named SYS-421GE-TNHR2
+  -LCC as the HGX B200 SKU. That is incorrect — the TNHR2-LCC SKU is
+  HGX H100/H200, not B200. The B200 4U liquid-cooled SKU is
+  SYS-421GE-NBRT-LCC, used here.
+
+  Configuration:
+  - Dual Intel Xeon Scalable (4th/5th Gen, up to 385W TDP each)
+  - 8× NVIDIA HGX B200 SXM GPUs, 180GB HBM3e per GPU (1.4TB total)
+  - 1.8TB/s NVLink bandwidth via NVSwitch
+  - 32 DIMM slots, up to 8TB DDR5-5600 RDIMM
+  - 8× front hot-swap 2.5" NVMe + 2× M.2 NVMe
+  - 8× 400G ConnectX-7 NICs (1:1 GPU:NIC) or BlueField-3 SuperNICs
+  - 2× BlueField-3 DPUs (north-south)
+  - 4× 6600W Titanium-level redundant PSUs (2+2)
+  - 1× dedicated BMC/IPMI port
+
+  Power architecture: 4× 6600W = 26.4 kW peak PSU capacity (2+2 redundant).
+  Typical sustained operation ~10.5 kW AC per node. PDU and AC bus sizing
+  should use 10.5 kW per node; peak PSU capacity (26.4 kW) is not the
+  operating draw. ARCNODE Compute Container v1 holds 7 nodes per container
+  = ~74 kW typical + overhead = ~80 kW total — well within MCDU-10's
+  210 kW capacity (~2.6x headroom).
+
+  Procurement constraint: Supermicro requires this SKU to be ordered as
+  part of a complete rack-scale solution ("complete rack and onsite
+  service are required" per Supermicro datasheet). ARCNODE procurement
+  path: order as a 1-node SuperCluster building block with Supermicro
+  onsite DLC-2 integration service. Result: integrated 4U node with
+  rack-rear blind-mate manifolds pre-populated, ready to dock.
+
+  This procurement constraint creates an architectural decision: whether
+  to follow Supermicro's complete-rack-integration path (using
+  Supermicro/NVIDIA reference rack) or to negotiate a deviation with
+  Supermicro to ship nodes pre-integrated for ARCNODE's chosen rack
+  (Schneider NetShelter SX, CMP-RACK-001). Default v1 path is Supermicro
+  complete-rack integration; alternate path requires sales engagement
+  and is captured as a v1 risk item.
+
+  DLC-2: Supermicro markets this as their "Direct Liquid Cooling 2nd
+  generation" platform. Cold plates on GPU, CPU, DIMM, PCIe switches,
+  VRM, and PSU. Heat capture ~95% via liquid; ~5% residual air via
+  fan exhaust handled by Compute Container ambient ventilation.
+
+  Network architecture: 8× 400G ConnectX-7 NICs = east-west compute
+  fabric (RDMA, GPUDirect). 2× BlueField-3 DPUs = north-south fabric
+  (storage, management, in-band orchestration). For ARCNODE v1 single-
+  rack deployment, east-west fabric collapses to top-of-rack switch
+  (CMP-SWITCH-001 Spectrum-X for inference, or CMP-SWITCH-002 Quantum-2
+  for training) and north-south fabric to a separate uplink. Multi-rack
+  ARCNODE clusters use spine switches (deferred to v2).
+
+  Management: Redfish via the dedicated BMC port. EMS supervises power
+  capping and thermal setpoints; nodes operate autonomously between
+  setpoint updates with last-known-value fallback. Aligns with industry
+  convergence pattern observed across all ARCNODE Chrome sessions.
+
+  Alternates (v2):
+  - Dell PowerEdge XE9680 (HGX B200 6U)
+  - HPE ProLiant Compute XD685 (HGX B200/B300 5U)
+  - Lenovo ThinkSystem SR780a V3 Neptune (HGX 5U liquid-cooled)
+  All functionally equivalent at HGX B200 8-GPU level. Add as v2
+  alternates if procurement constraints force.
+
+  ITAR-domestic: Supermicro has US fab in San Jose CA (corporate HQ
+  manufacturing). Multi-region production also exists in Taiwan,
+  Malaysia, and Brazil. fab_tier set to dod_eligible with per-unit
+  fab origin verification at procurement.
+
+  Open Item: B300 (Blackwell Ultra) SKU equivalent (likely
+  SYS-421GE-NBRT-B300 or similar) is rolling out across Supermicro in
+  2026. Specs nearly identical to B200 but with 1100W TDP per GPU
+  (vs 1000W) and refreshed HBM3e. Supports drop-in upgrade as B300
+  availability matures. Capture in BOM generator forward-compatibility
+  rules.

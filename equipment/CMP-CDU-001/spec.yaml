@@ -1,0 +1,229 @@
+equipment_id: CMP-CDU-001
+schema_version: "0"
+category: cdu
+vendor: Motivair (a Schneider Electric company)
+model_number: MCDU-10 (19" model)
+description: Liquid-to-liquid coolant distribution unit, 210 kW heat rejection, 4OU rack-mount, AI-DC focused
+datasheet_url: https://www.motivaircorp.com/news/motivair-launches-mcdu-10-for-ai-workloads/
+datasheet_hash: TBD_compute_at_pipeline_run
+step_source: null
+fab_tier: dod_eligible
+restricted_entities: null
+lead_time_weeks: null
+unit_cost_usd: null
+
+spec:
+  electrical:
+    voltage_v: 480.0
+    voltage_range_v: [400.0, 480.0]
+    current_a: null
+    phase: 3ph
+    frequency_hz: 60.0
+    power_kw: null
+    power_factor_range: null
+    efficiency_pct: null
+    breaker_size_a: null
+    aic_rating_ka: null
+    thd_pct: null
+    fault_current_contribution_pu: null
+
+  thermal:
+    heat_load_kw: null
+    heat_rejection_kw: 210.0
+    coolant_compatibility:
+      - dei_water
+      - pgw_25
+      - pgw_40
+    flow_rate_lpm: null
+    supply_temp_c: 13.0
+    return_temp_c: null
+    pump_head_kpa: null
+    internal_pressure_drop_kpa: null
+    port_size_dn: null
+
+  mechanical:
+    weight_kg: null
+    dimensions_mm: [610, 482, 178]
+    container_type: 10ft_ISO_high_cube
+    mounting: rack_19in
+    mounting_notes: |
+      Available in 19" or 21" rack-mount variants. ARCNODE v1 uses the 19"
+      model to integrate with Schneider NetShelter SX rack (CMP-RACK-001).
+      Mounts at top or bottom of rack; coolant manifolds connect to rack
+      blind-mate manifolds on rear.
+    rack_units: 4
+    ip_rating: null
+    lift_points: null
+    ambient_temp_range_c: null
+    max_elevation_m: null
+    noise_dba_at_1m: null
+
+  ports:
+    - port_id: PRI_SUPPLY
+      type: liquid_supply
+      role: input
+      connector_spec: TBD
+      mating_part: null
+      qty: 1
+    - port_id: PRI_RETURN
+      type: liquid_return
+      role: output
+      connector_spec: TBD
+      mating_part: null
+      qty: 1
+    - port_id: SEC_SUPPLY
+      type: liquid_supply
+      role: output
+      connector_spec: TBD
+      mating_part: null
+      qty: 1
+    - port_id: SEC_RETURN
+      type: liquid_return
+      role: input
+      connector_spec: TBD
+      mating_part: null
+      qty: 1
+    - port_id: PWR
+      type: ac_power
+      role: input
+      connector_spec: TBD
+      mating_part: null
+      qty: 1
+    - port_id: COMMS
+      type: ethernet
+      role: bidirectional
+      connector_spec: RJ45
+      mating_part: null
+      qty: 1
+
+  control:
+    protocol: redfish
+    register_map_url: null
+    command_latency_ms: null
+    step_response_ms: null
+    control_modes:
+      - autonomous_local
+      - external_setpoint
+      - last_known_value_fallback
+    black_start_capable: null
+
+geometry:
+  source: synthesized
+  fidelity: bounding_box
+  equipment_envelope_path: geometry/envelopes/CMP-CDU-001-equipment.step
+  service_envelope_path: geometry/envelopes/CMP-CDU-001-service.step
+  bounding_box:
+    L_mm: 610.0
+    W_mm: 482.0
+    H_mm: 178.0
+  service_clearance:
+    front: 1000.0
+    rear: 800.0
+    left: 0.0
+    right: 0.0
+    top: 50.0
+    bottom: 50.0
+    install_clearance: null
+
+provenance:
+  authored_by: skill:datasheet_extractor
+  authored_date: 2026-04-28
+  reviewed_by: TBD_pending_human_review
+  reviewed_date: null
+  confidence_flags:
+    - field: spec.electrical.voltage_v
+      flag: assumed_default
+      note: 480V 3ph assumed per Motivair convention. Verify with full datasheet at procurement.
+    - field: spec.electrical.power_kw
+      flag: missing
+      note: Pump + control panel auxiliary load not stated. Estimate ~3-5 kW for 210 kW class CDU.
+    - field: spec.thermal.flow_rate_lpm
+      flag: missing
+      note: Critical for sizing engine secondary-loop calculations.
+    - field: spec.thermal.return_temp_c
+      flag: missing
+    - field: spec.thermal.pump_head_kpa
+      flag: missing
+    - field: spec.thermal.internal_pressure_drop_kpa
+      flag: missing
+    - field: spec.thermal.port_size_dn
+      flag: missing
+      note: Likely DN50 (2") per Motivair high-density CDU convention. Verify with vendor datasheet.
+    - field: spec.mechanical.weight_kg
+      flag: missing
+    - field: spec.mechanical.dimensions_mm
+      flag: assumed_default
+      note: Height = 4OU × 44.45mm. Width = 19" rail. Depth estimated; not stated in press release.
+    - field: spec.mechanical.lift_points
+      flag: missing
+    - field: spec.mechanical.ip_rating
+      flag: missing
+    - field: spec.mechanical.ambient_temp_range_c
+      flag: missing
+    - field: spec.mechanical.noise_dba_at_1m
+      flag: missing
+    - field: spec.ports.PRI_SUPPLY.connector_spec
+      flag: missing
+      note: Quick-disconnect connector type not stated. Applies to all four liquid ports.
+    - field: control.register_map_url
+      flag: missing
+      note: Redfish schema is standardized; vendor-specific OEM extensions may exist.
+    - field: control.command_latency_ms
+      flag: missing
+    - field: control.step_response_ms
+      flag: missing
+    - field: unit_cost_usd
+      flag: missing
+    - field: lead_time_weeks
+      flag: missing
+
+notes: |
+  Motivair MCDU-10 (210 kW) is the v1 reference CDU for the ARCNODE
+  Compute Container. Rack-mounted inside the Compute Container. Right-sized to v1 HGX-tier Compute Container thermal load
+  (~80 kW for up to 7 Supermicro SYS-421GE 4U HGX nodes per ARCNODE
+  container, with ~2x headroom for redundancy and B300/B-Ultra upgrade
+  paths).
+
+  Replaces earlier MCDU-40 seed. Initial seed assumed a 1 MW Compute load when
+  sizing the Thermal Module — that figure was the GB200 NVL72 single-rack
+  thermal load, not the HGX B200 4U-node figure. Actual v1 HGX-tier load
+  is ~80 kW per ARCNODE Compute Container (7 nodes × 10.5 kW + ~7 kW rack
+  overhead). MCDU-10 at 210 kW provides ~2.6× headroom — the right size.
+
+  Form factor: 4OU rack-mount, 19" model. Mounts directly inside the
+  Compute Container rack. Total Compute Container rack utilization at v1:
+  rack-mounted CDU (4OU) + GPU nodes (6× 4U = 24U) + ToR switches (2U)
+  + PDU (1-2U) + cable management = ~32-34U occupied in a 42U rack,
+  ~8-10U residual.
+
+  Forward-compatibility: MCDU-10 was originally developed for GB200 NVL72
+  in the 21" OCP ORV3 form factor. ARCNODE uses the 19" variant for v1
+  HGX deployments; if v2 transitions to MGX, the same MCDU-10 line
+  applies with the 21" variant. No Compute Container (integrated thermal) re-engineering needed
+  for the MGX transition. Strategically valuable.
+
+  Headline operating point: 210 kW heat rejection. Supply temperature
+  range W1-W5 per ASHRAE TC 9.9 liquid cooling categories. v1 reference:
+  W1 (~13°C supply) for conservative GPU thermal margins. Warm-water
+  operation (W3+) is a deployment-specific efficiency tradeoff.
+
+  Control architecture: Redfish REST API as primary supervisory protocol,
+  validating the industry-convergence pattern observed in prior ARCNODE
+  Chrome sessions. EMS supervises CDU setpoints over Redfish; CDU runs
+  autonomously on local PLC if EMS comms drop. Last-known-value fallback.
+
+  Coolant: Motivair Technology Cooling System (TCS) is the recommended
+  coolant — deionized water + corrosion inhibitors. Propylene glycol
+  (PGW-25, PGW-40) available for cold-climate deployments.
+
+  Manufacturer: Motivair is a Schneider Electric subsidiary as of late
+  2024. US-fab in Lancaster NY. ITAR-domestic for federal civilian and
+  DOD-eligible deployments.
+
+  Alternates: Vertiv XDU-450 (450 kW, oversized 4.5x). nVent CDU-200
+  (200 kW). CoolIT CHx40 (in-rack smaller). Add as v2 alternates if
+  needed.
+
+  Open Item: confirm exact 19" model SKU number with Motivair sales —
+  press release mentions "available in 19-inch or 21-inch models" but
+  does not enumerate the SKU. Required for procurement spec.

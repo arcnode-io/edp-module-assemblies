@@ -1,0 +1,216 @@
+equipment_id: EXT-BESS-002
+schema_version: "0"
+category: bess
+vendor: CATL (Contemporary Amperex Technology Co.)
+model_number: EnerOne+ 379.4 kWh / 1C
+description: 379 kWh DC-output BESS rack, outdoor liquid-cooled cabinet, 600-1500V system compatibility
+datasheet_url: https://www.scribd.com/document/851504716/Enerone-285-Product-Specification-20240705-3
+datasheet_hash: TBD_compute_at_pipeline_run
+step_source: null
+fab_tier: federal_civilian
+restricted_entities:
+  - DOD_1260H
+  - state_owned_china
+lead_time_weeks: null
+unit_cost_usd: null
+
+spec:
+  electrical:
+    voltage_v: 1331.0                 # nominal DC, mid-range of 1164-1497V envelope
+    voltage_range_v: [1164.8, 1497.6] # SOC operating range
+    current_a: 285.0                  # peak discharge: 379.4 kW / 1331 V
+    phase: dc
+    frequency_hz: null                # DC output
+    power_kw: 379.4                   # 1C discharge rate at full SOC
+    power_factor_range: null          # DC output, not applicable
+    efficiency_pct: null              # RTE not stated in public docs
+    breaker_size_a: null
+    aic_rating_ka: null
+    thd_pct: null
+    fault_current_contribution_pu: null
+
+  thermal: null                        # external BESS handles its own thermal;
+                                       # integrated TMS inside the rack (chiller +
+                                       # PTC heater + liquid cooling pipes) is
+                                       # not connected to ARCNODE Compute Container CDU
+
+  mechanical:
+    weight_kg: null                    # not stated in public datasheet excerpts
+    dimensions_mm: [1400, 1200, 2300]  # L × W × H, approximation from public refs
+                                       # (1.69 m² floor space confirmed)
+    container_type: null
+    mounting: pad
+    mounting_notes: |
+      Pad-mounted outdoor cabinet, IP66 main components. Customer-owned pad
+      civils. Service clearance and access are customer site planning, not
+      ARCNODE Grid Container integration. Cabinet has integrated control box,
+      BMS, fire suppression (FSS), and thermal management (TMS).
+    rack_units: null
+    ip_rating: IP66
+    lift_points: null
+    ambient_temp_range_c: [-30, 55]
+    max_elevation_m: null
+    noise_dba_at_1m: null
+
+  ports:
+    - port_id: DC_POS
+      type: dc_power
+      role: bidirectional              # DC+ to PCS input
+      connector_spec: TBD
+      mating_part: null
+      qty: 1
+    - port_id: DC_NEG
+      type: dc_power
+      role: bidirectional              # DC- to PCS input
+      connector_spec: TBD
+      mating_part: null
+      qty: 1
+    - port_id: CAN0
+      type: can
+      role: bidirectional              # BMS comms to PCS and EMS
+      connector_spec: TBD
+      mating_part: null
+      qty: 1
+    - port_id: AUX_PWR
+      type: control_power
+      role: input                      # AC/DC aux supply for BMS, TMS, FSS
+      connector_spec: TBD
+      mating_part: null
+      qty: 1
+
+  control:
+    protocol: can                      # CATL three-level BMS: CSC → SBMU → MBMU
+    register_map_url: null             # proprietary, gated behind OEM agreement
+    command_latency_ms: null
+    step_response_ms: null
+    control_modes:
+      - charge
+      - discharge
+      - standby
+      - idle
+      - islanded                       # microgrid / backup operation supported
+                                       # (grid-forming is the paired PCS's job,
+                                       # not the BESS's, in DC-coupled profile)
+    black_start_capable: false         # battery itself does not black-start;
+                                       # PCS provides grid-forming behavior
+
+geometry:
+  source: synthesized
+  fidelity: bounding_box
+  equipment_envelope_path: geometry/envelopes/EXT-BESS-002-equipment.step
+  service_envelope_path: geometry/envelopes/EXT-BESS-002-service.step
+  bounding_box:
+    L_mm: 1400.0
+    W_mm: 1200.0
+    H_mm: 2300.0
+  service_clearance:
+    front: 1500.0                      # door swing, control box access, DC connections
+    rear: 800.0                        # liquid cooling routing, exhaust
+    left: 1000.0                       # service access
+    right: 1000.0
+    top: 2000.0                        # deflagration panel (optional) clearance
+    bottom: 0.0
+    install_clearance: null
+
+provenance:
+  authored_by: skill:datasheet_extractor
+  authored_date: 2026-04-28
+  reviewed_by: TBD_pending_human_review
+  reviewed_date: null
+  confidence_flags:
+    - field: fab_tier
+      flag: ambiguous
+      note: |
+        CATL is China-fab and on DOD 1260H. Set to federal_civilian as the
+        highest tier achievable. Not DOD-eligible. For sovereign deployments
+        where Chinese components are unacceptable, ARCNODE must select a
+        different DC-output BESS or use the AC-coupled profile with a non-
+        CATL Megapack-class unit.
+    - field: spec.electrical.voltage_v
+      flag: assumed_default
+      note: Nominal voltage not directly stated in public refs. Computed mid-range of 1164-1497V envelope. Verify with full product spec at procurement.
+    - field: spec.electrical.current_a
+      flag: assumed_default
+      note: Peak discharge current computed from 1C rating ÷ nominal voltage. Vendor-stated value not surfaced in public refs.
+    - field: spec.electrical.efficiency_pct
+      flag: missing
+      note: Round-trip efficiency not stated in public refs. Modern LFP at this scale typically 92-96% RTE. Sales touch follow-up.
+    - field: spec.mechanical.weight_kg
+      flag: missing
+      note: Weight not stated in public excerpts. Material gap for shipping and pad civil planning. Sales touch required.
+    - field: spec.mechanical.dimensions_mm
+      flag: assumed_default
+      note: Dimensions ~1400 × 1200 × 2300 mm derived from "1.69 m² floor space" plus reference to ~2.3m height. Verify exact dimensions with full product specification PDF (gated by CATL).
+    - field: spec.mechanical.lift_points
+      flag: missing
+    - field: spec.mechanical.noise_dba_at_1m
+      flag: missing
+    - field: spec.mechanical.max_elevation_m
+      flag: missing
+    - field: spec.ports.DC_POS.connector_spec
+      flag: missing
+      note: DC connection style not in public refs. Applies to DC_POS, DC_NEG.
+    - field: spec.ports.CAN0.connector_spec
+      flag: missing
+      note: CAN connector type and pinout proprietary to CATL.
+    - field: spec.ports.AUX_PWR.connector_spec
+      flag: missing
+    - field: control.register_map_url
+      flag: missing
+      note: CAN message map proprietary. Required for PCS pairing and EMS integration. OEM agreement with CATL or authorized integrator (e.g., Eaton xStorage path) required.
+    - field: control.command_latency_ms
+      flag: missing
+    - field: control.step_response_ms
+      flag: missing
+    - field: unit_cost_usd
+      flag: missing
+    - field: lead_time_weeks
+      flag: missing
+
+notes: |
+  CATL EnerOne+ is the DC-coupled BESS profile primary entry per ADR-001
+  (Bring Your Own BESS). Customer-supplied equipment; ARCNODE does not
+  procure, ship, or install. ARCNODE's Grid Container PCS (EPC PD500 at v1)
+  interfaces with EnerOne over a DC bus and a CAN comms bus.
+
+  PCS compatibility: EnerOne's voltage range (1164-1497V nominal, 600-1500V
+  system compatibility per CATL marketing) overlaps with EPC PD500's DC
+  input range (310-1250V). Operating window: 715-1250V where both are at
+  rated performance (PD500 minimum at 480 VAC, EnerOne lower bound). Above
+  1250V the PD500 cannot accept the DC input — sizing engine must constrain
+  EnerOne operation or pair with a higher-voltage PCS. Document operating
+  envelope in deployment-specific configurations.
+
+  BMS architecture: CATL three-level distributed BMS — CSC (Cell Sensor
+  Controller) → SBMU (String BMS Unit) → MBMU (Master BMS Unit). MBMU
+  exposes CAN to the PCS and EMS. Per the BESS Chrome session, this is
+  the industry-standard hierarchical pattern; CAN message map is
+  proprietary and gated behind OEM agreement.
+
+  Thermal: EnerOne+ has an integrated thermal management system (chiller,
+  PTC heater, liquid cooling pipes). This system is internal to the rack
+  and does not connect to the ARCNODE Compute Container (integrated thermal) CDU. Some auxiliary
+  electrical load (the chiller compressor) appears as a load on the AC bus.
+  Capture in sizing engine as part of the BESS pad-side electrical budget.
+
+  Sourcing path: EnerOne is not sold directly to end customers as a
+  separate SKU in most markets — CATL sells through OEM integrator
+  channels. Eaton xStorage uses EnerOne as the rack OEM, demonstrating
+  the integrator path exists. ARCNODE customers pursuing the DC-coupled
+  profile with EnerOne should expect to procure through an authorized
+  integrator with associated lead time and minimum order quantities.
+
+  Cell options: standard cell is 280 Ah LFP at 1C; long-life option is
+  available at up to 12,000 cycles (vs. standard 10,000). Cell selection
+  is a deployment-specific decision affecting both cost and useful life.
+
+  Grid-forming: EnerOne does not grid-form. In the DC-coupled profile, the
+  paired PCS (PD500) provides grid-forming via its V&f islanded mode. The
+  BESS exposes only charge/discharge/standby states to the PCS.
+
+  Sovereign / DOD eligibility: not eligible for DOD procurement post-2027
+  per DOD 1260H restrictions on CATL. For sovereign or DOD-eligible
+  deployments, the DC-coupled profile requires substituting a non-CATL
+  BESS — KORE Power's Mark 2 or similar US-fab DC-output products are
+  the alternates, with weaker hyperscaler pedigree. Document substitute
+  options in customer materials.

@@ -32,7 +32,6 @@ select = [
 
     # Type annotations - replaces mypy strictness recovered from ty migration:
     # ANN001/002/003/201/204/205/206 = disallow_untyped_defs + disallow_incomplete_defs
-    # ANN401                          = disallow_any_explicit
     "ANN",
 ]
 
@@ -55,3 +54,9 @@ ignore = [
 [lint.pylint]
 max-args = 5
 max-statements = 30
+
+[lint.per-file-ignores]
+# Tests don't need public-API docstrings or annotation rigor.
+# Mock S3 credentials are test-only false positives for S106.
+"**/test_*.py" = ["D103", "S106", "ANN", "ARG"]
+"tests/**/*.py" = ["D103", "S106", "ANN", "ARG"]

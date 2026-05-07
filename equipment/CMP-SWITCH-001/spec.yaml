@@ -1,0 +1,207 @@
+equipment_id: CMP-SWITCH-001
+schema_version: "0"
+category: network_switch
+vendor: NVIDIA (Mellanox)
+model_number: Spectrum-X SN5600
+description: 64-port 800GbE Ethernet switch, 1U 19" rack-mount, RoCE-accelerated for AI workloads
+datasheet_url: https://docs.nvidia.com/networking/display/sn5600
+datasheet_hash: TBD_compute_at_pipeline_run
+step_source: null
+fab_tier: federal_civilian
+restricted_entities: null
+lead_time_weeks: null
+unit_cost_usd: null
+
+spec:
+  electrical:
+    voltage_v: 240.0                  # 100-240V AC; 240V typical in datacenter
+    voltage_range_v: [100.0, 240.0]
+    current_a: null
+    phase: 1ph                        # single-phase for typical deployment
+    frequency_hz: 60.0                # 50/60 Hz
+    power_kw: 2.0                     # ~2 kW typical at rated load
+    power_factor_range: null
+    efficiency_pct: null
+    breaker_size_a: null
+    aic_rating_ka: null
+    thd_pct: null
+    fault_current_contribution_pu: null
+
+  thermal:
+    heat_load_kw: 2.0                 # full electrical input becomes heat at rack
+    heat_rejection_kw: null           # air-cooled; rejected to rack air handling
+    coolant_compatibility:
+      - air                            # air-cooled, P2C airflow standard
+    flow_rate_lpm: null
+    supply_temp_c: null
+    return_temp_c: null
+    pump_head_kpa: null
+    internal_pressure_drop_kpa: null
+    port_size_dn: null
+
+  mechanical:
+    weight_kg: null                   # 1U switch typically ~12-15 kg
+    dimensions_mm: [600, 482, 44]    # 1U 19" depth × width × height (44mm = 1U)
+    container_type: 10ft_ISO_high_cube
+    mounting: rack_19in
+    mounting_notes: |
+      1U 19" rack-mount, port-to-cable airflow (P2C) standard; reverse
+      airflow (C2P) variant available. Hot-swappable PSU and fan modules.
+    rack_units: 1
+    ip_rating: null
+    lift_points: null
+    ambient_temp_range_c: [0, 40]
+    max_elevation_m: 3050
+    noise_dba_at_1m: null
+
+  ports:
+    - port_id: AC_PWR
+      type: ac_power
+      role: input
+      connector_spec: C13 or C19      # PSU input receptacle
+      mating_part: null
+      qty: 2                          # dual hot-swappable PSU
+    - port_id: ETH_800G
+      type: ethernet
+      role: bidirectional             # 64× 800GbE OSFP data ports
+      connector_spec: OSFP
+      mating_part: null
+      qty: 64
+    - port_id: MGMT
+      type: ethernet
+      role: bidirectional             # out-of-band management
+      connector_spec: RJ45
+      mating_part: null
+      qty: 1
+    - port_id: CONSOLE
+      type: signal_serial
+      role: bidirectional             # CLI console
+      connector_spec: RJ45 or USB-C
+      mating_part: null
+      qty: 1
+
+  control:
+    protocol: redfish                 # NVIDIA Cumulus Linux supports Redfish for telemetry
+    register_map_url: null            # Redfish DMTF DSP0266 standards-based
+    command_latency_ms: null
+    step_response_ms: null
+    control_modes:
+      - normal_operation
+      - maintenance
+      - port_disabled                  # per-port admin state
+    black_start_capable: null
+
+geometry:
+  source: synthesized
+  fidelity: bounding_box
+  equipment_envelope_path: geometry/envelopes/CMP-SWITCH-001-equipment.step
+  service_envelope_path: geometry/envelopes/CMP-SWITCH-001-service.step
+  bounding_box:
+    L_mm: 600.0
+    W_mm: 482.0
+    H_mm: 44.0
+  service_clearance:
+    front: 600.0                      # cable management, console access
+    rear: 600.0                       # power, fan service
+    left: 0.0
+    right: 0.0
+    top: 0.0
+    bottom: 0.0
+    install_clearance: null
+
+provenance:
+  authored_by: skill:datasheet_extractor
+  authored_date: 2026-04-28
+  reviewed_by: TBD_pending_human_review
+  reviewed_date: null
+  confidence_flags:
+    - field: fab_tier
+      flag: assumed_default
+      note: NVIDIA design; manufactured by Wiwynn/Foxconn. NVIDIA is US-headquartered but silicon is TSMC-fab and assembly is Taiwan/Israel. Set conservatively to federal_civilian; DOD-eligible verification requires per-unit fab certification.
+    - field: spec.electrical.power_kw
+      flag: assumed_default
+      note: ~2 kW typical at rated load for 64× 800G ToR class. Verify with NVIDIA spec sheet.
+    - field: spec.electrical.current_a
+      flag: missing
+    - field: spec.thermal.heat_load_kw
+      flag: assumed_default
+      note: ≈ electrical input at full load; switching ASIC has near-100% conversion to heat.
+    - field: spec.mechanical.weight_kg
+      flag: missing
+    - field: spec.mechanical.dimensions_mm
+      flag: assumed_default
+      note: 1U 19" standard; 600mm depth typical for ToR class. Verify with NVIDIA mechanical spec.
+    - field: spec.mechanical.lift_points
+      flag: missing
+    - field: spec.mechanical.noise_dba_at_1m
+      flag: missing
+    - field: spec.ports.AC_PWR.qty
+      flag: assumed_default
+      note: Dual hot-swap PSU is standard for ToR class; verify exact count per Spectrum-X SN5600 spec.
+    - field: spec.ports.AC_PWR.connector_spec
+      flag: assumed_default
+      note: C13 or C19 typical for 1U switch PSU; configuration-dependent.
+    - field: spec.ports.ETH_800G.qty
+      flag: assumed_default
+      note: 64× 800GbE is the SN5600 nameplate. Verify configuration (some breakouts to 2× 400G or 4× 200G).
+    - field: control.command_latency_ms
+      flag: missing
+    - field: control.step_response_ms
+      flag: missing
+    - field: unit_cost_usd
+      flag: missing
+    - field: lead_time_weeks
+      flag: missing
+
+notes: |
+  NVIDIA Spectrum-X SN5600 is the v1 reference network switch for the
+  ARCNODE Compute Container per ADR-002. 64-port 800GbE Ethernet, 1U
+  rack-mount, RoCE-accelerated for AI workloads with congestion-aware
+  scheduling.
+
+  Why Ethernet (Spectrum-X) over InfiniBand (Quantum-2) for v1:
+  - Ethernet has wider operator familiarity; lower training overhead
+    for ARCNODE customer ops teams
+  - Spectrum-X RoCE delivers near-InfiniBand performance for AI workloads
+  - InfiniBand is the right choice for the largest training clusters
+    (32k+ GPUs); ARCNODE deployments are smaller (single-container
+    Compute Containers) where Spectrum-X is sufficient
+  - Spectrum-X is the same NVIDIA reference architecture; same vendor
+    ecosystem; same management tools
+
+  ARCNODE Compute Container deployment:
+  - 1× SN5600 per Compute Container as ToR switch
+  - 6-7 HGX nodes × 8× 400G NICs = 48-56 × 400G ports needed
+  - SN5600 has 64× 800G; supports 2:1 breakout to 128× 400G — comfortable
+    headroom plus uplink capacity to multi-container clusters
+  - North-south uplink: 1-2× 800G to spine or directly to customer
+    facility network
+
+  Power and thermal: ~2 kW at rated load, air-cooled. Adds to Compute
+  Module thermal budget but small relative to GPU node load (~70 kW).
+  CMP-CDU-001 has comfortable headroom.
+
+  Management protocol: NVIDIA Cumulus Linux NOS. Redfish supported for
+  telemetry (port state, traffic counters, optical levels, fan/temp/PSU).
+  gNMI streaming and SNMP also available. ARCNODE EMS integrates over
+  Redfish per the supervisory control architecture established in prior
+  sessions.
+
+  ARCNODE positioning note: Spectrum-X SN5600 plus HGX B200 nodes (also
+  NVIDIA-architected) makes the v1 Compute Container heavily NVIDIA-aligned.
+  This is intentional for v1 — NVIDIA reference architecture has the
+  highest validation maturity for AI workloads. Vendor concentration risk
+  is real but accepted for v1.
+
+  Alternates (qualified per ADR-002 architecture flexibility):
+  - Arista 7060X6 (US/MX/MY fab, EOS NOS, strongest non-NVIDIA option,
+    better fab_tier) — author as CMP-SWITCH-002 if first non-NVIDIA-
+    fabric deployment forces it
+  - Cisco Nexus 9364E-SG2 (multi-region fab, Silicon One, NX-OS)
+  - Juniper QFX5240 (Tomahawk 5, Junos)
+
+  fab_tier: NVIDIA-design / Taiwan-Israel-assembly equipment is set
+  conservatively to federal_civilian. For DOD-eligible deployments that
+  cannot accept Taiwan-assembled networking, switch to Arista 7060X6
+  primary (US/MX fab options). Capture as deployment-specific decision
+  in BOM generator rules.

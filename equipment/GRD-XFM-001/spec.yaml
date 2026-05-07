@@ -1,0 +1,210 @@
+equipment_id: GRD-XFM-001
+schema_version: "0"
+category: transformer
+vendor: Schneider Electric
+model_number: Trihal TRI100013684152509 (1000 kVA, 13.8 kV / 415V, dyn11, IP31, copper, AN)
+description: Cast-resin dry-type step-up transformer, 1 MVA, 415Y/240V LV / 13.8kV HV, dyn11, indoor IP31
+datasheet_url: https://www.schneider-electric.com/en/product/TRI100013684152509/trihal-cast-resin-dry-type-transformer-1000-kva-13.8-kv-iec-dyn11-ip31/
+datasheet_hash: TBD_compute_at_pipeline_run
+step_source: null
+fab_tier: dod_eligible
+restricted_entities: null
+lead_time_weeks: null
+unit_cost_usd: null
+
+spec:
+  electrical:
+    voltage_v: 13800.0                # HV nominal
+    voltage_range_v: [12420.0, 15180.0]  # ±10% standard tap range
+    current_a: 41.8                   # HV side: 1000 kVA / (13.8 kV × √3)
+    phase: 3ph
+    frequency_hz: 60.0                # 50 or 60 Hz capable per Trihal catalog
+    power_kw: 1000.0                  # rated apparent power 1000 kVA
+    power_factor_range: null          # transformer is passive
+    efficiency_pct: 99.0              # typical for 1 MVA dry-type at full load; verify
+    breaker_size_a: null
+    aic_rating_ka: null               # transformer impedance limits fault, not AIC
+    thd_pct: null
+    fault_current_contribution_pu: null
+
+  thermal:
+    heat_load_kw: null                # full-load losses ~8-12 kW for 1 MVA dry-type
+    heat_rejection_kw: null
+    coolant_compatibility:
+      - air                            # AN cooling: natural air convection
+    flow_rate_lpm: null
+    supply_temp_c: null
+    return_temp_c: null
+    pump_head_kpa: null
+    internal_pressure_drop_kpa: null
+    port_size_dn: null
+
+  mechanical:
+    weight_kg: 2440.0                  # from Trihal catalog weight table (1000 kVA)
+    dimensions_mm: [1580, 820, 1860]   # L × W × H, from Trihal catalog table (1000 kVA IP31)
+    container_type: 10ft_ISO_high_cube
+    mounting: floor
+    mounting_notes: |
+      Indoor IP31 enclosure. Free-standing on floor or pad. Must allow
+      airflow per Trihal manual: minimum clearance to walls per natural
+      ventilation requirements (typically 400-500 mm to walls, more on
+      ventilated faces). Forced ventilation (fans, optional) extends
+      capacity by 40%.
+    rack_units: null
+    ip_rating: IP31                    # with enclosure; up to IP44 with proper enclosure
+    lift_points: null
+    ambient_temp_range_c: [-25, 40]    # standard Trihal envelope; F-class insulation
+    max_elevation_m: 1000              # standard sea-level rating; derate above
+    noise_dba_at_1m: null
+
+  ports:
+    - port_id: HV_TERM
+      type: ac_power
+      role: bidirectional              # 13.8 kV primary terminals (3-phase, dyn11 delta)
+      connector_spec: bushing terminals, top entry
+      mating_part: null
+      qty: 3                           # 3 phases
+    - port_id: LV_TERM
+      type: ac_power
+      role: bidirectional              # 480 V secondary terminals (3-phase, wye with N)
+      connector_spec: bushing terminals, top entry
+      mating_part: null
+      qty: 4                           # 3 phases + neutral
+    - port_id: GND
+      type: dc_power
+      role: input                      # ground bonding terminal
+      connector_spec: ground lug
+      mating_part: null
+      qty: 1
+    - port_id: TEMP_SENSE
+      type: signal_analog
+      role: output                     # PT100 sensors per phase to T digital thermometer
+      connector_spec: terminal block (PT100, plug-in connector)
+      mating_part: null
+      qty: 3                           # one per phase
+
+  control:
+    protocol: modbus_rtu                # T digital thermometer Modbus RTU output
+    register_map_url: null
+    command_latency_ms: null
+    step_response_ms: null
+    control_modes:
+      - alarm_1                         # 140°C threshold per Trihal default
+      - alarm_2                         # 150°C threshold per Trihal default
+      - fault                           # sensor / supply failure
+    black_start_capable: null
+
+geometry:
+  source: synthesized
+  fidelity: bounding_box
+  equipment_envelope_path: geometry/envelopes/GRD-XFM-001-equipment.step
+  service_envelope_path: geometry/envelopes/GRD-XFM-001-service.step
+  bounding_box:
+    L_mm: 1800.0
+    W_mm: 1400.0
+    H_mm: 2000.0
+  service_clearance:
+    front: 800.0                       # terminal access, thermometer panel
+    rear: 500.0                        # ventilation per Trihal manual
+    left: 500.0                        # ventilation
+    right: 500.0                       # ventilation
+    top: 1000.0                        # natural convection exhaust
+    bottom: 0.0                        # floor mount with feet
+    install_clearance:
+      direction: top
+      value_mm: 2500.0                 # crane lift clearance for ~6 t unit
+
+provenance:
+  authored_by: skill:datasheet_extractor
+  authored_date: 2026-04-28
+  reviewed_by: TBD_pending_human_review
+  reviewed_date: null
+  confidence_flags:
+    - field: spec.electrical.efficiency_pct
+      flag: assumed_default
+      note: ~99% typical for 1 MVA dry-type cast-resin at full load. Schneider catalog states EU EcoDesign 548-2014 compliance but does not publish efficiency directly per SKU. Verify with full Trihal catalog.
+    - field: spec.thermal.heat_load_kw
+      flag: missing
+      note: Full-load losses ~8-12 kW typical for 1 MVA dry-type. Vendor does not publish per-SKU. Required for Grid Container sizing — captured as derate in sizing engine.
+    - field: spec.mechanical.weight_kg
+      flag: low_confidence_extraction
+      note: 2,440 kg from Trihal catalog weight table. Verify per-SKU at procurement as weight varies by winding material and cooling option.
+    - field: spec.mechanical.dimensions_mm
+      flag: low_confidence_extraction
+      note: From Trihal catalog dimensional table (1000 kVA IP31 enclosure). Verify with Schneider full dimensional drawing at procurement.
+    - field: spec.mechanical.lift_points
+      flag: missing
+      note: Standard Trihal includes 4 lifting eyes per IEC convention. Not enumerated on product page.
+    - field: spec.mechanical.noise_dba_at_1m
+      flag: missing
+      note: Sound level not on product page. Trihal catalog publishes noise per kVA class; ~60 dBA typical for 1 MVA at no load.
+    - field: spec.ports.HV_TERM.connector_spec
+      flag: assumed_default
+      note: Bushing terminals are standard Trihal; specific bushing type (plug-in, cone, etc.) is configuration-dependent.
+    - field: spec.ports.LV_TERM.connector_spec
+      flag: assumed_default
+      note: Same as HV_TERM. LV side is dyn11 wye output (480Y/277V).
+    - field: control.register_map_url
+      flag: missing
+      note: T digital thermometer (standard with Trihal) exposes Modbus RTU; register map in Trihal manual but not directly linked.
+    - field: control.command_latency_ms
+      flag: missing
+    - field: control.step_response_ms
+      flag: missing
+    - field: unit_cost_usd
+      flag: missing
+    - field: lead_time_weeks
+      flag: missing
+
+notes: |
+  Schneider Trihal is the v1 reference transformer for the ARCNODE Grid
+  Module. Specified at 1000 kVA, 13.8 kV / 480 V, dyn11 vector group,
+  IP31 indoor enclosure, copper windings, AN (natural air) cooling.
+
+  Vector group dyn11: delta primary (HV), wye secondary (LV) with neutral
+  brought out, 30° phase shift. Secondary 415Y/240V — phase-to-phase 415V
+  for 3-phase rack PDUs, phase-to-neutral 240V matches HGX B200 PSU input
+  range (200–240V). The wye-with-neutral secondary supports single-phase
+  loads directly. 415V LV is non-standard in US (480V is convention) but
+  is the AI datacenter trend for higher-density rack PDU economics.
+
+  Bidirectional operation: transformer is inherently bidirectional. Used
+  as step-up when ARCNODE exports to grid (BESS dispatch, PCS dispatch in
+  DC-coupled profile), step-down when ARCNODE imports from grid (initial
+  charging, grid-tied operation). The "step-up" framing is conventional
+  — physically the transformer is symmetric.
+
+  Cooling: AN (natural air) is standard. AF (forced air with fans) is an
+  option that extends capacity by 40% and enables shorter ride-through of
+  transient overloads. For ARCNODE deployments expecting frequent
+  charge/discharge cycling at near-rated power, AF option is recommended.
+  Capture as a deployment-specific upgrade in BOM generator rules.
+
+  Cast-resin dry-type advantages over oil-filled:
+  - No oil containment / spill-control civil works required
+  - No fire-suppression requirements per most building codes
+  - 20-year service life without oil testing or refurbishment
+  - Indoor installation acceptable without specialty fire-rated room
+  Net: lower lifecycle cost and simpler site civils. Pays back the
+  modest premium over oil-filled within first deployment year for
+  most ARCNODE site profiles.
+
+  EcoDesign Tier 2 compliance (EU 548/2014, post-2021): Trihal complies
+  by default. Required for European deployments; nice-to-have elsewhere.
+
+  ITAR-domestic: Schneider has US manufacturing for Trihal in some
+  capacity but the SKU referenced (TRI100013684152509) is IEC-rated,
+  suggesting EU origin as primary. For DOD-eligible deployments,
+  alternate ANSI-rated Trihal SKUs from Schneider's US fabrication
+  facilities are required. fab_tier set conservatively at dod_eligible
+  pending per-unit fab verification.
+
+  Alternates: Eaton dry-type, GE-Prolec, Siemens GEAFOL are functionally
+  equivalent. Add as v2 alternates if deployment forces them.
+
+  Sizing notes: 1 MVA covers ARCNODE deployments up to ~800 kW continuous
+  AC bus load (80% loading is conservative for transformer life). At v1
+  HGX scale (~80 kW Compute load) this provides ~12x headroom — sized
+  for future multi-Compute-Container deployments fed from one Grid
+  Container, not just the single-container v1 case. Larger deployments
+  use multiple ARCNODE Grid Containers in parallel.

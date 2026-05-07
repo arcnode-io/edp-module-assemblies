@@ -1,0 +1,204 @@
+equipment_id: EXT-DC-002
+schema_version: "0"
+category: dry_cooler
+vendor: EVAPCO Inc.
+model_number: eco-Air EAW-DD (Double Stack V-Series)
+description: Double-stack V-coil outdoor dry cooler, CTI-201 certified, BAS communications, ECM fans, US-fab
+datasheet_url: https://www.evapco.com/sites/evapco.com/files/2024-05/eco-Air%20Series%20Double%20Stack%20_2.pdf
+datasheet_hash: TBD_compute_at_pipeline_run
+step_source: null
+fab_tier: dod_eligible
+restricted_entities: null
+lead_time_weeks: null
+unit_cost_usd: null
+
+spec:
+  electrical:
+    voltage_v: 480.0
+    voltage_range_v: [400.0, 480.0]   # 3ph for ECM motors
+    current_a: null
+    phase: 3ph
+    frequency_hz: 60.0
+    power_kw: null                    # model-dependent
+    power_factor_range: null
+    efficiency_pct: null
+    breaker_size_a: null
+    aic_rating_ka: null
+    thd_pct: null
+    fault_current_contribution_pu: null
+
+  thermal:
+    heat_load_kw: null                # model-dependent; sizing engine selects
+    heat_rejection_kw: null
+    coolant_compatibility:
+      - dei_water
+      - pgw_25
+      - pgw_40
+      - egw_25
+      - egw_40
+    flow_rate_lpm: null
+    supply_temp_c: null
+    return_temp_c: null
+    pump_head_kpa: null
+    internal_pressure_drop_kpa: null
+    port_size_dn: null
+
+  mechanical:
+    weight_kg: null
+    dimensions_mm: null               # model-dependent
+    container_type: null
+    mounting: pad
+    mounting_notes: |
+      Outdoor pad-mounted. Units ship in three segments for large models
+      (eco-Air APEX) or as assembled units for standard EAW-DD. Customer-
+      owned pad civil works. Factory-mounted controls and service platforms
+      included. ETL-listed.
+    rack_units: null
+    ip_rating: null                   # NEMA 4 enclosure for motor starters and
+                                      # control panel per UL wiring standard
+    lift_points: null
+    ambient_temp_range_c: [-30, 50]
+    max_elevation_m: null
+    noise_dba_at_1m: null
+
+  ports:
+    - port_id: FLUID_IN
+      type: liquid_supply
+      role: input
+      connector_spec: victaulic or flanged per installation spec
+      mating_part: null
+      qty: 1
+    - port_id: FLUID_OUT
+      type: liquid_return
+      role: output
+      connector_spec: victaulic or flanged per installation spec
+      mating_part: null
+      qty: 1
+    - port_id: PWR
+      type: ac_power
+      role: input
+      connector_spec: terminal block, fused disconnects in UL Type 4 enclosure
+      mating_part: null
+      qty: 1
+    - port_id: COMMS_BAS
+      type: signal_digital
+      role: bidirectional             # BAS communications per EVAPCO control package
+      connector_spec: RS-485 (protocol BACnet MSTP or Modbus RTU — field configurable)
+      mating_part: null
+      qty: 1
+
+  control:
+    protocol: bacnet_mstp             # primary per EVAPCO control package
+    register_map_url: null
+    command_latency_ms: null
+    step_response_ms: null
+    control_modes:
+      - autonomous_local              # integrated EVAPCO control sequence
+      - external_setpoint             # BAS/EMS sends leaving fluid temperature setpoint
+      - variable_fan_speed            # ECM fan speed modulation
+      - last_known_value_fallback
+    black_start_capable: null
+
+geometry:
+  source: synthesized
+  fidelity: bounding_box
+  equipment_envelope_path: geometry/envelopes/EXT-DC-002-equipment.step
+  service_envelope_path: geometry/envelopes/EXT-DC-002-service.step
+  bounding_box:
+    L_mm: null
+    W_mm: null
+    H_mm: null
+  service_clearance:
+    front: 2000.0
+    rear: 2000.0
+    left: 1500.0
+    right: 1500.0
+    top: 3000.0
+    bottom: 500.0
+    install_clearance: null
+
+provenance:
+  authored_by: skill:datasheet_extractor
+  authored_date: 2026-04-28
+  reviewed_by: TBD_pending_human_review
+  reviewed_date: null
+  confidence_flags:
+    - field: spec.electrical.power_kw
+      flag: missing
+      note: NEMA motor ratings are model-dependent. ECM/multi-wing fan option also available per 2023 HVAC Insider article.
+    - field: spec.thermal.heat_rejection_kw
+      flag: missing
+      note: Model-dependent. Sizing engine drives EVAPCO selection tool; specific model populated at design time.
+    - field: spec.thermal.port_size_dn
+      flag: missing
+    - field: spec.mechanical.weight_kg
+      flag: missing
+    - field: spec.mechanical.dimensions_mm
+      flag: missing
+      note: Double-stack V-coil configuration maximizes heat rejection per footprint. Specific dimensions follow model selection.
+    - field: spec.mechanical.ip_rating
+      flag: assumed_default
+      note: Motor starters in UL Type 4 enclosure per EVAPCO standard. IP equivalent of Type 4 is IP65. Confirm for fan motor housings separately.
+    - field: spec.mechanical.lift_points
+      flag: missing
+    - field: spec.mechanical.noise_dba_at_1m
+      flag: missing
+    - field: spec.ports.COMMS_BAS.connector_spec
+      flag: ambiguous
+      note: Protocol is field-configurable per EVAPCO control package. BACnet MSTP is default; Modbus RTU available. Confirm at order.
+    - field: control.register_map_url
+      flag: missing
+      note: EVAPCO control package documentation not publicly available. Request from EVAPCO regional sales.
+    - field: control.command_latency_ms
+      flag: missing
+    - field: unit_cost_usd
+      flag: missing
+    - field: lead_time_weeks
+      flag: missing
+
+notes: |
+  Evapco eco-Air EAW-DD is the v1 alternate dry cooler seed for ARCNODE,
+  ranked #2 in the dry cooler Chrome session. Primary differentiator over
+  Güntner GFD (EXT-DC-001): US-fab (Taneytown MD headquarters and
+  manufacturing) making it the DOD-eligible dry cooler option. fab_tier
+  set to dod_eligible.
+
+  The Güntner/Evapco selection logic for ARCNODE deployments:
+  - Default: EXT-DC-001 (Güntner GFD) — better per-fan control granularity
+  - DOD-eligible deployments: EXT-DC-002 (Evapco eco-Air) — US-fab required
+
+  CTI-201 certification is Evapco's most important technical differentiator.
+  As of 2026, Evapco is the only manufacturer with a CTI-certified dry
+  cooler product line (per CTI STD-201 Dry RS). This is third-party thermal
+  performance verification — the selection software outputs match what the
+  unit actually delivers. For ARCNODE deployments where thermal performance
+  guarantee matters (defense, critical infrastructure), CTI certification
+  is a meaningful procurement requirement. Can be written into ARCNODE's
+  customer-facing deployment spec as a required certification.
+
+  Double-stack V-coil (EAW-DD): maximizes heat rejection per footprint by
+  stacking two V-coil sections vertically. Relevant for ARCNODE deployments
+  with constrained pad area — same footprint, double the heat rejection vs
+  single-stack. Fan motors on both stack levels. Factory-pre-wired to UL
+  standards with fused disconnects.
+
+  eco-Air APEX (2026): EVAPCO's newest evolution (announced February 2026)
+  targets large-scale mission-critical heat rejection. Stainless steel 304L
+  tubing standard, heavy-gauge aluminum fins, ships in 3 segments for large
+  models. CTI-201 certified. Worth re-evaluating for v1 if ARCNODE targets
+  above 400 kW primary loop duty; APEX may offer better density than EAW-DD
+  at that scale.
+
+  Adiabatic pre-cooling option (EAW-DA): available as upgrade for high-
+  ambient-temperature deployments (>35°C site design ambient). Adds wetted
+  adiabatic pads that lower entering air temperature, effectively extending
+  the dry cooler's rejection capacity in hot climates. For ARCNODE
+  deployments in desert, tropical, or Gulf-region environments, specify
+  EAW-DA rather than EAW-DD. Capture in deployment-specific BOM notes.
+
+  Primary loop integration: Evapco eco-Air connects directly to the
+  Compute Container (integrated thermal)'s CDU primary loop (facility-side supply and return).
+  EMS supervises leaving fluid temperature setpoint; unit operates
+  autonomously on internal control sequence with fallback to last setpoint.
+  Aligns with the supervisory control architecture confirmed across all
+  ARCNODE Chrome sessions.

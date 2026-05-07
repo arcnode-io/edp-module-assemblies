@@ -1,0 +1,213 @@
+equipment_id: EXT-DC-001
+schema_version: "0"
+category: dry_cooler
+vendor: Güntner (Güntner U.S. LLC)
+model_number: GFD Series (V-shape, ECM fans, fluid cooler)
+description: V-shape outdoor fluid dry cooler, EC motor fans, per-fan Modbus, BACnet MSTP, customer-pad mounted
+datasheet_url: https://myguntner.com/public/Guentner%20Manual%20GFD%20EN%202024-02.pdf
+datasheet_hash: TBD_compute_at_pipeline_run
+step_source: null
+fab_tier: federal_civilian
+restricted_entities: null
+lead_time_weeks: null
+unit_cost_usd: null
+
+spec:
+  electrical:
+    voltage_v: 480.0
+    voltage_range_v: [400.0, 480.0]   # 3ph supply for EC fan motors
+    current_a: null
+    phase: 3ph
+    frequency_hz: 60.0
+    power_kw: null                    # deployment-specific; function of selected size
+    power_factor_range: null
+    efficiency_pct: null
+    breaker_size_a: null
+    aic_rating_ka: null
+    thd_pct: null
+    fault_current_contribution_pu: null
+
+  thermal:
+    heat_load_kw: null                # deployment-specific; sizing engine selects model
+    heat_rejection_kw: null           # deployment-specific
+    coolant_compatibility:
+      - dei_water
+      - pgw_25
+      - pgw_40
+      - egw_25
+      - egw_40
+    flow_rate_lpm: null               # deployment-specific
+    supply_temp_c: null
+    return_temp_c: null
+    pump_head_kpa: null
+    internal_pressure_drop_kpa: null
+    port_size_dn: null                # deployment-specific; model-dependent
+
+  mechanical:
+    weight_kg: null                   # model-dependent
+    dimensions_mm: null               # model-dependent; up to ~10m length for large units
+    container_type: null
+    mounting: pad
+    mounting_notes: |
+      Outdoor pad-mounted. Customer-owned pad civil works. Unit must be
+      elevated per Güntner installation guidelines in freezing climates
+      to allow airflow through V-shape coil bottom. Service clearances
+      per Güntner manual on all four sides.
+    rack_units: null
+    ip_rating: IP54                   # minimum for outdoor EC fan motor housings
+    lift_points: null
+    ambient_temp_range_c: [-30, 50]   # Güntner standard outdoor range
+    max_elevation_m: null
+    noise_dba_at_1m: null             # model-dependent; ETL-listed units comply with
+                                      # local noise codes; low-speed EC fans typically
+                                      # quieter than AC motor equivalents
+
+  ports:
+    - port_id: FLUID_IN
+      type: liquid_supply
+      role: input
+      connector_spec: victaulic or flanged per installation spec
+      mating_part: null
+      qty: 1
+    - port_id: FLUID_OUT
+      type: liquid_return
+      role: output
+      connector_spec: victaulic or flanged per installation spec
+      mating_part: null
+      qty: 1
+    - port_id: PWR
+      type: ac_power
+      role: input
+      connector_spec: terminal block (field wired)
+      mating_part: null
+      qty: 1
+    - port_id: COMMS_BACNET
+      type: ethernet
+      role: bidirectional
+      connector_spec: RS-485 (BACnet MSTP)
+      mating_part: null
+      qty: 1
+    - port_id: COMMS_MODBUS
+      type: signal_digital
+      role: bidirectional
+      connector_spec: RS-485 (Modbus RTU, per-fan)
+      mating_part: null
+      qty: 1
+
+  control:
+    protocol: bacnet_mstp             # primary; per-fan Modbus RTU also available
+    register_map_url: null
+    command_latency_ms: null
+    step_response_ms: null
+    control_modes:
+      - autonomous_local              # integrated controller with setpoint-based logic
+      - external_setpoint             # EMS sends leaving fluid temperature setpoint
+      - per_fan_speed                 # individual EC fan speed control via Modbus
+      - last_known_value_fallback     # comms-loss safe operation
+    black_start_capable: null
+
+geometry:
+  source: synthesized
+  fidelity: bounding_box
+  equipment_envelope_path: geometry/envelopes/EXT-DC-001-equipment.step
+  service_envelope_path: geometry/envelopes/EXT-DC-001-service.step
+  bounding_box:
+    L_mm: null                        # model-dependent; populated by sizing engine
+    W_mm: null
+    H_mm: null
+  service_clearance:
+    front: 2000.0                     # airflow inlet, coil cleaning access
+    rear: 2000.0                      # airflow outlet
+    left: 1500.0
+    right: 1500.0
+    top: 3000.0                       # fan discharge
+    bottom: 500.0                     # raised mounting for freeze protection
+    install_clearance: null
+
+provenance:
+  authored_by: skill:datasheet_extractor
+  authored_date: 2026-04-28
+  reviewed_by: TBD_pending_human_review
+  reviewed_date: null
+  confidence_flags:
+    - field: spec.electrical.power_kw
+      flag: missing
+      note: Fan power is model-dependent. Sizing engine selects specific GFD model by heat rejection capacity; fan power follows from model selection.
+    - field: spec.thermal.heat_rejection_kw
+      flag: missing
+      note: Model-dependent. Güntner GPS software generates project-specific selection. Sizing engine drives this selection.
+    - field: spec.thermal.port_size_dn
+      flag: missing
+      note: Depends on selected model. Typically DN80-DN150 for 200-600 kW range units.
+    - field: spec.mechanical.weight_kg
+      flag: missing
+    - field: spec.mechanical.dimensions_mm
+      flag: missing
+      note: GFD series ranges from compact single-fan units to ~10m long multi-fan arrays. Populated once sizing engine selects model.
+    - field: spec.mechanical.noise_dba_at_1m
+      flag: missing
+      note: EC fans are variable speed; noise is operating-point dependent. Güntner GPS provides octave-band data for specific selections.
+    - field: spec.mechanical.lift_points
+      flag: missing
+    - field: spec.mechanical.max_elevation_m
+      flag: missing
+    - field: spec.ports.COMMS_BACNET.connector_spec
+      flag: ambiguous
+      note: BACnet MSTP over RS-485 confirmed from Güntner spec sheet sample; verify connector termination with specific model manual.
+    - field: control.register_map_url
+      flag: missing
+      note: Güntner controller register map available in GFD manual (portal-gated). Required for EMS BACnet integration.
+    - field: control.command_latency_ms
+      flag: missing
+    - field: unit_cost_usd
+      flag: missing
+    - field: lead_time_weeks
+      flag: missing
+
+notes: |
+  Güntner GFD is the v1 primary dry cooler seed for the ARCNODE Compute
+  Container primary coolant loop (CMP-CDU-001 facility-side). Ranked #1 in the dry cooler Chrome session (April
+  2026) on control protocol quality (per-fan Modbus, BACnet MSTP, best
+  controls documentation of evaluated vendors).
+
+  Unlike other equipment_specs in the library, dimensions, weight, heat
+  rejection capacity, and fan power are deliberately null here. The GFD
+  is a configured product — customer specifies heat rejection duty, fluid
+  temperatures, ambient design conditions, and Güntner GPS software
+  generates the specific model selection. ARCNODE's sizing engine drives
+  this selection process; the equipment_spec represents the product family,
+  not a single SKU.
+
+  The sizing engine integration path:
+  1. Compute Container thermal load → CMP-CDU-001 heat rejection → primary loop design
+     temperatures
+  2. Site ambient conditions (from deployment inputs)
+  3. Target leaving fluid temperature (setpoint for CDU)
+  4. Güntner GPS API or manual selection → GFD model number, dimensions,
+     fan count, power
+  5. BOM generator inserts specific GFD model into EDP BOM
+
+  Per-fan Modbus is the architectural differentiator over ranked alternates.
+  Individual EC fan speed control allows the EMS to implement precise load-
+  following without discrete step changes. Reduces noise at partial load
+  (relevant for urban deployments), reduces fan energy at partial load, and
+  allows partial-fan failure operation without full unit shutdown.
+
+  Coolant: GFD accepts all water/glycol blends per the schema's
+  coolant_compatibility list. Fluid selection is deployment-driven (DI
+  water for dry climates, glycol for sub-freezing ambient exposure).
+
+  Corrosion: Standard galvanized construction. Aluminum fin / copper tube
+  coil. For coastal or aggressive-atmosphere deployments, Güntner offers
+  epoxy-coated coils and stainless construction upgrades — capture in
+  deployment-specific BOM notes.
+
+  Fab tier: Güntner is a German manufacturer with US entity (Güntner U.S.
+  LLC, Suwanee GA). Units for US deployments are typically manufactured in
+  Czech Republic or Slovakia. Not US-fab; set to federal_civilian.
+  For DOD-eligible deployments, Evapco eco-Air (EXT-DC-002) is the
+  alternate with US-fab (Taneytown MD).
+
+  Alternate: EXT-DC-002 (Evapco eco-Air EAW-DD) is the v1 US-fab dry
+  cooler alternate. Ranked #2 in Chrome session. CTI-201 certified
+  thermal performance guarantee is its differentiator.

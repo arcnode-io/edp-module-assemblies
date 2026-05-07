@@ -1,0 +1,228 @@
+equipment_id: GRD-MTR-001
+schema_version: "0.7"
+category: revenue_meter
+vendor: Schneider Electric
+model_number: PowerLogic ION9000 (METSEION92xxx series, with display)
+description: Class 0.1S revenue and power quality meter, ANSI C12.20 / IEC 62053-22 certified, IEC 61850 + DNP3 + Modbus TCP, modular I/O
+datasheet_url: https://premium-power.com/wp-content/uploads/2022/04/ION9000-Technical-Data-Sheet.pdf
+datasheet_hash: TBD_compute_at_pipeline_run
+step_source: null
+fab_tier: dod_eligible
+restricted_entities: null
+lead_time_weeks: 6
+unit_cost_usd: null
+
+spec:
+  electrical:
+    voltage_v: 120.0
+    voltage_range_v: [90.0, 480.0]
+    current_a: 5.0
+    phase: 3ph
+    frequency_hz: 60.0
+    power_kw: 0.04
+    power_factor_range: null
+    efficiency_pct: null
+    breaker_size_a: null
+    aic_rating_ka: null
+    thd_pct: null
+    fault_current_contribution_pu: null
+
+  thermal:
+    heat_load_kw: 0.04
+    heat_rejection_kw: null
+    coolant_compatibility: null
+    flow_rate_lpm: null
+    supply_temp_c: null
+    return_temp_c: null
+    pump_head_kpa: null
+    internal_pressure_drop_kpa: null
+    port_size_dn: null
+
+  mechanical:
+    weight_kg: 1.5
+    dimensions_mm: [144, 144, 110]
+    container_type: 10ft_ISO_high_cube
+    mounting: rail
+    mounting_notes: |
+      DIN rail mount (base unit) with separate panel-mount color display.
+      Panel-mount adapter available for direct switchgear panel mounting.
+      ARCNODE deployment: panel-mount in SafeGear LV compartment alongside
+      GRD-RLY-001 relay. Wiring to PT/CT secondary terminals via terminal
+      blocks. Display visible from front of switchgear for utility
+      witnessing of revenue measurements.
+    rack_units: null
+    ip_rating: IP54
+    lift_points: null
+    ambient_temp_range_c: [-25, 70]
+    max_elevation_m: 3000
+    noise_dba_at_1m: null
+
+  ports:
+    - port_id: VOLTAGE_IN
+      type: signal_analog
+      role: input
+      connector_spec: terminal block (3-phase + neutral, 100–690 V phase-to-phase)
+      mating_part: null
+      qty: 4
+    - port_id: CURRENT_IN
+      type: signal_analog
+      role: input
+      connector_spec: terminal block (1A or 5A CT secondary, 3-phase)
+      mating_part: null
+      qty: 3
+    - port_id: PWR
+      type: control_power
+      role: input
+      connector_spec: terminal block (90–480 VAC or 110–480 VDC)
+      mating_part: null
+      qty: 1
+    - port_id: ETH_PRIMARY
+      type: ethernet
+      role: bidirectional
+      connector_spec: RJ45 (10/100 Mbps)
+      mating_part: null
+      qty: 1
+    - port_id: ETH_SECONDARY
+      type: ethernet
+      role: bidirectional
+      connector_spec: RJ45 (RSTP redundant)
+      mating_part: null
+      qty: 1
+    - port_id: SERIAL
+      type: serial
+      role: bidirectional
+      connector_spec: RS-485 2-wire (up to 115,200 baud)
+      mating_part: null
+      qty: 1
+    - port_id: DIGITAL_IN
+      type: signal_digital
+      role: input
+      connector_spec: terminal block
+      mating_part: null
+      qty: 8
+    - port_id: DIGITAL_OUT
+      type: signal_digital
+      role: output
+      connector_spec: terminal block
+      mating_part: null
+      qty: 4
+    - port_id: RELAY_OUT
+      type: dry_contact
+      role: output
+      connector_spec: terminal block (Form C)
+      mating_part: null
+      qty: 2
+
+  control:
+    protocol: modbus_tcp
+    register_map_url: https://www.se.com/ww/en/download/document/7EN02-0390/
+    command_latency_ms: null
+    step_response_ms: null
+    control_modes:
+      - autonomous_local
+      - revenue_metering_locked
+      - power_quality_monitoring
+      - last_known_value_fallback
+    black_start_capable: null
+
+geometry:
+  source: synthesized
+  fidelity: bounding_box
+  equipment_envelope_path: geometry/envelopes/GRD-MTR-001-equipment.step
+  service_envelope_path: geometry/envelopes/GRD-MTR-001-service.step
+  bounding_box:
+    L_mm: 144.0
+    W_mm: 144.0
+    H_mm: 110.0
+  service_clearance:
+    front: 600.0
+    rear: 200.0
+    left: 50.0
+    right: 50.0
+    top: 50.0
+    bottom: 50.0
+    install_clearance: null
+
+provenance:
+  authored_by: skill:datasheet_extractor
+  authored_date: 2026-04-28
+  reviewed_by: TBD_pending_human_review
+  reviewed_date: null
+  confidence_flags:
+    - field: spec.mechanical.dimensions_mm
+      flag: assumed_default
+      note: Standard panel-mount form factor 144×144 mm (DIN 43700) typical for power quality meters. Verify with full ION9000 installation sheet.
+    - field: spec.mechanical.weight_kg
+      flag: assumed_default
+    - field: spec.electrical.power_kw
+      flag: assumed_default
+      note: ~40W typical (datasheet states ~80VA fully-optioned at 480V 50/60Hz).
+    - field: control.command_latency_ms
+      flag: missing
+    - field: control.step_response_ms
+      flag: missing
+      note: ION9000 captures power quality events as short as 20μs and records waveforms concurrently. Per-cycle metering at 60 Hz.
+    - field: unit_cost_usd
+      flag: missing
+    - field: lead_time_weeks
+      flag: low_confidence_extraction
+
+notes: |
+  Schneider PowerLogic ION9000 is the v1 reference revenue meter for the
+  ARCNODE Grid Container. Sits at the utility point of interconnect,
+  measures bidirectional power flow for utility billing and ARCNODE EMS
+  telemetry.
+
+  Class 0.1S accuracy (third-party certified ANSI C12.20 / IEC 62053-22) —
+  the highest commercial accuracy class. Required for revenue-grade
+  metering in most utility tariffs, especially where ARCNODE deployment
+  participates in energy arbitrage or grid services.
+
+  Power quality functions (in addition to revenue):
+  - PQI-A certification per IEC 62586-1/-2
+  - Sag/swell/interrupt detection
+  - Disturbance Direction Detection (patented Schneider feature) —
+    distinguishes utility-side vs customer-side power quality events
+  - Harmonics analysis up to 63rd (511th via EcoStruxure software)
+  - EN 50160 and IEEE 519 compliance reporting
+
+  Communications stack:
+  - Modbus TCP + RTU (primary EMS protocol)
+  - DNP3 (utility SCADA)
+  - IEC 61850 MMS (modern utility integration)
+  - DLMS (international metering standard)
+  - SNMP (IT-side monitoring)
+  - Built-in HTTPS web server for local access
+
+  Time synchronization: PTP (IEEE 1588), NTP, IRIG-B, GPS ASCII via
+  RS-485. Sub-millisecond timestamping for sequence-of-events with the
+  SEL-351-7 relay.
+
+  EMS integration: Modbus TCP register map is the primary path. ION9000
+  exposes ~3000 measurement points; EMS pulls the standard subset (kW,
+  kVAR, kVA, PF, voltage per phase, current per phase, energy in/out,
+  THD per phase, frequency).
+
+  Modular I/O: 8 digital inputs, 4 digital outputs, 2 relay outputs
+  standard. Up to 4 option modules add: 2 relays + 6 digital inputs OR
+  2 analog outputs + 4 analog inputs. ARCNODE deployment uses standard
+  I/O for breaker status indication and trip permissive signaling to
+  the SEL-351-7 protective relay.
+
+  Cybersecurity: HTTPS, SFTP, SNMPv3, syslog, 50 user accounts with role-
+  based access, secure firmware updates. NERC CIP-eligible. Schneider
+  publishes hardening guide for utility deployments.
+
+  Sealed for revenue: ION9000 supports utility seals on the meter and
+  cover, locking out configuration changes per utility tariff requirements.
+  ARCNODE deployment includes utility witness commissioning step in the
+  installation sequence document.
+
+  ITAR-domestic: Schneider has US fab for PowerLogic line in Costa Rica
+  and Mexico (NAFTA), plus EU. For DOD-eligible deployments, verify
+  per-unit fab origin at procurement. fab_tier set to dod_eligible
+  pending verification path.
+
+  Alternates: GE EPM 9450/9650 (similar Class 0.1S meter), SATEC PM175
+  (utility-grade alternative). Schneider ION9000 is v1 default given
+  Schneider alignment with GRD-XFM-001 (Trihal transformer).
