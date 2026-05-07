@@ -40,7 +40,8 @@ ci = ["validate-specs", "build-manifest", "push-s3"]
 # inspect
 inspect-compute = "bash -c 'nohup freecad assemblies/compute-container/commercial-ac/assembly.step &>/dev/null &'"
 inspect-compute-exploded = "bash -c 'nohup freecad assemblies/compute-container/commercial-ac/assembly-exploded.step &>/dev/null &'"
-inspect-grid = "bash -c 'nohup freecad assemblies/grid-container/commercial-ac/assembly.step &>/dev/null &'"   # exists after step 6.1
+inspect-grid = "bash -c 'nohup freecad assemblies/grid-container/commercial-ac/assembly.step &>/dev/null &'"
+inspect-grid-exploded = "bash -c 'nohup freecad assemblies/grid-container/commercial-ac/assembly-exploded.step &>/dev/null &'"
 
 test = "pytest -vv"
 cover = "pytest -vv --cov src/"
