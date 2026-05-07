@@ -48,6 +48,14 @@ CG plate cadquery model is parametric on conduit OD, data conduit count, deploym
 
 v1 ships single mutable URL `s3://arcnode-artifacts/manifest.yaml` with an in-file `version:` field populated by semantic-release. No per-version URL pattern, no `MANIFEST_VERSION` config in edp-api, no startup version check. Revisit when the schema stabilizes (post step 6) and dev/staging environments split. Risk being accepted: an in-flight edp-api job reading the manifest mid-update sees a torn read; mitigation is per-job fetch + in-memory pin for job duration.
 
-## ADR-014 — Grid container forced convection load-bearing
+## ADR-014 — Trihal sub-config locked for natural-convection clearance
 
-Trihal 1 MVA per spec (GRD-XFM-001) is 2,000 mm tall. 10 ft HC interior is 2,680 mm (ADR-004) → 680 mm overhead. Schneider's natural-convection guideline for the Trihal IP31 enclosure is ≥ 820 mm overhead. v1 container geometry doesn't meet the guideline as a passive design. The 4× louver cutouts on long walls (Q5) plus container ventilation are therefore *load-bearing* for the convection requirement — not aesthetic features. Forced/assisted convection is the design intent; passive 680 mm overhead is acceptable only with airflow on the container side. Procurement-time check: confirm whether the procured Trihal SKU is 1,860 mm (clears guideline) or 2,000 mm (requires forced); if 2,000, also confirm louver sizing is sufficient via natural-convection calc in step 6.9.
+ARCNODE-default Trihal sub-config (GRD-XFM-001):
+  - 13.8 kV class (utility-typical US MV; matches GRD-SWG-001 SafeGear)
+  - Off-load taps ±2.5%/±5% (standard, ~50 mm top adder)
+  - Side-entry HV + LV terminal boxes (saves height vs top-entry)
+  - Louvered IP31 ventilated top
+
+That config lands at 1,580 × 820 × 1,860 mm. Container interior height 2,680 mm (ADR-004) gives 820 mm overhead, which exactly meets Schneider's natural-convection guideline. The 4× louver cutouts on long walls (Q5) augment but are not load-bearing for that guideline.
+
+Procurement-time check: confirm the procured Schneider SKU encodes this sub-config. Alternate sub-configs (top-entry terminals add ~140 mm height; on-load tap changers add more) push past the natural-convection budget — those would require forced ventilation in addition to louvers, captured as a separate ADR if a different sub-config is procured.

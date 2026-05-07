@@ -2,7 +2,7 @@ equipment_id: GRD-XFM-001
 schema_version: "0"
 category: transformer
 vendor: Schneider Electric
-model_number: Trihal TRI100013684152509 (1000 kVA, 13.8 kV / 415V, dyn11, IP31, copper, AN)
+model_number: Trihal TRI100013684152509 (1000 kVA, 13.8 kV / 415V, dyn11, IP31, copper, AN, side-entry HV+LV, off-load taps ±2.5/±5%, louvered top)
 description: Cast-resin dry-type step-up transformer, 1 MVA, 415Y/240V LV / 13.8kV HV, dyn11, indoor IP31
 datasheet_url: https://www.schneider-electric.com/en/product/TRI100013684152509/trihal-cast-resin-dry-type-transformer-1000-kva-13.8-kv-iec-dyn11-ip31/
 datasheet_hash: TBD_compute_at_pipeline_run
@@ -61,13 +61,13 @@ spec:
     - port_id: HV_TERM
       type: ac_power
       role: bidirectional              # 13.8 kV primary terminals (3-phase, dyn11 delta)
-      connector_spec: bushing terminals, top entry
+      connector_spec: bushing terminals, side entry
       mating_part: null
       qty: 3                           # 3 phases
     - port_id: LV_TERM
       type: ac_power
       role: bidirectional              # 480 V secondary terminals (3-phase, wye with N)
-      connector_spec: bushing terminals, top entry
+      connector_spec: bushing terminals, side entry
       mating_part: null
       qty: 4                           # 3 phases + neutral
     - port_id: GND
@@ -100,9 +100,9 @@ geometry:
   equipment_envelope_path: geometry/envelopes/GRD-XFM-001-equipment.step
   service_envelope_path: geometry/envelopes/GRD-XFM-001-service.step
   bounding_box:
-    L_mm: 1800.0
-    W_mm: 1400.0
-    H_mm: 2000.0
+    L_mm: 1580.0
+    W_mm: 820.0
+    H_mm: 1860.0
   service_clearance:
     front: 800.0                       # terminal access, thermometer panel
     rear: 500.0                        # ventilation per Trihal manual
@@ -130,21 +130,17 @@ provenance:
       flag: low_confidence_extraction
       note: 2,440 kg from Trihal catalog weight table. Verify per-SKU at procurement as weight varies by winding material and cooling option.
     - field: spec.mechanical.dimensions_mm
-      flag: low_confidence_extraction
+      flag: assumed_default
       note: |
-        From Trihal catalog dimensional table (1000 kVA IP31 enclosure).
-        Verify with Schneider full dimensional drawing at procurement.
-        Step 6.1 grid_container handoff doc cited 1580 x 820 x 1860 mm
-        for the same SKU — likely a different cooling/tap config.
-        Build uses spec dims (1800x1400x2000) as the larger envelope
-        for layout safety. Resolve at procurement.
-    - field: spec.mechanical.dimensions_mm
-      flag: ambiguous
-      note: |
-        Catalog dim 1800x1400x2000 used for v1 layout. Handoff cited
-        1860mm height — likely different sub-config. Verify at procurement.
-        v1 container layout has 680mm overhead (vs 820mm natural-convection
-        guideline) — see ADR-014.
+        Locked to ARCNODE-default sub-config per ADR-014:
+          - 13.8 kV class (matches GRD-SWG-001 SafeGear)
+          - Off-load taps ±2.5%/±5% (~50 mm top adder)
+          - Side-entry HV + LV terminals (saves height vs top entry)
+          - Louvered IP31 ventilated top
+        That config lands at 1580 x 820 x 1860 mm. Natural-convection
+        guideline (820 mm overhead in 2680 mm interior) holds.
+        Procurement-time check: confirm Schneider SKU encodes this
+        sub-config; alternates land at different heights.
     - field: spec.mechanical.lift_points
       flag: missing
       note: Standard Trihal includes 4 lifting eyes per IEC convention. Not enumerated on product page.

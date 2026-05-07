@@ -20,10 +20,12 @@ L_INT_MM: Final[float] = 2848.0
 W_INT_MM: Final[float] = 2235.0
 H_INT_MM: Final[float] = 2680.0
 
-# Trihal envelope (per spec.yaml — Q2-C used the larger spec value).
-XFM_L_MM: Final[float] = 1800.0
-XFM_W_MM: Final[float] = 1400.0
-XFM_H_MM: Final[float] = 2000.0
+# Trihal envelope per ARCNODE-default sub-config (ADR-014).
+# 13.8kV / off-load taps ±2.5/±5% / side-entry HV+LV / louvered IP31 top.
+# Height 1860mm clears 820mm natural-convection guideline in 2680mm interior.
+XFM_L_MM: Final[float] = 1580.0
+XFM_W_MM: Final[float] = 820.0
+XFM_H_MM: Final[float] = 1860.0
 
 # SafeGear envelope (rotated 90° Z so depth=2159 goes along Y).
 SWG_L_MM: Final[float] = 2159.0  # depth (Y axis after rotation)
