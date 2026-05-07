@@ -9,5 +9,5 @@
 profiles:
   commercial_ac:
     compute_container: commercial-ac
-    grid_container: commercial-ac   # built in step 6.1
-    interface_plates: [CG]          # BG-AC, CD, EX-G, EX-C land in step 6.2/6.3
+    grid_container: commercial-ac
+    interface_plates: [CG, BG-AC]   # CD, EX-G, EX-C land in step 6.3

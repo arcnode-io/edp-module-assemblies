@@ -5,6 +5,7 @@ import math
 import pytest
 
 from src.assemblies.grid_container import (
+    BG_AC_MATING_FRAME,
     CG_MATING_FRAME,
     COMMERCIAL_AC_BOM,
     H_EXT_MM,
@@ -68,12 +69,28 @@ def test_bom_has_xfm_and_swg_and_cg_plate() -> None:
     assert plates_by_id["CG"] == 1
 
 
-def test_bom_excludes_bg_ac_and_ex_g_per_q3() -> None:
+def test_bom_includes_bg_ac_per_step_6_2() -> None:
     # arrange
     plate_ids = {p["id"] for p in COMMERCIAL_AC_BOM["plates"]}
-    # act / assert — Q3-C: only CG; BG-AC + EX-G land in step 6.2/6.3
-    assert "BG-AC" not in plate_ids
+    # act / assert — step 6.2: BG-AC now in bom; EX-G/EX-C still deferred to 6.3
+    assert "BG-AC" in plate_ids
     assert "EX-G" not in plate_ids
+    assert "EX-C" not in plate_ids
+
+
+def test_bg_ac_plate_placed_at_positive_x_end() -> None:
+    # arrange — BG-AC at +X end (BESS pad), opposite from CG at -X (compute)
+    expected_x = +L_EXT_MM / 2
+    actual_x = BG_AC_MATING_FRAME.toTuple()[0][0]
+    assert math.isclose(actual_x, expected_x, abs_tol=0.1)
+
+
+def test_bg_ac_plate_in_assembly() -> None:
+    # arrange / act
+    assy = build_grid_container(variant="commercial-ac")
+    child_names = {c.name for c in assy.children}
+    # assert
+    assert "ARC-PLT-BG-AC" in child_names
 
 
 def test_exploded_xfm_lifted_in_z() -> None:

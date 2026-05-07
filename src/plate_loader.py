@@ -26,6 +26,7 @@ S3_KEY_TEMPLATE: Final[str] = "plates/{plate_id}/{version}/plate.step"
 # via symlink. CI ignores this and relies on S3 download (cache miss path).
 LOCAL_PLATE_SOURCES: Final[dict[tuple[str, str], Path]] = {
     ("CG", "v1"): REPO_ROOT.parent / "edp-interface-plates" / "cad" / "CG.step",
+    ("BG-AC", "v1"): REPO_ROOT.parent / "edp-interface-plates" / "cad" / "BG-AC.step",
 }
 
 

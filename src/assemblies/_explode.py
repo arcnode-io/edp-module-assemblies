@@ -55,6 +55,11 @@ def cg_plate_grid_offset() -> cq.Vector:
     return cq.Vector(-CG_PLATE_OUTWARD_X_MM, 0, 0)
 
 
+def bg_ac_plate_offset() -> cq.Vector:
+    """BG-AC plate slides further +X off the grid container's +X end wall."""
+    return cq.Vector(CG_PLATE_OUTWARD_X_MM, 0, 0)
+
+
 def xfm_offset() -> cq.Vector:
     """Trihal lifts +Z off the container floor in exploded view."""
     return cq.Vector(0, 0, XFM_LIFT_Z_MM)

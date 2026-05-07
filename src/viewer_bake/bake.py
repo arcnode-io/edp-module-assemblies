@@ -78,7 +78,9 @@ def _bind_meshes(gltf: GLTF2, role_idx: dict[str, int]) -> None:
             prim.material = role_idx[spec.name]
 
 
-def _append_animation(gltf: GLTF2, exploded_translations: dict[str, np.ndarray]) -> None:
+def _append_animation(
+    gltf: GLTF2, exploded_translations: dict[str, np.ndarray]
+) -> None:
     """Add 'explode' clip with per-node translation tracks (assembled → exploded over ANIM_DURATION_S)."""
     moving = []
     for i, node in enumerate(gltf.nodes):
@@ -106,30 +108,54 @@ def _append_animation(gltf: GLTF2, exploded_translations: dict[str, np.ndarray])
     time_bv = len(gltf.bufferViews)
     gltf.bufferViews.append(BufferView(buffer=0, byteOffset=base, byteLength=8))
     time_acc = len(gltf.accessors)
-    gltf.accessors.append(Accessor(
-        bufferView=time_bv, componentType=GL_FLOAT, count=2, type="SCALAR",
-        min=[0.0], max=[float(ANIM_DURATION_S)],
-    ))
+    gltf.accessors.append(
+        Accessor(
+            bufferView=time_bv,
+            componentType=GL_FLOAT,
+            count=2,
+            type="SCALAR",
+            min=[0.0],
+            max=[float(ANIM_DURATION_S)],
+        )
+    )
 
     samplers: list[AnimationSampler] = []
     channels: list[AnimationChannel] = []
     for (node_idx, from_t, to_t), ofs in zip(moving, output_offsets, strict=True):
         out_arr = np.stack([from_t, to_t]).astype(np.float32)
-        gltf.bufferViews.append(BufferView(buffer=0, byteOffset=base + ofs, byteLength=24))
-        gltf.accessors.append(Accessor(
-            bufferView=len(gltf.bufferViews) - 1, componentType=GL_FLOAT, count=2, type="VEC3",
-            min=out_arr.min(axis=0).tolist(), max=out_arr.max(axis=0).tolist(),
-        ))
-        samplers.append(AnimationSampler(input=time_acc, output=len(gltf.accessors) - 1, interpolation="LINEAR"))
-        channels.append(AnimationChannel(
-            sampler=len(samplers) - 1,
-            target=AnimationChannelTarget(node=node_idx, path="translation"),
-        ))
+        gltf.bufferViews.append(
+            BufferView(buffer=0, byteOffset=base + ofs, byteLength=24)
+        )
+        gltf.accessors.append(
+            Accessor(
+                bufferView=len(gltf.bufferViews) - 1,
+                componentType=GL_FLOAT,
+                count=2,
+                type="VEC3",
+                min=out_arr.min(axis=0).tolist(),
+                max=out_arr.max(axis=0).tolist(),
+            )
+        )
+        samplers.append(
+            AnimationSampler(
+                input=time_acc, output=len(gltf.accessors) - 1, interpolation="LINEAR"
+            )
+        )
+        channels.append(
+            AnimationChannel(
+                sampler=len(samplers) - 1,
+                target=AnimationChannelTarget(node=node_idx, path="translation"),
+            )
+        )
 
     gltf.set_binary_blob(existing + bytes(blob))
     gltf.buffers[0].byteLength = len(existing) + len(blob)
-    gltf.animations.append(Animation(name="explode", channels=channels, samplers=samplers))
-    logger.info("added 'explode' animation: %d channels, %.2fs", len(channels), ANIM_DURATION_S)
+    gltf.animations.append(
+        Animation(name="explode", channels=channels, samplers=samplers)
+    )
+    logger.info(
+        "added 'explode' animation: %d channels, %.2fs", len(channels), ANIM_DURATION_S
+    )
 
 
 def _hotspots(gltf: GLTF2, kind: str) -> list[dict[str, object]]:
@@ -146,21 +172,26 @@ def _hotspots(gltf: GLTF2, kind: str) -> list[dict[str, object]]:
             local_centroid = (mn + mx) / 2.0
             point = np.append(local_centroid, 1.0)
             world_pt = worlds[node_idx] @ point
-            out.append({
-                "id": hs.hid,
-                "pos": [round(float(c), 4) for c in world_pt[:3]],
-                "label": hs.label,
-                "sub": hs.sub,
-            })
+            out.append(
+                {
+                    "id": hs.hid,
+                    "pos": [round(float(c), 4) for c in world_pt[:3]],
+                    "label": hs.label,
+                    "sub": hs.sub,
+                }
+            )
             break
     return out
 
 
 def bake_module(kind: str, src_dir: Path, out_dir: Path) -> Path:
+    """Bake one module: read assembled+exploded sources, write animated GLB to out_dir."""
     assembled = GLTF2().load_binary(str(src_dir / "assembly.glb"))
     exploded = GLTF2().load_binary(str(src_dir / "assembly-exploded.glb"))
     exploded_translations = {
-        n.name: node_translation(exploded, i) for i, n in enumerate(exploded.nodes) if n.name
+        n.name: node_translation(exploded, i)
+        for i, n in enumerate(exploded.nodes)
+        if n.name
     }
     role_idx = _replace_materials(assembled)
     _bind_meshes(assembled, role_idx)
@@ -183,5 +214,3 @@ def bake_hotspots(out_dir: Path) -> Path:
     out_path.write_text(json.dumps(manifest, indent=2))
     logger.info("wrote %s", out_path)
     return out_path
-
-

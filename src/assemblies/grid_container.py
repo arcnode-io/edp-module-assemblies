@@ -43,9 +43,18 @@ CG_MATING_FRAME: Final[cq.Location] = cq.Location(
     +90,
 )
 
+# Reason: BG-AC plate at +X end (BESS-facing). Plate built normal +Z;
+# rotation -90° about Y → normal +X (away from grid, toward BESS pad).
+BG_AC_MATING_FRAME: Final[cq.Location] = cq.Location(
+    cq.Vector(+L_EXT_MM / 2, 0.0, PLATE_CENTER_Z_MM),
+    cq.Vector(0, 1, 0),
+    -90,
+)
+
 Variant = Literal["commercial-ac"]
 
-# Q3-C: only CG plate in v1 grid bom. BG-AC + EX-G land in step 6.2/6.3.
+# Step 6.2 (BG-AC plate) brings v1 grid bom to CG + BG-AC.
+# EX-G + EX-C land in step 6.3.
 COMMERCIAL_AC_BOM: Final[dict] = {
     "parts": [
         {"equipment_id": "GRD-XFM-001", "qty": 1},
@@ -55,6 +64,7 @@ COMMERCIAL_AC_BOM: Final[dict] = {
     ],
     "plates": [
         {"id": "CG", "version": "v1", "qty": 1},
+        {"id": "BG-AC", "version": "v1", "qty": 1},
     ],
 }
 
@@ -95,20 +105,29 @@ def build_grid_container(
 
     _grid_layout.place_grid_equipment(assy, exploded=exploded)
 
-    # CG plate at -X end wall mating frame (Q4)
-    cg_plate_step = plate_loader.fetch("CG", "v1")
-    cg_plate = cq.importers.importStep(str(cg_plate_step))
+    _add_plates(assy, exploded=exploded)
+    return assy
+
+
+def _add_plates(assy: cq.Assembly, *, exploded: bool) -> None:
+    """Place CG (-X end, compute-facing) + BG-AC (+X end, BESS-facing)."""
+    cg_plate = cq.importers.importStep(str(plate_loader.fetch("CG", "v1")))
     cg_loc = CG_MATING_FRAME
     if exploded:
-        base_pos = cq.Vector(*CG_MATING_FRAME.toTuple()[0])
+        base = cq.Vector(*CG_MATING_FRAME.toTuple()[0])
         cg_loc = cq.Location(
-            base_pos + _explode.cg_plate_grid_offset(),
-            cq.Vector(0, 1, 0),
-            +90,
+            base + _explode.cg_plate_grid_offset(), cq.Vector(0, 1, 0), +90
         )
     assy.add(cg_plate, name="ARC-PLT-CG", loc=cg_loc, color=cq.Color(0.6, 0.6, 0.7))
 
-    return assy
+    bg_plate = cq.importers.importStep(str(plate_loader.fetch("BG-AC", "v1")))
+    bg_loc = BG_AC_MATING_FRAME
+    if exploded:
+        base = cq.Vector(*BG_AC_MATING_FRAME.toTuple()[0])
+        bg_loc = cq.Location(
+            base + _explode.bg_ac_plate_offset(), cq.Vector(0, 1, 0), -90
+        )
+    assy.add(bg_plate, name="ARC-PLT-BG-AC", loc=bg_loc, color=cq.Color(0.7, 0.5, 0.3))
 
 
 def emit_artifacts(

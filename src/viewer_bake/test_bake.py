@@ -58,6 +58,6 @@ def test_bake_hotspots_emits_meter_scale_centroids(tmp_path: Path) -> None:
     for kind in ("compute", "grid"):
         for h in manifest[kind]:
             for c in h["pos"]:
-                assert -3.0 < c < 3.0, f"{kind}/{h['id']} centroid {c} out of meter range"
-
-
+                assert (
+                    -3.0 < c < 3.0
+                ), f"{kind}/{h['id']} centroid {c} out of meter range"
