@@ -10,7 +10,7 @@ checks:
     # TODO: build-compute + build-manifest need plate STEP from sibling
     # edp-interface-plates repo; add cross-repo artifact pull when CI
     # plumbing for that lands. For now skip plate-dependent tests in CI.
-    - uv run pytest --junitxml=junit.xml --deselect src/assemblies/test_compute_container.py --cov src/
+    - uv run pytest --junitxml=junit.xml --deselect src/assemblies/test_compute_container.py --deselect src/assemblies/test_grid_container.py --cov src/
     - uv run coverage xml
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:

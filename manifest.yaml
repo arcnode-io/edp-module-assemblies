@@ -64,6 +64,14 @@ assemblies:
       glb_exploded: s3://arcnode-artifacts/assemblies/compute-container/commercial-ac/assembly-exploded.glb
       step_exploded: s3://arcnode-artifacts/assemblies/compute-container/commercial-ac/assembly-exploded.step
       topology_yaml: null
+  grid_container:
+    commercial-ac:
+      bom: s3://arcnode-artifacts/assemblies/grid-container/commercial-ac/bom.yaml
+      step: s3://arcnode-artifacts/assemblies/grid-container/commercial-ac/assembly.step
+      glb: s3://arcnode-artifacts/assemblies/grid-container/commercial-ac/assembly.glb
+      glb_exploded: s3://arcnode-artifacts/assemblies/grid-container/commercial-ac/assembly-exploded.glb
+      step_exploded: s3://arcnode-artifacts/assemblies/grid-container/commercial-ac/assembly-exploded.step
+      topology_yaml: null
 plates:
   CG:
     spec: s3://arcnode-artifacts/plates/CG/v1/spec.yaml

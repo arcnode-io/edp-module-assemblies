@@ -59,14 +59,14 @@ def test_manifest_profile_commercial_ac_resolved() -> None:
     assert "CG" in profile.interface_plates
 
 
-def test_validate_profile_refs_warns_for_missing_grid_container() -> None:
-    # arrange — known v1 state: grid container assembly not built
+def test_validate_profile_refs_clean_after_grid_container_built() -> None:
+    # arrange — step 6.1 grid container exists; profile refs should resolve
     manifest = build_manifest()
     # act
     warnings = _validate_profile_refs(manifest)
-    # assert — warning expected for grid-container-commercial-ac (step 6.1)
+    # assert — no missing-variant warnings now that grid is built
     grid_warnings = [w for w in warnings if "grid_container" in w]
-    assert len(grid_warnings) >= 1
+    assert grid_warnings == []
 
 
 def test_manifest_pydantic_roundtrip(tmp_path: Path) -> None:

@@ -131,7 +131,13 @@ provenance:
       note: 2,440 kg from Trihal catalog weight table. Verify per-SKU at procurement as weight varies by winding material and cooling option.
     - field: spec.mechanical.dimensions_mm
       flag: low_confidence_extraction
-      note: From Trihal catalog dimensional table (1000 kVA IP31 enclosure). Verify with Schneider full dimensional drawing at procurement.
+      note: |
+        From Trihal catalog dimensional table (1000 kVA IP31 enclosure).
+        Verify with Schneider full dimensional drawing at procurement.
+        Step 6.1 grid_container handoff doc cited 1580 x 820 x 1860 mm
+        for the same SKU — likely a different cooling/tap config.
+        Build uses spec dims (1800x1400x2000) as the larger envelope
+        for layout safety. Resolve at procurement.
     - field: spec.mechanical.lift_points
       flag: missing
       note: Standard Trihal includes 4 lifting eyes per IEC convention. Not enumerated on product page.

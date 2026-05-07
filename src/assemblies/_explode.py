@@ -17,6 +17,12 @@ PDU_OUTWARD_Y_MM: Final[float] = 400.0
 PDU_LIFT_Z_MM: Final[float] = 200.0
 CG_PLATE_OUTWARD_X_MM: Final[float] = 500.0
 
+# Grid container explode offsets (Q8)
+XFM_LIFT_Z_MM: Final[float] = 600.0  # Trihal lifts off floor
+SWG_LIFT_Z_MM: Final[float] = (
+    1200.0  # SafeGear lifts higher (tall, distinct from Trihal)
+)
+
 
 def node_offset(index: int) -> cq.Vector:
     """Per-node Z stagger so each node is visually separable in webview."""
@@ -40,5 +46,20 @@ def pdu_offset(y_sign: int) -> cq.Vector:
 
 
 def cg_plate_offset() -> cq.Vector:
-    """CG plate slides further +X off the end wall."""
+    """CG plate slides further +X off the end wall (compute side)."""
     return cq.Vector(CG_PLATE_OUTWARD_X_MM, 0, 0)
+
+
+def cg_plate_grid_offset() -> cq.Vector:
+    """CG plate slides further -X off the grid container's -X end wall."""
+    return cq.Vector(-CG_PLATE_OUTWARD_X_MM, 0, 0)
+
+
+def xfm_offset() -> cq.Vector:
+    """Trihal lifts +Z off the container floor in exploded view."""
+    return cq.Vector(0, 0, XFM_LIFT_Z_MM)
+
+
+def swg_offset() -> cq.Vector:
+    """SafeGear lifts +Z off the container floor in exploded view."""
+    return cq.Vector(0, 0, SWG_LIFT_Z_MM)
