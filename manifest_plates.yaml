@@ -17,3 +17,15 @@ plates:
     step_relpath: cad/specs/BG-AC/plate.step
     dxf_relpath: cad/specs/BG-AC/plate.dxf
     drawing_meta_relpath: cad/specs/BG-AC/drawing_meta.json
+  EX-G:
+    version: v1
+    spec_relpath: cad/specs/EX-G/spec.yaml
+    step_relpath: cad/specs/EX-G/plate.step
+    dxf_relpath: cad/specs/EX-G/plate.dxf
+    drawing_meta_relpath: cad/specs/EX-G/drawing_meta.json
+  EX-C:
+    version: v1
+    spec_relpath: cad/specs/EX-C/spec.yaml
+    step_relpath: cad/specs/EX-C/plate.step
+    dxf_relpath: cad/specs/EX-C/plate.dxf
+    drawing_meta_relpath: cad/specs/EX-C/drawing_meta.json

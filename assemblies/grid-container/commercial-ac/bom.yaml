@@ -14,3 +14,6 @@ plates:
 - id: BG-AC
   version: v1
   qty: 1
+- id: EX-G
+  version: v1
+  qty: 1

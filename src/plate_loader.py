@@ -24,19 +24,12 @@ S3_KEY_TEMPLATE: Final[str] = "plates/{plate_id}/{version}/plate.step"
 # Reason: dev-only local source map for plate STEPs in the sibling
 # edp-interface-plates repo. Used by `poe sync-plates` to seed the cache
 # via symlink. CI ignores this and relies on S3 download (cache miss path).
+_PLATES_REPO: Final[Path] = REPO_ROOT.parent / "edp-interface-plates" / "cad" / "specs"
 LOCAL_PLATE_SOURCES: Final[dict[tuple[str, str], Path]] = {
-    ("CG", "v1"): REPO_ROOT.parent
-    / "edp-interface-plates"
-    / "cad"
-    / "specs"
-    / "CG"
-    / "plate.step",
-    ("BG-AC", "v1"): REPO_ROOT.parent
-    / "edp-interface-plates"
-    / "cad"
-    / "specs"
-    / "BG-AC"
-    / "plate.step",
+    ("CG", "v1"): _PLATES_REPO / "CG" / "plate.step",
+    ("BG-AC", "v1"): _PLATES_REPO / "BG-AC" / "plate.step",
+    ("EX-G", "v1"): _PLATES_REPO / "EX-G" / "plate.step",
+    ("EX-C", "v1"): _PLATES_REPO / "EX-C" / "plate.step",
 }
 
 

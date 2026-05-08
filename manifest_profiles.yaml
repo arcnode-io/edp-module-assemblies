@@ -10,4 +10,4 @@ profiles:
   commercial_ac:
     compute_container: commercial-ac
     grid_container: commercial-ac
-    interface_plates: [CG, BG-AC]   # CD, EX-G, EX-C land in step 6.3
+    interface_plates: [CG, BG-AC, EX-G, EX-C]   # CD lands in step 6.4

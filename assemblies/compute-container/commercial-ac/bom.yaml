@@ -13,3 +13,6 @@ plates:
 - id: CG
   version: v1
   qty: 1
+- id: EX-C
+  version: v1
+  qty: 1

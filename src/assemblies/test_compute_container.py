@@ -54,15 +54,15 @@ def test_compute_container_rejects_unsupported_variant() -> None:
         build_compute_container(variant="commercial-dc")  # type: ignore[arg-type]
 
 
-def test_bom_has_seven_nodes_and_one_cg_plate() -> None:
+def test_bom_has_seven_nodes_and_cg_plus_ex_c_plates() -> None:
     # arrange
     parts_by_id = {p["equipment_id"]: p["qty"] for p in COMMERCIAL_AC_BOM["parts"]}
     plates_by_id = {p["id"]: p["qty"] for p in COMMERCIAL_AC_BOM["plates"]}
     # act / assert
     expected_node_qty = 7
-    expected_plate_qty = 1
     assert parts_by_id["CMP-NODE-001"] == expected_node_qty
-    assert plates_by_id["CG"] == expected_plate_qty
+    assert plates_by_id["CG"] == 1
+    assert plates_by_id["EX-C"] == 1  # step 6.3: external services plate
 
 
 def test_bom_has_pdus_per_adr_005() -> None:
