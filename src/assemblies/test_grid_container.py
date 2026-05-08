@@ -69,13 +69,11 @@ def test_bom_has_xfm_and_swg_and_cg_plate() -> None:
     assert plates_by_id["CG"] == 1
 
 
-def test_bom_includes_bg_ac_and_ex_g_per_step_6_2_3() -> None:
+def test_bom_plates_match_3_plate_fleet() -> None:
     # arrange
     plate_ids = {p["id"] for p in COMMERCIAL_AC_BOM["plates"]}
-    # act / assert — step 6.2: BG-AC; step 6.3: EX-G (grid side)
-    assert "BG-AC" in plate_ids
-    assert "EX-G" in plate_ids
-    assert "EX-C" not in plate_ids  # EX-C is on compute container, not grid
+    # act / assert — grid container has 2 of 3 plates: CG (-X) + BG-AC (+X)
+    assert plate_ids == {"CG", "BG-AC"}
 
 
 def test_bg_ac_plate_placed_at_positive_x_end() -> None:

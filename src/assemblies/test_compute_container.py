@@ -10,11 +10,12 @@ import math
 import pytest
 
 from src.assemblies.compute_container import (
+    CD_MATING_FRAME,
     CG_MATING_FRAME,
+    COMMERCIAL_AC_BOM,
     H_EXT_MM,
     L_EXT_MM,
     W_EXT_MM,
-    COMMERCIAL_AC_BOM,
     build_compute_container,
 )
 
@@ -54,15 +55,14 @@ def test_compute_container_rejects_unsupported_variant() -> None:
         build_compute_container(variant="commercial-dc")  # type: ignore[arg-type]
 
 
-def test_bom_has_seven_nodes_and_cg_plus_ex_c_plates() -> None:
+def test_bom_has_seven_nodes_and_cg_plus_cd_plates() -> None:
     # arrange
     parts_by_id = {p["equipment_id"]: p["qty"] for p in COMMERCIAL_AC_BOM["parts"]}
     plates_by_id = {p["id"]: p["qty"] for p in COMMERCIAL_AC_BOM["plates"]}
-    # act / assert
+    # act / assert — compute container has 2 of 3 plates: CG (+X) + CD (-Y)
     expected_node_qty = 7
     assert parts_by_id["CMP-NODE-001"] == expected_node_qty
-    assert plates_by_id["CG"] == 1
-    assert plates_by_id["EX-C"] == 1  # step 6.3: external services plate
+    assert plates_by_id == {"CG": 1, "CD": 1}
 
 
 def test_bom_has_pdus_per_adr_005() -> None:
@@ -98,6 +98,34 @@ def test_exploded_cg_plate_offset_outward_in_x() -> None:
     actual_x = cg.loc.toTuple()[0][0]
     # assert — explode moves CG plate outward in +X
     assert actual_x > base_x
+
+
+def test_cd_plate_placed_at_mating_frame() -> None:
+    # arrange
+    pos_tolerance_mm = 0.1
+    expected_pos = CD_MATING_FRAME.toTuple()[0]
+    # act
+    assy = build_compute_container(variant="commercial-ac")
+    cd = next(c for c in assy.children if c.name == "ARC-PLT-CD")
+    actual_pos = cd.loc.toTuple()[0]
+    # assert
+    for axis, (actual, expected) in enumerate(
+        zip(actual_pos, expected_pos, strict=True)
+    ):
+        assert math.isclose(
+            actual, expected, abs_tol=pos_tolerance_mm
+        ), f"axis {axis}: actual={actual} expected={expected}"
+
+
+def test_exploded_cd_plate_offset_outward_in_negative_y() -> None:
+    # arrange
+    base_y = CD_MATING_FRAME.toTuple()[0][1]
+    # act
+    exploded = build_compute_container(variant="commercial-ac", exploded=True)
+    cd = next(c for c in exploded.children if c.name == "ARC-PLT-CD")
+    actual_y = cd.loc.toTuple()[0][1]
+    # assert — explode pushes CD plate further -Y off the long wall
+    assert actual_y < base_y
 
 
 def test_exploded_nodes_are_staggered_in_z() -> None:

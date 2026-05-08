@@ -83,16 +83,16 @@ plates:
     step: s3://arcnode-artifacts/plates/BG-AC/v1/plate.step
     dxf: s3://arcnode-artifacts/plates/BG-AC/v1/plate.dxf
     drawing_meta: s3://arcnode-artifacts/plates/BG-AC/v1/drawing_meta.json
-  EX-G:
-    spec: s3://arcnode-artifacts/plates/EX-G/v1/spec.yaml
-    step: s3://arcnode-artifacts/plates/EX-G/v1/plate.step
-    dxf: s3://arcnode-artifacts/plates/EX-G/v1/plate.dxf
-    drawing_meta: s3://arcnode-artifacts/plates/EX-G/v1/drawing_meta.json
-  EX-C:
-    spec: s3://arcnode-artifacts/plates/EX-C/v1/spec.yaml
-    step: s3://arcnode-artifacts/plates/EX-C/v1/plate.step
-    dxf: s3://arcnode-artifacts/plates/EX-C/v1/plate.dxf
-    drawing_meta: s3://arcnode-artifacts/plates/EX-C/v1/drawing_meta.json
+  BG-DC:
+    spec: s3://arcnode-artifacts/plates/BG-DC/v1/spec.yaml
+    step: s3://arcnode-artifacts/plates/BG-DC/v1/plate.step
+    dxf: s3://arcnode-artifacts/plates/BG-DC/v1/plate.dxf
+    drawing_meta: s3://arcnode-artifacts/plates/BG-DC/v1/drawing_meta.json
+  CD:
+    spec: s3://arcnode-artifacts/plates/CD/v1/spec.yaml
+    step: s3://arcnode-artifacts/plates/CD/v1/plate.step
+    dxf: s3://arcnode-artifacts/plates/CD/v1/plate.dxf
+    drawing_meta: s3://arcnode-artifacts/plates/CD/v1/drawing_meta.json
 profiles:
   commercial_ac:
     compute_container: commercial-ac
@@ -100,5 +100,24 @@ profiles:
     interface_plates:
     - CG
     - BG-AC
-    - EX-G
-    - EX-C
+    - CD
+  commercial_dc_int:
+    compute_container: commercial-ac
+    grid_container: commercial-ac
+    interface_plates:
+    - CG
+    - BG-AC
+    - CD
+  commercial_dc_ext:
+    compute_container: commercial-ac
+    grid_container: commercial-dc-ext
+    interface_plates:
+    - CG
+    - BG-DC
+    - CD
+  no_bess:
+    compute_container: commercial-ac
+    grid_container: no-bess
+    interface_plates:
+    - CG
+    - CD

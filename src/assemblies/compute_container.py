@@ -49,9 +49,10 @@ CG_MATING_FRAME: Final[cq.Location] = cq.Location(
     -90,
 )
 
-# Reason: EX-C plate on -Y long wall (external services). Plate built normal
-# +Z; rotation -90° about X → normal -Y (outward from compute container).
-EX_C_MATING_FRAME: Final[cq.Location] = cq.Location(
+# Reason: CD plate on -Y long wall (single long-wall plate per 3-plate fleet).
+# Plate built normal +Z; rotation -90° about X → normal -Y (outward toward
+# external drycooler). Carries secondary cooling loop QDs + drycooler comms.
+CD_MATING_FRAME: Final[cq.Location] = cq.Location(
     cq.Vector(0.0, -W_EXT_MM / 2, PLATE_CENTER_Z_MM),
     cq.Vector(1, 0, 0),
     -90,
@@ -71,7 +72,7 @@ COMMERCIAL_AC_BOM: Final[dict] = {
     ],
     "plates": [
         {"id": "CG", "version": "v1", "qty": 1},
-        {"id": "EX-C", "version": "v1", "qty": 1},
+        {"id": "CD", "version": "v1", "qty": 1},
     ],
 }
 
@@ -140,19 +141,17 @@ def build_compute_container(
         )
     assy.add(cg_plate, name="ARC-PLT-CG", loc=cg_loc, color=cq.Color(0.6, 0.6, 0.7))
 
-    ex_c_step = plate_loader.fetch("EX-C", "v1")
-    ex_c_plate = cq.importers.importStep(str(ex_c_step))
-    ex_c_loc = EX_C_MATING_FRAME
+    cd_step = plate_loader.fetch("CD", "v1")
+    cd_plate = cq.importers.importStep(str(cd_step))
+    cd_loc = CD_MATING_FRAME
     if exploded:
-        base_pos = cq.Vector(*EX_C_MATING_FRAME.toTuple()[0])
-        ex_c_loc = cq.Location(
-            base_pos + _explode.ex_c_plate_offset(),
+        base_pos = cq.Vector(*CD_MATING_FRAME.toTuple()[0])
+        cd_loc = cq.Location(
+            base_pos + _explode.cd_plate_offset(),
             cq.Vector(1, 0, 0),
             -90,
         )
-    assy.add(
-        ex_c_plate, name="ARC-PLT-EX-C", loc=ex_c_loc, color=cq.Color(0.4, 0.6, 0.5)
-    )
+    assy.add(cd_plate, name="ARC-PLT-CD", loc=cd_loc, color=cq.Color(0.4, 0.6, 0.5))
 
     return assy
 

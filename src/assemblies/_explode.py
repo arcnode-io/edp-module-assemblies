@@ -60,13 +60,8 @@ def bg_ac_plate_offset() -> cq.Vector:
     return cq.Vector(CG_PLATE_OUTWARD_X_MM, 0, 0)
 
 
-def ex_g_plate_offset() -> cq.Vector:
-    """EX-G plate slides further -Y off the grid container's -Y long wall."""
-    return cq.Vector(0, -CG_PLATE_OUTWARD_X_MM, 0)
-
-
-def ex_c_plate_offset() -> cq.Vector:
-    """EX-C plate slides further -Y off the compute container's -Y long wall."""
+def cd_plate_offset() -> cq.Vector:
+    """CD plate slides further -Y off the compute container's -Y long wall."""
     return cq.Vector(0, -CG_PLATE_OUTWARD_X_MM, 0)
 
 

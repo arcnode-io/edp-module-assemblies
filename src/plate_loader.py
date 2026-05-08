@@ -28,8 +28,8 @@ _PLATES_REPO: Final[Path] = REPO_ROOT.parent / "edp-interface-plates" / "cad" / 
 LOCAL_PLATE_SOURCES: Final[dict[tuple[str, str], Path]] = {
     ("CG", "v1"): _PLATES_REPO / "CG" / "plate.step",
     ("BG-AC", "v1"): _PLATES_REPO / "BG-AC" / "plate.step",
-    ("EX-G", "v1"): _PLATES_REPO / "EX-G" / "plate.step",
-    ("EX-C", "v1"): _PLATES_REPO / "EX-C" / "plate.step",
+    ("BG-DC", "v1"): _PLATES_REPO / "BG-DC" / "plate.step",
+    ("CD", "v1"): _PLATES_REPO / "CD" / "plate.step",
 }
 
 

@@ -4,10 +4,39 @@
 #
 # Profiles in this file may reference assemblies/plates that don't exist
 # yet; build_manifest.py validates and emits warnings for missing refs.
-# v1 ships only `commercial_ac` end-to-end (per Q9-C step 5 success bar).
+# Plate fleet (per PM 2026-05-08): CG, BG-AC, BG-DC, CD.
+# v1 ships only `commercial_ac` end-to-end; DC + no_bess profiles
+# register their plate sets here, but compute/grid container variants
+# for those profiles are deferred (step 6.5 + 6.8).
 
 profiles:
   commercial_ac:
+    # AC-coupled BESS (Tesla Megapack, CATL EnerOne with integrated PCS).
+    # BESS pad outputs AC, lands on grid container's BG-AC plate.
     compute_container: commercial-ac
     grid_container: commercial-ac
-    interface_plates: [CG, BG-AC, EX-G, EX-C]   # CD lands in step 6.4
+    interface_plates: [CG, BG-AC, CD]
+
+  commercial_dc_int:
+    # DC strings, but PCS lives in BESS pad. BESS pad outputs AC after
+    # internal PCS conversion → AC at grid container's BESS wall → BG-AC.
+    # Same plate set as commercial_ac; differs only in BESS-pad packaging.
+    compute_container: commercial-ac
+    grid_container: commercial-ac
+    interface_plates: [CG, BG-AC, CD]
+
+  commercial_dc_ext:
+    # DC strings, PCS lives INSIDE grid container. BESS pad outputs raw
+    # DC bus → DC at grid container's BESS wall → BG-DC.
+    # Grid container variant differs: requires PCS placement (deferred).
+    compute_container: commercial-ac
+    grid_container: commercial-dc-ext   # variant TBD (step 6.8)
+    interface_plates: [CG, BG-DC, CD]
+
+  no_bess:
+    # No BESS — site has utility power directly. Grid container still
+    # present as utility tie-in / switchgear hub, but no BESS plate.
+    # Grid container variant differs: no BG-* plate (deferred).
+    compute_container: commercial-ac
+    grid_container: no-bess              # variant TBD (step 6.5)
+    interface_plates: [CG, CD]

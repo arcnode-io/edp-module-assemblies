@@ -31,7 +31,7 @@ build-envelopes = { cmd = "python src/envelopes/build_envelope.py", env = { PYTH
 build-compute = { cmd = "python src/assemblies/compute_container.py --variant commercial-ac", env = { PYTHONPATH = "." } }
 build-grid = { cmd = "python src/assemblies/grid_container.py --variant commercial-ac", env = { PYTHONPATH = "." } }
 bake-viewer = { cmd = "python scripts/bake_viewer.py", env = { PYTHONPATH = "." } }
-build-all = ["sync-plates", "build-envelopes", "build-compute"]   # build-grid added in step 6.1
+build-all = ["sync-plates", "build-envelopes", "build-compute", "build-grid", "build-manifest"]
 
 # CI
 validate-specs = { cmd = "python scripts/validate_specs.py", env = { PYTHONPATH = "." } }

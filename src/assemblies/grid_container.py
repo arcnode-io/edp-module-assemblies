@@ -7,8 +7,9 @@ envelopes from equipment/{id}/envelope.step. Plates via plate_loader.
 Emits assemblies/grid-container/{variant}/{assembly.step,assembly.glb,bom.yaml}
 plus -exploded.{step,glb} per Q8.
 
-Step 6.1 scope (Q1-Q8): commercial-ac variant, CG plate only (BG-AC + EX-G
-deferred to step 6.2/6.3), louvers + side door in shell.
+Plates: CG (-X end, compute-facing) + BG-AC (+X end, BESS-facing). Per the
+3-plate fleet decision (PM, 2026-05-08), grid container has no long-wall
+plate — utility/SCADA tie-in routes through BG-AC's existing penetrations.
 """
 
 import argparse
@@ -51,18 +52,8 @@ BG_AC_MATING_FRAME: Final[cq.Location] = cq.Location(
     -90,
 )
 
-# Reason: EX-G plate on -Y long wall (opposite SafeGear service door).
-# Plate built normal +Z; rotation -90° about X → normal -Y (outward from grid).
-EX_G_MATING_FRAME: Final[cq.Location] = cq.Location(
-    cq.Vector(0.0, -W_EXT_MM / 2, PLATE_CENTER_Z_MM),
-    cq.Vector(1, 0, 0),
-    -90,
-)
-
 Variant = Literal["commercial-ac"]
 
-# Step 6.2 (BG-AC plate) brings v1 grid bom to CG + BG-AC.
-# EX-G + EX-C land in step 6.3.
 COMMERCIAL_AC_BOM: Final[dict] = {
     "parts": [
         {"equipment_id": "GRD-XFM-001", "qty": 1},
@@ -73,7 +64,6 @@ COMMERCIAL_AC_BOM: Final[dict] = {
     "plates": [
         {"id": "CG", "version": "v1", "qty": 1},
         {"id": "BG-AC", "version": "v1", "qty": 1},
-        {"id": "EX-G", "version": "v1", "qty": 1},
     ],
 }
 
@@ -137,17 +127,6 @@ def _add_plates(assy: cq.Assembly, *, exploded: bool) -> None:
             base + _explode.bg_ac_plate_offset(), cq.Vector(0, 1, 0), -90
         )
     assy.add(bg_plate, name="ARC-PLT-BG-AC", loc=bg_loc, color=cq.Color(0.7, 0.5, 0.3))
-
-    ex_g_plate = cq.importers.importStep(str(plate_loader.fetch("EX-G", "v1")))
-    ex_g_loc = EX_G_MATING_FRAME
-    if exploded:
-        base = cq.Vector(*EX_G_MATING_FRAME.toTuple()[0])
-        ex_g_loc = cq.Location(
-            base + _explode.ex_g_plate_offset(), cq.Vector(1, 0, 0), -90
-        )
-    assy.add(
-        ex_g_plate, name="ARC-PLT-EX-G", loc=ex_g_loc, color=cq.Color(0.4, 0.6, 0.5)
-    )
 
 
 def emit_artifacts(
