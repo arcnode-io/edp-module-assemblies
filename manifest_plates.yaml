@@ -8,12 +8,12 @@ plates:
   CG:
     version: v1
     spec_relpath: cad/specs/CG/spec.yaml
-    step_relpath: cad/CG.step
-    dxf_relpath: cad/CG.dxf
-    drawing_meta_relpath: cad/CG_drawing_meta.json
+    step_relpath: cad/specs/CG/plate.step
+    dxf_relpath: cad/specs/CG/plate.dxf
+    drawing_meta_relpath: cad/specs/CG/drawing_meta.json
   BG-AC:
     version: v1
     spec_relpath: cad/specs/BG-AC/spec.yaml
-    step_relpath: cad/BG-AC.step
-    dxf_relpath: cad/BG-AC.dxf
-    drawing_meta_relpath: cad/BG-AC_drawing_meta.json
+    step_relpath: cad/specs/BG-AC/plate.step
+    dxf_relpath: cad/specs/BG-AC/plate.dxf
+    drawing_meta_relpath: cad/specs/BG-AC/drawing_meta.json
