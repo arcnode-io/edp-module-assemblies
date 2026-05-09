@@ -105,3 +105,29 @@ Implementation contract:
 - Plate fleet enumerated in `cad/model/build.py::PLATE_IDS = ("CG", "BG-AC", "BG-DC", "CD")`
 - Per-profile plate set in `manifest_profiles.yaml::profiles.{name}.interface_plates`
 - Container-side plate routing in `src/assemblies/grid_container.py::_BG_PLATE_BY_VARIANT`
+
+## ADR-017 — Plate load cases bounded by inspection (deflection, stress concentration, wind)
+
+The plate sim (`sim/{plate_id}/` per plate) computes two load cases analytically:
+1. **Bolt-pattern fault current heating** (joint temp rise during 5-cycle bolted-fault clear / 50 ms DC contactor)
+2. **Thermal expansion differential** (plate vs receiver frame, full ΔT)
+
+Three additional load cases are **bounded by inspection** rather than calculated:
+
+### Plate deflection under load
+
+The plate is **not load-bearing**. Receiver frame on the container wall takes mounting torque (8× M10 bolts at 60 mm inset); the plate spans 640 × 840 mm with the bolt pattern carrying perimeter constraint only. There is no central load — penetrations carry conduit weight, but conduits are independently supported by external trays/hangers (commercial NEC 358 for EMT, MIL-STD-104 for defense MV). Plate face only resists wind/IP-rated water pressure, both of which are handled by the gasket + bolt clamp force, not by plate stiffness. 6 mm 6061-T6 (commercial) or 10 mm 5083-H116 (defense) is far thicker than deflection requires for a 640 × 840 mm panel under any plausible service load. Inspection: confirm plate is gasket-clamped not load-bearing in installation drawings.
+
+### Stress concentration at penetrations
+
+Penetrations are circular through-holes at fixed positions (CG/BG-AC at ±150 mm, ±200 mm; CD at ±150 mm; corner bolt slots at ±260 × ±360 mm). Stress concentration factor Kt for a circular hole in a flat plate under in-plane load is ~3 (Peterson). Peak service stress in the plate body is essentially **zero** — the only in-plane stress is differential thermal expansion (handled by ADR-015 corner slots, transferred to receiver frame, not into the plate). Out-of-plane: ambient pressure differential at IP55/IP65 rating (~10 kPa worst case for IP65 immersion test) yields nominal bending stress orders of magnitude below 6061-T6 yield (276 MPa). Inspection: penetration positions in `cad/specs/{plate_id}/spec.yaml` are >2 hole-diameters apart (no Kt amplification overlap), and >60 mm from any plate edge.
+
+### Wind load
+
+Plates mount on container end walls (CG, BG-AC, BG-DC) or long wall (CD), not as exposed faces. Container shell takes wind loading per ISO 1496-1 testing (40 m/s static + 200 km/h gusts qualifies the container itself). Plate is ≤ 6 mm projected behind a flush wall — no exposed area for wind to load. Inspection: confirm container exterior is flush (no protruding plate faces), receiver frame is welded to interior wall (transfers any out-of-plane load to the container shell, not to fasteners).
+
+**Re-evaluate this ADR if:**
+- A plate becomes load-bearing (e.g. structural bracing through the plate)
+- Penetration count or position changes such that hole spacing drops below 2× diameter
+- Container deployment changes (e.g. exposed pad-mounted plate without container shell behind it)
+- Defense-forward deployments add explicit blast-pressure or ballistic-impact load cases
