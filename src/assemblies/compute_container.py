@@ -102,8 +102,9 @@ def build_compute_container(
     """
     if variant != "commercial-ac":
         raise NotImplementedError(
-            f"variant={variant!r} not supported in v1; only 'commercial-ac'. "
-            "Per ADR-010 commercial-dc is assumed identical pending step 6.8."
+            f"variant={variant!r} not supported. compute_container hardware is "
+            "identical across all v1 profiles (commercial-ac handles ac, dc-int, "
+            "dc-ext, no-bess); defense-* lands when the deployment driver needs it."
         )
 
     suffix = "-exploded" if exploded else ""
