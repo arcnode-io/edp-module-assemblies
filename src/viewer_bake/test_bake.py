@@ -58,9 +58,8 @@ def test_bake_hotspots_emits_meter_scale_centroids(tmp_path: Path) -> None:
         "switch",
         "pdu",
         "plt-cg",
-        "plt-cd",
     }
-    assert {h["id"] for h in manifest["grid"]} == {"xfm", "swg", "plt-cg", "plt-bg-ac"}
+    assert {h["id"] for h in manifest["grid"]} == {"xfm", "swg", "plt-cg"}
     # Container half-extents ~1.5m — sanity bound.
     for kind in ("compute", "grid"):
         for h in manifest[kind]:
@@ -79,6 +78,39 @@ def test_bake_grid_dc_ext_has_pcs_material_matched(tmp_path: Path) -> None:
     material_names = {m.name for m in g.materials}
     assert "pcs" in material_names
     assert "platform" in material_names  # CG + BG-DC plates
+
+
+def test_bake_compute_hides_drycooler_plate(tmp_path: Path) -> None:
+    # Web viewer hides the external-facing CD plate while keeping it in source.
+    out = bake_module(
+        "compute", ASSEMBLIES / "compute-container" / "commercial-ac", tmp_path
+    )
+    g = GLTF2().load_binary(str(out))
+    cd_node = next(n for n in g.nodes if n.name == "ARC-PLT-CD")
+    cg_node = next(n for n in g.nodes if n.name == "ARC-PLT-CG")
+    assert cd_node.mesh is None, "CD plate should be hidden from web viewer"
+    assert cg_node.mesh is not None, "CG plate must remain visible"
+
+
+def test_bake_grid_hides_bess_plate(tmp_path: Path) -> None:
+    # commercial-ac → BG-AC hidden; dc-ext → BG-DC hidden; CG kept in both.
+    out_ac = bake_module(
+        "grid", ASSEMBLIES / "grid-container" / "commercial-ac", tmp_path
+    )
+    g_ac = GLTF2().load_binary(str(out_ac))
+    bg_ac_node = next(n for n in g_ac.nodes if n.name == "ARC-PLT-BG-AC")
+    cg_ac_node = next(n for n in g_ac.nodes if n.name == "ARC-PLT-CG")
+    assert bg_ac_node.mesh is None
+    assert cg_ac_node.mesh is not None
+
+    out_dc = bake_module(
+        "grid-dc-ext", ASSEMBLIES / "grid-container" / "commercial-dc-ext", tmp_path
+    )
+    g_dc = GLTF2().load_binary(str(out_dc))
+    bg_dc_node = next(n for n in g_dc.nodes if n.name == "ARC-PLT-BG-DC")
+    cg_dc_node = next(n for n in g_dc.nodes if n.name == "ARC-PLT-CG")
+    assert bg_dc_node.mesh is None
+    assert cg_dc_node.mesh is not None
 
 
 def test_bake_grid_no_bess_omits_bg_plate(tmp_path: Path) -> None:
@@ -108,14 +140,13 @@ def test_bake_hotspots_covers_all_grid_variants(tmp_path: Path) -> None:
     manifest = json.loads(out.read_text())
     # assert
     assert set(manifest.keys()) == {"compute", "grid", "grid-dc-ext", "grid-no-bess"}
-    # commercial-ac has CG + BG-AC; dc-ext swaps BG-AC for BG-DC and adds PCS;
-    # no-bess is CG only on the plate side.
-    assert {h["id"] for h in manifest["grid"]} == {"xfm", "swg", "plt-cg", "plt-bg-ac"}
+    # Web viewer labels the inter-container CG plate only; BESS plates (BG-*)
+    # are intentionally unlabeled. dc-ext still surfaces PCS.
+    assert {h["id"] for h in manifest["grid"]} == {"xfm", "swg", "plt-cg"}
     assert {h["id"] for h in manifest["grid-no-bess"]} == {"xfm", "swg", "plt-cg"}
     assert {h["id"] for h in manifest["grid-dc-ext"]} == {
         "xfm",
         "swg",
         "pcs",
         "plt-cg",
-        "plt-bg-dc",
     }

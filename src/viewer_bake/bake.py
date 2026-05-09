@@ -21,6 +21,7 @@ from pygltflib import (
 
 from src.viewer_bake.spec import (
     ANIM_DURATION_S,
+    HIDDEN_NODES,
     HOTSPOT_COPY,
     MAT_SPECS,
     match_mat_spec,
@@ -34,6 +35,14 @@ GL_FLOAT = 5126
 
 # Source CAD exports in mm; glTF default unit is meters. Apply at root.
 MM_TO_M: float = 0.001
+
+
+def _hide_nodes(gltf: GLTF2, names: list[str]) -> None:
+    """Drop the mesh ref on named nodes so the viewer skips drawing them."""
+    target = set(names)
+    for node in gltf.nodes:
+        if node.name in target and node.mesh is not None:
+            node.mesh = None
 
 
 def _scale_root_to_meters(gltf: GLTF2) -> None:
@@ -196,6 +205,7 @@ def bake_module(kind: str, src_dir: Path, out_dir: Path) -> Path:
     role_idx = _replace_materials(assembled)
     _bind_meshes(assembled, role_idx)
     _append_animation(assembled, exploded_translations)
+    _hide_nodes(assembled, HIDDEN_NODES.get(kind, []))
     _scale_root_to_meters(assembled)
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"{kind}.glb"

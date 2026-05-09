@@ -82,27 +82,17 @@ class HotspotCopy(NamedTuple):
     sub: str
 
 
-# Reason: plate labels are written from the perspective of the container the
-# viewer is looking at — the user sees the wall, the label names what's on the
-# other side. So `CG` reads "Grid Interface" inside the compute container and
-# "Compute Interface" inside the grid container.
+# Reason: plate labels read as "what's on the other side of this wall" — `CG`
+# reads "Grid Interface" inside the compute container and "Compute Interface"
+# inside the grid container. The web viewer intentionally surfaces only the
+# inter-container CG plate; the external-facing plates (CD on compute, BG-* on
+# grid) are present in the GLB but unlabeled to keep the marketing render
+# focused on the compute-grid story.
 _PLATE_CG_FROM_COMPUTE: Final[HotspotCopy] = HotspotCopy(
     "plt-cg", re.compile(r"^ARC-PLT-CG$"), "Grid Interface", "AC feeder + data"
 )
 _PLATE_CG_FROM_GRID: Final[HotspotCopy] = HotspotCopy(
     "plt-cg", re.compile(r"^ARC-PLT-CG$"), "Compute Interface", "AC feeder + data"
-)
-_PLATE_CD: Final[HotspotCopy] = HotspotCopy(
-    "plt-cd",
-    re.compile(r"^ARC-PLT-CD$"),
-    "Drycooler Interface",
-    "Coolant supply/return",
-)
-_PLATE_BG_AC: Final[HotspotCopy] = HotspotCopy(
-    "plt-bg-ac", re.compile(r"^ARC-PLT-BG-AC$"), "BESS Interface", "AC-coupled"
-)
-_PLATE_BG_DC: Final[HotspotCopy] = HotspotCopy(
-    "plt-bg-dc", re.compile(r"^ARC-PLT-BG-DC$"), "BESS Interface", "DC-coupled"
 )
 
 _GRID_BASE: Final[list[HotspotCopy]] = [
@@ -112,6 +102,17 @@ _GRID_BASE: Final[list[HotspotCopy]] = [
     ),
     _PLATE_CG_FROM_GRID,
 ]
+
+# Reason: external-facing plates exist in the source GLBs (real BOM parts) but
+# the web viewer is the marketing render — we want only the inter-container CG
+# plate visible. Mesh on these nodes is cleared during bake; geometry is
+# preserved in source assemblies.
+HIDDEN_NODES: Final[dict[str, list[str]]] = {
+    "compute": ["ARC-PLT-CD"],
+    "grid": ["ARC-PLT-BG-AC"],
+    "grid-dc-ext": ["ARC-PLT-BG-DC"],
+}
+
 
 HOTSPOT_COPY: Final[dict[str, list[HotspotCopy]]] = {
     "compute": [
@@ -124,13 +125,11 @@ HOTSPOT_COPY: Final[dict[str, list[HotspotCopy]]] = {
         ),
         HotspotCopy("pdu", re.compile(r"^CMP-PDU-001#1$"), "PDUs", "Redundant power"),
         _PLATE_CG_FROM_COMPUTE,
-        _PLATE_CD,
     ],
-    "grid": [*_GRID_BASE, _PLATE_BG_AC],
+    "grid": _GRID_BASE,
     "grid-dc-ext": [
         *_GRID_BASE,
         HotspotCopy("pcs", re.compile(r"^GRD-PCS-001$"), "PCS", "DC → AC, 500 kW"),
-        _PLATE_BG_DC,
     ],
     "grid-no-bess": _GRID_BASE,
 }

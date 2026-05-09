@@ -40,6 +40,12 @@ geometry:
   EXT-BESS-002:
     envelope: s3://arcnode-artifacts/equipment/EXT-BESS-002/envelope.step
     vendor_step: null
+  EXT-DC-001:
+    envelope: s3://arcnode-artifacts/equipment/EXT-DC-001/envelope.step
+    vendor_step: null
+  EXT-DC-002:
+    envelope: s3://arcnode-artifacts/equipment/EXT-DC-002/envelope.step
+    vendor_step: null
   GRD-MTR-001:
     envelope: s3://arcnode-artifacts/equipment/GRD-MTR-001/envelope.step
     vendor_step: null
@@ -70,6 +76,56 @@ assemblies:
       glb: s3://arcnode-artifacts/assemblies/compute-container/defense-ac/assembly.glb
       glb_exploded: s3://arcnode-artifacts/assemblies/compute-container/defense-ac/assembly-exploded.glb
       step_exploded: s3://arcnode-artifacts/assemblies/compute-container/defense-ac/assembly-exploded.step
+      topology_yaml: null
+  deployment:
+    commercial_ac:
+      bom: s3://arcnode-artifacts/assemblies/deployment/commercial_ac/bom.yaml
+      step: s3://arcnode-artifacts/assemblies/deployment/commercial_ac/assembly.step
+      glb: s3://arcnode-artifacts/assemblies/deployment/commercial_ac/assembly.glb
+      glb_exploded: null
+      step_exploded: null
+      topology_yaml: null
+    commercial_dc_ext:
+      bom: s3://arcnode-artifacts/assemblies/deployment/commercial_dc_ext/bom.yaml
+      step: s3://arcnode-artifacts/assemblies/deployment/commercial_dc_ext/assembly.step
+      glb: s3://arcnode-artifacts/assemblies/deployment/commercial_dc_ext/assembly.glb
+      glb_exploded: null
+      step_exploded: null
+      topology_yaml: null
+    commercial_dc_int:
+      bom: s3://arcnode-artifacts/assemblies/deployment/commercial_dc_int/bom.yaml
+      step: s3://arcnode-artifacts/assemblies/deployment/commercial_dc_int/assembly.step
+      glb: s3://arcnode-artifacts/assemblies/deployment/commercial_dc_int/assembly.glb
+      glb_exploded: null
+      step_exploded: null
+      topology_yaml: null
+    defense_ac:
+      bom: s3://arcnode-artifacts/assemblies/deployment/defense_ac/bom.yaml
+      step: s3://arcnode-artifacts/assemblies/deployment/defense_ac/assembly.step
+      glb: s3://arcnode-artifacts/assemblies/deployment/defense_ac/assembly.glb
+      glb_exploded: null
+      step_exploded: null
+      topology_yaml: null
+    defense_dc_ext:
+      bom: s3://arcnode-artifacts/assemblies/deployment/defense_dc_ext/bom.yaml
+      step: s3://arcnode-artifacts/assemblies/deployment/defense_dc_ext/assembly.step
+      glb: s3://arcnode-artifacts/assemblies/deployment/defense_dc_ext/assembly.glb
+      glb_exploded: null
+      step_exploded: null
+      topology_yaml: null
+    defense_no_bess:
+      bom: s3://arcnode-artifacts/assemblies/deployment/defense_no_bess/bom.yaml
+      step: s3://arcnode-artifacts/assemblies/deployment/defense_no_bess/assembly.step
+      glb: s3://arcnode-artifacts/assemblies/deployment/defense_no_bess/assembly.glb
+      glb_exploded: null
+      step_exploded: null
+      topology_yaml: null
+    no_bess:
+      bom: s3://arcnode-artifacts/assemblies/deployment/no_bess/bom.yaml
+      step: s3://arcnode-artifacts/assemblies/deployment/no_bess/assembly.step
+      glb: s3://arcnode-artifacts/assemblies/deployment/no_bess/assembly.glb
+      glb_exploded: null
+      step_exploded: null
       topology_yaml: null
   grid_container:
     commercial-ac:

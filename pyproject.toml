@@ -36,8 +36,15 @@ build-grid-no-bess = { cmd = "python src/assemblies/grid_container.py --variant 
 build-grid-defense-ac = { cmd = "python src/assemblies/grid_container.py --variant defense-ac", env = { PYTHONPATH = "." } }
 build-grid-defense-dc-ext = { cmd = "python src/assemblies/grid_container.py --variant defense-dc-ext", env = { PYTHONPATH = "." } }
 build-grid-defense-no-bess = { cmd = "python src/assemblies/grid_container.py --variant defense-no-bess", env = { PYTHONPATH = "." } }
+build-deployment-commercial-ac = { cmd = "python src/assemblies/deployment.py --profile commercial_ac", env = { PYTHONPATH = "." } }
+build-deployment-commercial-dc-int = { cmd = "python src/assemblies/deployment.py --profile commercial_dc_int", env = { PYTHONPATH = "." } }
+build-deployment-commercial-dc-ext = { cmd = "python src/assemblies/deployment.py --profile commercial_dc_ext", env = { PYTHONPATH = "." } }
+build-deployment-no-bess = { cmd = "python src/assemblies/deployment.py --profile no_bess", env = { PYTHONPATH = "." } }
+build-deployment-defense-ac = { cmd = "python src/assemblies/deployment.py --profile defense_ac", env = { PYTHONPATH = "." } }
+build-deployment-defense-dc-ext = { cmd = "python src/assemblies/deployment.py --profile defense_dc_ext", env = { PYTHONPATH = "." } }
+build-deployment-defense-no-bess = { cmd = "python src/assemblies/deployment.py --profile defense_no_bess", env = { PYTHONPATH = "." } }
 bake-viewer = { cmd = "python scripts/bake_viewer.py", env = { PYTHONPATH = "." } }
-build-all = ["sync-plates", "build-envelopes", "build-compute", "build-compute-defense", "build-grid", "build-grid-dc-ext", "build-grid-no-bess", "build-grid-defense-ac", "build-grid-defense-dc-ext", "build-grid-defense-no-bess", "build-manifest"]
+build-all = ["sync-plates", "build-envelopes", "build-compute", "build-compute-defense", "build-grid", "build-grid-dc-ext", "build-grid-no-bess", "build-grid-defense-ac", "build-grid-defense-dc-ext", "build-grid-defense-no-bess", "build-deployment-commercial-ac", "build-deployment-commercial-dc-int", "build-deployment-commercial-dc-ext", "build-deployment-no-bess", "build-deployment-defense-ac", "build-deployment-defense-dc-ext", "build-deployment-defense-no-bess", "build-manifest"]
 
 # CI
 validate-specs = { cmd = "python scripts/validate_specs.py", env = { PYTHONPATH = "." } }
