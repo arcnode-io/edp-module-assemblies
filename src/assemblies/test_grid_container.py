@@ -10,6 +10,7 @@ from src.assemblies.grid_container import (
     COMMERCIAL_AC_BOM,
     H_EXT_MM,
     L_EXT_MM,
+    NO_BESS_BOM,
     W_EXT_MM,
     build_grid_container,
 )
@@ -52,9 +53,9 @@ def test_cg_mating_frame_at_negative_x_end() -> None:
 
 
 def test_grid_container_rejects_unsupported_variant() -> None:
-    # arrange / act / assert
-    with pytest.raises(NotImplementedError, match=r"commercial-dc|defense"):
-        build_grid_container(variant="commercial-dc")  # type: ignore[arg-type]
+    # arrange / act / assert — commercial-dc-ext lands in step 6.8
+    with pytest.raises(NotImplementedError, match=r"commercial-dc-ext"):
+        build_grid_container(variant="commercial-dc-ext")  # type: ignore[arg-type]
 
 
 def test_bom_has_xfm_and_swg_and_cg_plate() -> None:
@@ -69,11 +70,45 @@ def test_bom_has_xfm_and_swg_and_cg_plate() -> None:
     assert plates_by_id["CG"] == 1
 
 
-def test_bom_plates_match_3_plate_fleet() -> None:
+def test_bom_plates_match_4_plate_fleet() -> None:
     # arrange
     plate_ids = {p["id"] for p in COMMERCIAL_AC_BOM["plates"]}
-    # act / assert — grid container has 2 of 3 plates: CG (-X) + BG-AC (+X)
+    # act / assert — commercial-ac grid container has 2 plates: CG + BG-AC
     assert plate_ids == {"CG", "BG-AC"}
+
+
+def test_no_bess_bom_drops_bg_ac_keeps_cg_and_parts() -> None:
+    # arrange
+    plate_ids = {p["id"] for p in NO_BESS_BOM["plates"]}
+    parts_by_id = {p["equipment_id"]: p["qty"] for p in NO_BESS_BOM["parts"]}
+    # act / assert — same hardware (utility tie-in still needs xfm + swg + relay
+    # + meter), only the BESS-side plate is gone
+    assert plate_ids == {"CG"}
+    assert parts_by_id["GRD-XFM-001"] == 1
+    assert parts_by_id["GRD-SWG-001"] == 1
+    assert parts_by_id["GRD-RLY-001"] == 1
+    assert parts_by_id["GRD-MTR-001"] == 1
+
+
+def test_no_bess_assembly_omits_bg_ac_plate() -> None:
+    # arrange / act
+    assy = build_grid_container(variant="no-bess")
+    child_names = {c.name for c in assy.children}
+    # assert
+    assert "ARC-PLT-CG" in child_names
+    assert "ARC-PLT-BG-AC" not in child_names
+
+
+def test_no_bess_bbox_matches_container_envelope() -> None:
+    # arrange — same shell as commercial-ac, just missing one plate
+    bbox_tolerance_mm = 50.0
+    # act
+    assy = build_grid_container(variant="no-bess")
+    bbox = assy.toCompound().BoundingBox()
+    # assert
+    assert abs(bbox.xlen - L_EXT_MM) < bbox_tolerance_mm
+    assert abs(bbox.ylen - W_EXT_MM) < bbox_tolerance_mm
+    assert abs(bbox.zlen - H_EXT_MM) < bbox_tolerance_mm
 
 
 def test_bg_ac_plate_placed_at_positive_x_end() -> None:

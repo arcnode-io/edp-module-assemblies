@@ -59,19 +59,16 @@ def test_manifest_profile_commercial_ac_resolved() -> None:
     assert "CG" in profile.interface_plates
 
 
-def test_validate_profile_refs_clean_for_commercial_ac() -> None:
-    # arrange — commercial-ac variant exists end-to-end. commercial-dc-ext +
-    # no-bess grid_container variants intentionally deferred (step 6.5/6.8)
-    # and emit warnings — accept those, fail on any other unexpected warning.
+def test_validate_profile_refs_clean_after_no_bess_built() -> None:
+    # arrange — commercial-ac and no-bess variants exist end-to-end (step 6.5).
+    # commercial-dc-ext intentionally deferred (step 6.8) and emits a warning.
     manifest = build_manifest()
-    deferred_variants = {"commercial-dc-ext", "no-bess"}
+    deferred_variants = {"commercial-dc-ext"}
     # act
     warnings = _validate_profile_refs(manifest)
-    # assert — only deferred-variant warnings allowed
+    # assert — only the deferred-variant warning allowed
     unexpected = [
-        w
-        for w in warnings
-        if not any(deferred in w for deferred in deferred_variants)
+        w for w in warnings if not any(deferred in w for deferred in deferred_variants)
     ]
     assert unexpected == []
 

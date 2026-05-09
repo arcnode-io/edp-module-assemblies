@@ -7,9 +7,12 @@ envelopes from equipment/{id}/envelope.step. Plates via plate_loader.
 Emits assemblies/grid-container/{variant}/{assembly.step,assembly.glb,bom.yaml}
 plus -exploded.{step,glb} per Q8.
 
-Plates: CG (-X end, compute-facing) + BG-AC (+X end, BESS-facing). Per the
-3-plate fleet decision (PM, 2026-05-08), grid container has no long-wall
-plate — utility/SCADA tie-in routes through BG-AC's existing penetrations.
+Variants:
+- commercial-ac: CG (-X) + BG-AC (+X). BESS lands AC at grid wall.
+- no-bess: CG (-X) only. No BESS connection; utility tie-in routes
+  through SafeGear's standard service entrance fitting (no ARCNODE
+  plate needed at +X end). Compute container connects directly to
+  utility-fed switchgear.
 """
 
 import argparse
@@ -52,19 +55,36 @@ BG_AC_MATING_FRAME: Final[cq.Location] = cq.Location(
     -90,
 )
 
-Variant = Literal["commercial-ac"]
+Variant = Literal["commercial-ac", "no-bess"]
+
+# Reason: hardware doesn't change between commercial-ac and no-bess —
+# transformer + switchgear + relay + meter are needed for utility tie-in
+# regardless of whether BESS is present. Only the +X end plate differs.
+_PARTS: Final[list[dict]] = [
+    {"equipment_id": "GRD-XFM-001", "qty": 1},
+    {"equipment_id": "GRD-SWG-001", "qty": 1},
+    {"equipment_id": "GRD-RLY-001", "qty": 1},  # in SafeGear LV (Q7-A)
+    {"equipment_id": "GRD-MTR-001", "qty": 1},  # panel mount on SafeGear (Q7-A)
+]
 
 COMMERCIAL_AC_BOM: Final[dict] = {
-    "parts": [
-        {"equipment_id": "GRD-XFM-001", "qty": 1},
-        {"equipment_id": "GRD-SWG-001", "qty": 1},
-        {"equipment_id": "GRD-RLY-001", "qty": 1},  # in SafeGear LV (Q7-A)
-        {"equipment_id": "GRD-MTR-001", "qty": 1},  # panel mount on SafeGear (Q7-A)
-    ],
+    "parts": _PARTS,
     "plates": [
         {"id": "CG", "version": "v1", "qty": 1},
         {"id": "BG-AC", "version": "v1", "qty": 1},
     ],
+}
+
+NO_BESS_BOM: Final[dict] = {
+    "parts": _PARTS,
+    "plates": [
+        {"id": "CG", "version": "v1", "qty": 1},
+    ],
+}
+
+BOM_BY_VARIANT: Final[dict[str, dict]] = {
+    "commercial-ac": COMMERCIAL_AC_BOM,
+    "no-bess": NO_BESS_BOM,
 }
 
 
@@ -74,19 +94,18 @@ def build_grid_container(
     """Build the grid_container assembly.
 
     Args:
-        variant: Grid container variant. Only commercial-ac supported in v1.
+        variant: Grid container variant — "commercial-ac" or "no-bess".
         exploded: If True, top-open shell + Q8 explode offsets.
 
     Returns:
-        CadQuery Assembly with shell + Trihal + SafeGear + CG plate.
+        CadQuery Assembly with shell + Trihal + SafeGear + plates.
 
     Raises:
         NotImplementedError: For unsupported variants.
     """
-    if variant != "commercial-ac":
+    if variant not in BOM_BY_VARIANT:
         raise NotImplementedError(
-            f"variant={variant!r} not supported in v1. "
-            "DC + defense variants land in step 6.9."
+            f"variant={variant!r} not supported. Available: {sorted(BOM_BY_VARIANT)}"
         )
 
     suffix = "-exploded" if exploded else ""
@@ -104,12 +123,12 @@ def build_grid_container(
 
     _grid_layout.place_grid_equipment(assy, exploded=exploded)
 
-    _add_plates(assy, exploded=exploded)
+    _add_plates(assy, variant=variant, exploded=exploded)
     return assy
 
 
-def _add_plates(assy: cq.Assembly, *, exploded: bool) -> None:
-    """Place CG (-X end, compute-facing) + BG-AC (+X end, BESS-facing)."""
+def _add_plates(assy: cq.Assembly, *, variant: Variant, exploded: bool) -> None:
+    """Place CG (always) + BG-AC (commercial-ac only)."""
     cg_plate = cq.importers.importStep(str(plate_loader.fetch("CG", "v1")))
     cg_loc = CG_MATING_FRAME
     if exploded:
@@ -119,14 +138,17 @@ def _add_plates(assy: cq.Assembly, *, exploded: bool) -> None:
         )
     assy.add(cg_plate, name="ARC-PLT-CG", loc=cg_loc, color=cq.Color(0.6, 0.6, 0.7))
 
-    bg_plate = cq.importers.importStep(str(plate_loader.fetch("BG-AC", "v1")))
-    bg_loc = BG_AC_MATING_FRAME
-    if exploded:
-        base = cq.Vector(*BG_AC_MATING_FRAME.toTuple()[0])
-        bg_loc = cq.Location(
-            base + _explode.bg_ac_plate_offset(), cq.Vector(0, 1, 0), -90
+    if variant == "commercial-ac":
+        bg_plate = cq.importers.importStep(str(plate_loader.fetch("BG-AC", "v1")))
+        bg_loc = BG_AC_MATING_FRAME
+        if exploded:
+            base = cq.Vector(*BG_AC_MATING_FRAME.toTuple()[0])
+            bg_loc = cq.Location(
+                base + _explode.bg_ac_plate_offset(), cq.Vector(0, 1, 0), -90
+            )
+        assy.add(
+            bg_plate, name="ARC-PLT-BG-AC", loc=bg_loc, color=cq.Color(0.7, 0.5, 0.3)
         )
-    assy.add(bg_plate, name="ARC-PLT-BG-AC", loc=bg_loc, color=cq.Color(0.7, 0.5, 0.3))
 
 
 def emit_artifacts(
@@ -143,7 +165,7 @@ def emit_artifacts(
     }
     assy.export(str(paths["step"]))
     assy.export(str(paths["glb"]))
-    paths["bom"].write_text(yaml.safe_dump(COMMERCIAL_AC_BOM, sort_keys=False))
+    paths["bom"].write_text(yaml.safe_dump(BOM_BY_VARIANT[variant], sort_keys=False))
 
     if exploded_assy is not None:
         paths["glb_exploded"] = out_dir / "assembly-exploded.glb"
