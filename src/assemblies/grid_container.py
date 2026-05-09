@@ -17,6 +17,7 @@ Variants:
 
 import argparse
 import logging
+import math
 from pathlib import Path
 from typing import Final, Literal
 
@@ -77,11 +78,35 @@ COMMERCIAL_AC_BOM: Final[dict] = {
     ],
 }
 
-# DC-ext adds GRD-PCS-001 (EPC PD500/AC-480, 500 kW). qty=1 for v1; real
-# 1 MW BESS deployments use qty=2 — revisit when sizing engine wires PCS
-# count to BESS aggregate power.
+# Reason: PCS qty is a function of total compute load, not BESS nameplate.
+# Each EPC PD500/AC-480 handles 500 kW; each compute container peaks at 80 kW
+# (per ADR-005). Single Compute Container deployment → 1 PCS; 7+ → 2 PCS.
+# pcs_qty_for(n) is the sizing rule; the BOM below pins qty=1 as the v1
+# single-Compute default for cad/STEP/GLB build. Sizing engine (edp-api) calls
+# pcs_qty_for() at deployment time to override the manifest BOM.
+COMPUTE_CONTAINER_LOAD_KW: Final[int] = 80  # peak per ADR-005
+PCS_RATED_KW: Final[int] = 500  # GRD-PCS-001 EPC PD500/AC-480
+
+
+def pcs_qty_for(compute_container_count: int) -> int:
+    """PCS qty needed to handle aggregate compute load.
+
+    Args:
+        compute_container_count: Number of Compute Containers in the deployment.
+
+    Returns:
+        ceil(total_load_kW / PCS_rated_kW). Always >= 1.
+    """
+    return math.ceil(compute_container_count * COMPUTE_CONTAINER_LOAD_KW / PCS_RATED_KW)
+
+
 COMMERCIAL_DC_EXT_BOM: Final[dict] = {
-    "parts": [*_PARTS, {"equipment_id": "GRD-PCS-001", "qty": 1}],
+    "parts": [
+        *_PARTS,
+        # qty pinned for v1 single-Compute build; deployment-level sizing engine
+        # overrides via pcs_qty_for(compute_container_count).
+        {"equipment_id": "GRD-PCS-001", "qty": 1},
+    ],
     "plates": [
         {"id": "CG", "version": "v1", "qty": 1},
         {"id": "BG-DC", "version": "v1", "qty": 1},

@@ -14,6 +14,7 @@ from src.assemblies.grid_container import (
     NO_BESS_BOM,
     W_EXT_MM,
     build_grid_container,
+    pcs_qty_for,
 )
 
 
@@ -198,3 +199,31 @@ def test_dc_ext_bbox_matches_container_envelope() -> None:
     assert abs(bbox.xlen - L_EXT_MM) < bbox_tolerance_mm
     assert abs(bbox.ylen - W_EXT_MM) < bbox_tolerance_mm
     assert abs(bbox.zlen - H_EXT_MM) < bbox_tolerance_mm
+
+
+# --- PCS sizing rule (per PM 2026-05-09) ---
+
+
+def test_pcs_qty_single_compute_uses_one_pcs() -> None:
+    # arrange / act / assert — 80 kW < 500 kW
+    assert pcs_qty_for(1) == 1
+
+
+def test_pcs_qty_four_computes_still_one_pcs() -> None:
+    # arrange / act / assert — 320 kW < 500 kW
+    assert pcs_qty_for(4) == 1
+
+
+def test_pcs_qty_six_computes_still_one_pcs() -> None:
+    # arrange / act / assert — 480 kW < 500 kW (right at the edge)
+    assert pcs_qty_for(6) == 1
+
+
+def test_pcs_qty_seven_computes_needs_two_pcs() -> None:
+    # arrange / act / assert — 560 kW > 500 kW (first qty=2 deployment)
+    assert pcs_qty_for(7) == 2
+
+
+def test_pcs_qty_thirteen_computes_needs_three_pcs() -> None:
+    # arrange / act / assert — 1040 kW > 1000 kW
+    assert pcs_qty_for(13) == 3
