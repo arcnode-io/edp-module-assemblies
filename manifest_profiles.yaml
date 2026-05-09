@@ -5,8 +5,14 @@
 # Profiles in this file may reference assemblies/plates that don't exist
 # yet; build_manifest.py validates and emits warnings for missing refs.
 # Plate fleet (per PM 2026-05-08): CG, BG-AC, BG-DC, CD.
-# All four v1 profiles ship end-to-end — every grid_container variant
-# referenced below has a built assembly (step 6.1, 6.5, 6.8 all landed).
+# All seven v1 profiles ship end-to-end — every container variant
+# referenced below has a built assembly (commercial: step 6.1, 6.5,
+# 6.8; defense: step 6.9 / #18).
+#
+# defense_dc_int is intentionally absent: CATL EnerOne integrated PCS
+# is excluded from DoD procurement, so defense_forward + dc_integrated_pcs
+# is invalid. module_resolver in edp-api rejects that combination at
+# Pydantic ingress.
 
 profiles:
   commercial_ac:
@@ -37,4 +43,23 @@ profiles:
     # present as utility tie-in / switchgear hub, no BG-* plate.
     compute_container: commercial-ac
     grid_container: no-bess
+    interface_plates: [CG, CD]
+
+  defense_ac:
+    # AC-coupled BESS, defense forward deployment. Same hardware as
+    # commercial_ac but plates are 5083-H116 marine grade, 10 mm thick.
+    compute_container: defense-ac
+    grid_container: defense-ac
+    interface_plates: [CG, BG-AC, CD]
+
+  defense_dc_ext:
+    # DC strings, PCS in grid container, defense forward.
+    compute_container: defense-ac
+    grid_container: defense-dc-ext
+    interface_plates: [CG, BG-DC, CD]
+
+  defense_no_bess:
+    # No BESS, defense forward (utility tie-in only).
+    compute_container: defense-ac
+    grid_container: defense-no-bess
     interface_plates: [CG, CD]
