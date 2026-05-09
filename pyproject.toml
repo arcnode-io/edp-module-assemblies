@@ -30,9 +30,10 @@ sync-plates = { cmd = "python src/plate_loader.py", env = { PYTHONPATH = "." } }
 build-envelopes = { cmd = "python src/envelopes/build_envelope.py", env = { PYTHONPATH = "." } }
 build-compute = { cmd = "python src/assemblies/compute_container.py --variant commercial-ac", env = { PYTHONPATH = "." } }
 build-grid = { cmd = "python src/assemblies/grid_container.py --variant commercial-ac", env = { PYTHONPATH = "." } }
+build-grid-dc-ext = { cmd = "python src/assemblies/grid_container.py --variant commercial-dc-ext", env = { PYTHONPATH = "." } }
 build-grid-no-bess = { cmd = "python src/assemblies/grid_container.py --variant no-bess", env = { PYTHONPATH = "." } }
 bake-viewer = { cmd = "python scripts/bake_viewer.py", env = { PYTHONPATH = "." } }
-build-all = ["sync-plates", "build-envelopes", "build-compute", "build-grid", "build-grid-no-bess", "build-manifest"]
+build-all = ["sync-plates", "build-envelopes", "build-compute", "build-grid", "build-grid-dc-ext", "build-grid-no-bess", "build-manifest"]
 
 # CI
 validate-specs = { cmd = "python scripts/validate_specs.py", env = { PYTHONPATH = "." } }

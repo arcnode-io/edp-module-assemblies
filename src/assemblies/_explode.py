@@ -73,3 +73,8 @@ def xfm_offset() -> cq.Vector:
 def swg_offset() -> cq.Vector:
     """SafeGear lifts +Z off the container floor in exploded view."""
     return cq.Vector(0, 0, SWG_LIFT_Z_MM)
+
+
+def pcs_offset() -> cq.Vector:
+    """PCS lifts +Z off the container floor (between Trihal and SafeGear lift)."""
+    return cq.Vector(0, 0, 900.0)

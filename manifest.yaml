@@ -72,6 +72,13 @@ assemblies:
       glb_exploded: s3://arcnode-artifacts/assemblies/grid-container/commercial-ac/assembly-exploded.glb
       step_exploded: s3://arcnode-artifacts/assemblies/grid-container/commercial-ac/assembly-exploded.step
       topology_yaml: s3://arcnode-artifacts/assemblies/grid-container/commercial-ac/topology.yaml
+    commercial-dc-ext:
+      bom: s3://arcnode-artifacts/assemblies/grid-container/commercial-dc-ext/bom.yaml
+      step: s3://arcnode-artifacts/assemblies/grid-container/commercial-dc-ext/assembly.step
+      glb: s3://arcnode-artifacts/assemblies/grid-container/commercial-dc-ext/assembly.glb
+      glb_exploded: s3://arcnode-artifacts/assemblies/grid-container/commercial-dc-ext/assembly-exploded.glb
+      step_exploded: s3://arcnode-artifacts/assemblies/grid-container/commercial-dc-ext/assembly-exploded.step
+      topology_yaml: null
     no-bess:
       bom: s3://arcnode-artifacts/assemblies/grid-container/no-bess/bom.yaml
       step: s3://arcnode-artifacts/assemblies/grid-container/no-bess/assembly.step

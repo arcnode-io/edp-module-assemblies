@@ -5,9 +5,10 @@ import math
 import pytest
 
 from src.assemblies.grid_container import (
-    BG_AC_MATING_FRAME,
+    BG_MATING_FRAME,
     CG_MATING_FRAME,
     COMMERCIAL_AC_BOM,
+    COMMERCIAL_DC_EXT_BOM,
     H_EXT_MM,
     L_EXT_MM,
     NO_BESS_BOM,
@@ -53,9 +54,9 @@ def test_cg_mating_frame_at_negative_x_end() -> None:
 
 
 def test_grid_container_rejects_unsupported_variant() -> None:
-    # arrange / act / assert — commercial-dc-ext lands in step 6.8
-    with pytest.raises(NotImplementedError, match=r"commercial-dc-ext"):
-        build_grid_container(variant="commercial-dc-ext")  # type: ignore[arg-type]
+    # arrange / act / assert — defense variants land in step 6.9
+    with pytest.raises(NotImplementedError, match=r"defense"):
+        build_grid_container(variant="defense-ac")  # type: ignore[arg-type]
 
 
 def test_bom_has_xfm_and_swg_and_cg_plate() -> None:
@@ -114,7 +115,7 @@ def test_no_bess_bbox_matches_container_envelope() -> None:
 def test_bg_ac_plate_placed_at_positive_x_end() -> None:
     # arrange — BG-AC at +X end (BESS pad), opposite from CG at -X (compute)
     expected_x = +L_EXT_MM / 2
-    actual_x = BG_AC_MATING_FRAME.toTuple()[0][0]
+    actual_x = BG_MATING_FRAME.toTuple()[0][0]
     assert math.isclose(actual_x, expected_x, abs_tol=0.1)
 
 
@@ -150,3 +151,50 @@ def test_exploded_cg_plate_offset_outward_in_negative_x() -> None:
     actual_x = cg.loc.toTuple()[0][0]
     # assert — explode pushes CG plate further in -X (more negative)
     assert actual_x < base_x
+
+
+def test_dc_ext_bom_has_pcs_and_bg_dc() -> None:
+    # arrange
+    parts_by_id = {p["equipment_id"]: p["qty"] for p in COMMERCIAL_DC_EXT_BOM["parts"]}
+    plate_ids = {p["id"] for p in COMMERCIAL_DC_EXT_BOM["plates"]}
+    # act / assert — PCS present, BG-DC instead of BG-AC
+    assert parts_by_id["GRD-PCS-001"] == 1
+    assert plate_ids == {"CG", "BG-DC"}
+
+
+def test_dc_ext_assembly_includes_pcs_and_bg_dc_plate() -> None:
+    # arrange / act
+    assy = build_grid_container(variant="commercial-dc-ext")
+    child_names = {c.name for c in assy.children}
+    # assert
+    assert "GRD-PCS-001" in child_names
+    assert "ARC-PLT-BG-DC" in child_names
+    assert "ARC-PLT-BG-AC" not in child_names
+
+
+def test_dc_ext_bg_plate_at_same_position_as_ac() -> None:
+    # arrange — BG-AC and BG-DC share the +X end mating frame (same wall slot)
+    expected_pos = BG_MATING_FRAME.toTuple()[0]
+    # act
+    assy = build_grid_container(variant="commercial-dc-ext")
+    bg_dc = next(c for c in assy.children if c.name == "ARC-PLT-BG-DC")
+    actual_pos = bg_dc.loc.toTuple()[0]
+    # assert
+    for axis, (actual, expected) in enumerate(
+        zip(actual_pos, expected_pos, strict=True)
+    ):
+        assert math.isclose(
+            actual, expected, abs_tol=0.1
+        ), f"axis {axis}: actual={actual} expected={expected}"
+
+
+def test_dc_ext_bbox_matches_container_envelope() -> None:
+    # arrange
+    bbox_tolerance_mm = 50.0
+    # act
+    assy = build_grid_container(variant="commercial-dc-ext")
+    bbox = assy.toCompound().BoundingBox()
+    # assert — same shell as commercial-ac, PCS sits inside
+    assert abs(bbox.xlen - L_EXT_MM) < bbox_tolerance_mm
+    assert abs(bbox.ylen - W_EXT_MM) < bbox_tolerance_mm
+    assert abs(bbox.zlen - H_EXT_MM) < bbox_tolerance_mm

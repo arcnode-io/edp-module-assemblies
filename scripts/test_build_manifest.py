@@ -59,18 +59,14 @@ def test_manifest_profile_commercial_ac_resolved() -> None:
     assert "CG" in profile.interface_plates
 
 
-def test_validate_profile_refs_clean_after_no_bess_built() -> None:
-    # arrange — commercial-ac and no-bess variants exist end-to-end (step 6.5).
-    # commercial-dc-ext intentionally deferred (step 6.8) and emits a warning.
+def test_validate_profile_refs_clean_after_all_v1_variants_built() -> None:
+    # arrange — commercial-ac, commercial-dc-ext, and no-bess all exist
+    # end-to-end after steps 6.1, 6.5, and 6.8. No deferred warnings expected.
     manifest = build_manifest()
-    deferred_variants = {"commercial-dc-ext"}
     # act
     warnings = _validate_profile_refs(manifest)
-    # assert — only the deferred-variant warning allowed
-    unexpected = [
-        w for w in warnings if not any(deferred in w for deferred in deferred_variants)
-    ]
-    assert unexpected == []
+    # assert — clean
+    assert warnings == []
 
 
 def test_manifest_pydantic_roundtrip(tmp_path: Path) -> None:

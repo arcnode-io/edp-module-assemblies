@@ -3,6 +3,7 @@
 v1 layout (Q6-B):
 - Trihal at -X side, anchored to -Y wall
 - SafeGear at +X side, rotated 90° about Z, depth aligned with +Y wall
+- PCS (commercial-dc-ext only): +X side, anchored to -Y wall, opposite SafeGear
 RLY + MTR are inside SafeGear's LV compartment (Q7-A) — bom-only, no geometry.
 """
 
@@ -32,6 +33,13 @@ SWG_L_MM: Final[float] = 2159.0  # depth (Y axis after rotation)
 SWG_W_MM: Final[float] = 914.0  # width (X axis after rotation)
 SWG_H_MM: Final[float] = 2413.0
 
+# PCS envelope per GRD-PCS-001 spec (EPC PD500/AC-480, 500 kW liquid-cooled).
+# Vendor canonical: H x W x D = 670 x 530 x 1045 mm. Place with depth along X
+# (sticks out from +X wall toward container center), width along Y.
+PCS_L_MM: Final[float] = 1045.0  # depth (X axis after placement)
+PCS_W_MM: Final[float] = 530.0  # width (Y axis after placement)
+PCS_H_MM: Final[float] = 670.0  # height (Z axis)
+
 
 def _import_envelope(equipment_id: str) -> cq.Workplane:
     """Import equipment envelope STEP from equipment/{id}/envelope.step."""
@@ -58,8 +66,23 @@ def safegear_position() -> cq.Vector:
     return cq.Vector(x, y, z)
 
 
-def place_grid_equipment(assy: cq.Assembly, *, exploded: bool = False) -> None:
-    """Add Trihal + SafeGear to assembly. Q8: lift +Z when exploded."""
+def pcs_position() -> cq.Vector:
+    """PCS anchored to +X end + -Y wall, on the floor (opposite SafeGear).
+
+    Cable routing rationale: BG-DC plate is centered on +X wall; DC bus runs
+    short distance to PCS DC input; PCS AC output runs along +X wall to
+    SafeGear AC input (also at +X end).
+    """
+    x = +(L_INT_MM / 2 - PCS_L_MM / 2)
+    y = -(W_INT_MM / 2 - PCS_W_MM / 2)
+    z = PCS_H_MM / 2
+    return cq.Vector(x, y, z)
+
+
+def place_grid_equipment(
+    assy: cq.Assembly, *, variant: str = "commercial-ac", exploded: bool = False
+) -> None:
+    """Add Trihal + SafeGear (always); PCS only for commercial-dc-ext."""
     xfm_pos = trihal_position()
     if exploded:
         xfm_pos = xfm_pos.add(_explode.xfm_offset())
@@ -81,3 +104,14 @@ def place_grid_equipment(assy: cq.Assembly, *, exploded: bool = False) -> None:
         loc=cq.Location(swg_pos, cq.Vector(0, 0, 1), 90),
         color=cq.Color(0.3, 0.3, 0.5),
     )
+
+    if variant == "commercial-dc-ext":
+        pcs_pos = pcs_position()
+        if exploded:
+            pcs_pos = pcs_pos.add(_explode.pcs_offset())
+        assy.add(
+            _import_envelope("GRD-PCS-001"),
+            name="GRD-PCS-001",
+            loc=cq.Location(pcs_pos),
+            color=cq.Color(0.4, 0.5, 0.3),
+        )

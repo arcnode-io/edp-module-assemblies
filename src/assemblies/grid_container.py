@@ -9,10 +9,10 @@ plus -exploded.{step,glb} per Q8.
 
 Variants:
 - commercial-ac: CG (-X) + BG-AC (+X). BESS lands AC at grid wall.
+- commercial-dc-ext: CG (-X) + BG-DC (+X). PCS lives in grid container,
+  BESS pad outputs raw DC strings.
 - no-bess: CG (-X) only. No BESS connection; utility tie-in routes
-  through SafeGear's standard service entrance fitting (no ARCNODE
-  plate needed at +X end). Compute container connects directly to
-  utility-fed switchgear.
+  through SafeGear's standard service entrance fitting.
 """
 
 import argparse
@@ -47,15 +47,17 @@ CG_MATING_FRAME: Final[cq.Location] = cq.Location(
     +90,
 )
 
-# Reason: BG-AC plate at +X end (BESS-facing). Plate built normal +Z;
-# rotation -90° about Y → normal +X (away from grid, toward BESS pad).
-BG_AC_MATING_FRAME: Final[cq.Location] = cq.Location(
+# Reason: BG-* plate at +X end (BESS-facing). Single mating frame shared
+# across BG-AC (commercial-ac) and BG-DC (commercial-dc-ext) — the wall
+# location is identical; only the plate's penetration schedule differs.
+# Plate built normal +Z; rotation -90° about Y → normal +X.
+BG_MATING_FRAME: Final[cq.Location] = cq.Location(
     cq.Vector(+L_EXT_MM / 2, 0.0, PLATE_CENTER_Z_MM),
     cq.Vector(0, 1, 0),
     -90,
 )
 
-Variant = Literal["commercial-ac", "no-bess"]
+Variant = Literal["commercial-ac", "commercial-dc-ext", "no-bess"]
 
 # Reason: hardware doesn't change between commercial-ac and no-bess —
 # transformer + switchgear + relay + meter are needed for utility tie-in
@@ -75,6 +77,17 @@ COMMERCIAL_AC_BOM: Final[dict] = {
     ],
 }
 
+# DC-ext adds GRD-PCS-001 (EPC PD500/AC-480, 500 kW). qty=1 for v1; real
+# 1 MW BESS deployments use qty=2 — revisit when sizing engine wires PCS
+# count to BESS aggregate power.
+COMMERCIAL_DC_EXT_BOM: Final[dict] = {
+    "parts": [*_PARTS, {"equipment_id": "GRD-PCS-001", "qty": 1}],
+    "plates": [
+        {"id": "CG", "version": "v1", "qty": 1},
+        {"id": "BG-DC", "version": "v1", "qty": 1},
+    ],
+}
+
 NO_BESS_BOM: Final[dict] = {
     "parts": _PARTS,
     "plates": [
@@ -84,7 +97,16 @@ NO_BESS_BOM: Final[dict] = {
 
 BOM_BY_VARIANT: Final[dict[str, dict]] = {
     "commercial-ac": COMMERCIAL_AC_BOM,
+    "commercial-dc-ext": COMMERCIAL_DC_EXT_BOM,
     "no-bess": NO_BESS_BOM,
+}
+
+# Reason: which BG-* plate goes at the +X end for each variant.
+# no-bess has no BG plate (wall is closed; utility through SafeGear).
+_BG_PLATE_BY_VARIANT: Final[dict[str, str | None]] = {
+    "commercial-ac": "BG-AC",
+    "commercial-dc-ext": "BG-DC",
+    "no-bess": None,
 }
 
 
@@ -121,14 +143,14 @@ def build_grid_container(
         color=cq.Color(0.85, 0.85, 0.85, 0.15),
     )
 
-    _grid_layout.place_grid_equipment(assy, exploded=exploded)
+    _grid_layout.place_grid_equipment(assy, variant=variant, exploded=exploded)
 
     _add_plates(assy, variant=variant, exploded=exploded)
     return assy
 
 
 def _add_plates(assy: cq.Assembly, *, variant: Variant, exploded: bool) -> None:
-    """Place CG (always) + BG-AC (commercial-ac only)."""
+    """Place CG (always) + BG-* (per variant). no-bess skips BG entirely."""
     cg_plate = cq.importers.importStep(str(plate_loader.fetch("CG", "v1")))
     cg_loc = CG_MATING_FRAME
     if exploded:
@@ -138,16 +160,20 @@ def _add_plates(assy: cq.Assembly, *, variant: Variant, exploded: bool) -> None:
         )
     assy.add(cg_plate, name="ARC-PLT-CG", loc=cg_loc, color=cq.Color(0.6, 0.6, 0.7))
 
-    if variant == "commercial-ac":
-        bg_plate = cq.importers.importStep(str(plate_loader.fetch("BG-AC", "v1")))
-        bg_loc = BG_AC_MATING_FRAME
+    bg_plate_id = _BG_PLATE_BY_VARIANT[variant]
+    if bg_plate_id is not None:
+        bg_plate = cq.importers.importStep(str(plate_loader.fetch(bg_plate_id, "v1")))
+        bg_loc = BG_MATING_FRAME
         if exploded:
-            base = cq.Vector(*BG_AC_MATING_FRAME.toTuple()[0])
+            base = cq.Vector(*BG_MATING_FRAME.toTuple()[0])
             bg_loc = cq.Location(
                 base + _explode.bg_ac_plate_offset(), cq.Vector(0, 1, 0), -90
             )
         assy.add(
-            bg_plate, name="ARC-PLT-BG-AC", loc=bg_loc, color=cq.Color(0.7, 0.5, 0.3)
+            bg_plate,
+            name=f"ARC-PLT-{bg_plate_id}",
+            loc=bg_loc,
+            color=cq.Color(0.7, 0.5, 0.3),
         )
 
 
