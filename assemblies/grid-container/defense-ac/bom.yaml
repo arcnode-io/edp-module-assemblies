@@ -1,0 +1,17 @@
+parts:
+- equipment_id: GRD-XFM-001
+  qty: 1
+- equipment_id: GRD-SWG-001
+  qty: 1
+- equipment_id: GRD-RLY-001
+  qty: 1
+- equipment_id: GRD-MTR-001
+  qty: 1
+plates:
+- id: CG
+  version: v1
+  qty: 1
+- id: BG-AC
+  version: v1
+  qty: 1
+deployment_context: defense_forward

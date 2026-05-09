@@ -108,7 +108,7 @@ def place_grid_equipment(
         color=cq.Color(0.3, 0.3, 0.5),
     )
 
-    if variant == "commercial-dc-ext":
+    if variant in {"commercial-dc-ext", "defense-dc-ext"}:
         pcs_pos = pcs_position()
         if exploded:
             pcs_pos = pcs_pos.add(_explode.pcs_offset())

@@ -13,6 +13,10 @@ Variants:
   BESS pad outputs raw DC strings.
 - no-bess: CG (-X) only. No BESS connection; utility tie-in routes
   through SafeGear's standard service entrance fitting.
+- defense-ac / defense-dc-ext / defense-no-bess: same equipment as the
+  commercial counterpart but plates are 5083-H116 marine grade, 10 mm
+  thick, with hard anodize + EPDM secondary seal. Plate fetcher pulls
+  the -defense.step artifact via deployment_context="defense_forward".
 """
 
 import argparse
@@ -58,7 +62,14 @@ BG_MATING_FRAME: Final[cq.Location] = cq.Location(
     -90,
 )
 
-Variant = Literal["commercial-ac", "commercial-dc-ext", "no-bess"]
+Variant = Literal[
+    "commercial-ac",
+    "commercial-dc-ext",
+    "no-bess",
+    "defense-ac",
+    "defense-dc-ext",
+    "defense-no-bess",
+]
 
 # Reason: hardware doesn't change between commercial-ac and no-bess —
 # transformer + switchgear + relay + meter are needed for utility tie-in
@@ -120,19 +131,55 @@ NO_BESS_BOM: Final[dict] = {
     ],
 }
 
+# Reason: defense variants share equipment + plate IDs with their commercial
+# counterparts; the difference is the deployment_context flag at the BOM root,
+# which routes plate_loader.fetch to the -defense.step artifacts (5083-H116
+# marine grade, 10 mm). PM 2026-05-09 confirms defense_dc_int is invalid
+# (CATL EnerOne integrated PCS excluded from DoD); module_resolver rejects
+# that combination at Pydantic ingress.
+DEFENSE_AC_BOM: Final[dict] = {
+    **COMMERCIAL_AC_BOM,
+    "deployment_context": "defense_forward",
+}
+DEFENSE_DC_EXT_BOM: Final[dict] = {
+    **COMMERCIAL_DC_EXT_BOM,
+    "deployment_context": "defense_forward",
+}
+DEFENSE_NO_BESS_BOM: Final[dict] = {
+    **NO_BESS_BOM,
+    "deployment_context": "defense_forward",
+}
+
 BOM_BY_VARIANT: Final[dict[str, dict]] = {
     "commercial-ac": COMMERCIAL_AC_BOM,
     "commercial-dc-ext": COMMERCIAL_DC_EXT_BOM,
     "no-bess": NO_BESS_BOM,
+    "defense-ac": DEFENSE_AC_BOM,
+    "defense-dc-ext": DEFENSE_DC_EXT_BOM,
+    "defense-no-bess": DEFENSE_NO_BESS_BOM,
 }
 
 # Reason: which BG-* plate goes at the +X end for each variant.
-# no-bess has no BG plate (wall is closed; utility through SafeGear).
+# no-bess (and its defense twin) has no BG plate (wall is closed;
+# utility through SafeGear).
 _BG_PLATE_BY_VARIANT: Final[dict[str, str | None]] = {
     "commercial-ac": "BG-AC",
     "commercial-dc-ext": "BG-DC",
     "no-bess": None,
+    "defense-ac": "BG-AC",
+    "defense-dc-ext": "BG-DC",
+    "defense-no-bess": None,
 }
+
+# Reason: variants that include GRD-PCS-001 in the equipment layout.
+_VARIANTS_WITH_PCS: Final[frozenset[str]] = frozenset(
+    {"commercial-dc-ext", "defense-dc-ext"}
+)
+
+
+def _deployment_context_for(variant: str) -> str:
+    """Map variant name prefix to the plate-fetch deployment_context."""
+    return "defense_forward" if variant.startswith("defense-") else "commercial"
 
 
 def build_grid_container(
@@ -175,8 +222,15 @@ def build_grid_container(
 
 
 def _add_plates(assy: cq.Assembly, *, variant: Variant, exploded: bool) -> None:
-    """Place CG (always) + BG-* (per variant). no-bess skips BG entirely."""
-    cg_plate = cq.importers.importStep(str(plate_loader.fetch("CG", "v1")))
+    """Place CG (always) + BG-* (per variant). no-bess skips BG entirely.
+
+    Defense variants pull -defense.step artifacts via plate_loader's
+    deployment_context arg; commercial variants pull plate.step.
+    """
+    deployment_context = _deployment_context_for(variant)
+    cg_plate = cq.importers.importStep(
+        str(plate_loader.fetch("CG", "v1", deployment_context))
+    )
     cg_loc = CG_MATING_FRAME
     if exploded:
         base = cq.Vector(*CG_MATING_FRAME.toTuple()[0])
@@ -187,7 +241,9 @@ def _add_plates(assy: cq.Assembly, *, variant: Variant, exploded: bool) -> None:
 
     bg_plate_id = _BG_PLATE_BY_VARIANT[variant]
     if bg_plate_id is not None:
-        bg_plate = cq.importers.importStep(str(plate_loader.fetch(bg_plate_id, "v1")))
+        bg_plate = cq.importers.importStep(
+            str(plate_loader.fetch(bg_plate_id, "v1", deployment_context))
+        )
         bg_loc = BG_MATING_FRAME
         if exploded:
             base = cq.Vector(*BG_MATING_FRAME.toTuple()[0])

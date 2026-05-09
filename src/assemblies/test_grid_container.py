@@ -9,6 +9,9 @@ from src.assemblies.grid_container import (
     CG_MATING_FRAME,
     COMMERCIAL_AC_BOM,
     COMMERCIAL_DC_EXT_BOM,
+    DEFENSE_AC_BOM,
+    DEFENSE_DC_EXT_BOM,
+    DEFENSE_NO_BESS_BOM,
     H_EXT_MM,
     L_EXT_MM,
     NO_BESS_BOM,
@@ -55,9 +58,11 @@ def test_cg_mating_frame_at_negative_x_end() -> None:
 
 
 def test_grid_container_rejects_unsupported_variant() -> None:
-    # arrange / act / assert — defense variants land in step 6.9
-    with pytest.raises(NotImplementedError, match=r"defense"):
-        build_grid_container(variant="defense-ac")  # type: ignore[arg-type]
+    # arrange / act / assert — variant outside the BOM_BY_VARIANT keys.
+    # defense_dc_int (PCS-in-BESS at DoD) is invalid per module_resolver
+    # (CATL EnerOne integrated PCS excluded from DoD procurement).
+    with pytest.raises(NotImplementedError, match=r"not supported"):
+        build_grid_container(variant="defense-dc-int")  # type: ignore[arg-type]
 
 
 def test_bom_has_xfm_and_swg_and_cg_plate() -> None:
@@ -256,3 +261,65 @@ def test_pcs_qty_seven_computes_needs_two_pcs() -> None:
 def test_pcs_qty_thirteen_computes_needs_three_pcs() -> None:
     # arrange / act / assert — 1040 kW > 1000 kW
     assert pcs_qty_for(13) == 3
+
+
+# --- Defense variants (per PM 2026-05-09, #18) ---
+
+
+def test_defense_ac_bom_carries_deployment_context() -> None:
+    # arrange / act / assert — defense BOM has top-level deployment_context
+    # field that routes plate_loader to -defense.step artifacts.
+    assert DEFENSE_AC_BOM["deployment_context"] == "defense_forward"
+    # Same parts + plate IDs as commercial twin.
+    assert DEFENSE_AC_BOM["parts"] == COMMERCIAL_AC_BOM["parts"]
+    assert DEFENSE_AC_BOM["plates"] == COMMERCIAL_AC_BOM["plates"]
+
+
+def test_defense_dc_ext_bom_carries_deployment_context_and_pcs() -> None:
+    # arrange / act / assert — defense DC-ext BOM mirrors commercial DC-ext
+    # (PCS included) and adds the deployment_context flag.
+    assert DEFENSE_DC_EXT_BOM["deployment_context"] == "defense_forward"
+    parts_by_id = {p["equipment_id"]: p["qty"] for p in DEFENSE_DC_EXT_BOM["parts"]}
+    assert parts_by_id["GRD-PCS-001"] == 1
+    plate_ids = {p["id"] for p in DEFENSE_DC_EXT_BOM["plates"]}
+    assert plate_ids == {"CG", "BG-DC"}
+
+
+def test_defense_no_bess_bom_carries_deployment_context_no_bg() -> None:
+    # arrange / act / assert — defense no-bess BOM mirrors commercial no-bess
+    # (CG only, no BG plate) and adds the deployment_context flag.
+    assert DEFENSE_NO_BESS_BOM["deployment_context"] == "defense_forward"
+    plate_ids = {p["id"] for p in DEFENSE_NO_BESS_BOM["plates"]}
+    assert plate_ids == {"CG"}
+
+
+def test_defense_ac_assembly_builds_with_bg_ac_plate() -> None:
+    # arrange / act
+    assy = build_grid_container(variant="defense-ac")
+    child_names = {c.name for c in assy.children}
+    # assert — same plate set as commercial-ac (CG + BG-AC); fetch routes
+    # to -defense.step artifacts (plate_loader tests cover the routing).
+    assert "ARC-PLT-CG" in child_names
+    assert "ARC-PLT-BG-AC" in child_names
+    assert "GRD-PCS-001" not in child_names
+
+
+def test_defense_dc_ext_assembly_builds_with_pcs_and_bg_dc() -> None:
+    # arrange / act
+    assy = build_grid_container(variant="defense-dc-ext")
+    child_names = {c.name for c in assy.children}
+    # assert — PCS placed (same layout as commercial-dc-ext), BG-DC plate
+    assert "GRD-PCS-001" in child_names
+    assert "ARC-PLT-BG-DC" in child_names
+    assert "ARC-PLT-BG-AC" not in child_names
+
+
+def test_defense_no_bess_assembly_builds_without_bg_plate() -> None:
+    # arrange / act
+    assy = build_grid_container(variant="defense-no-bess")
+    child_names = {c.name for c in assy.children}
+    # assert — CG only, no BG plate, no PCS
+    assert "ARC-PLT-CG" in child_names
+    assert "ARC-PLT-BG-AC" not in child_names
+    assert "ARC-PLT-BG-DC" not in child_names
+    assert "GRD-PCS-001" not in child_names

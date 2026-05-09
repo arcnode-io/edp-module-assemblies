@@ -13,6 +13,7 @@ from src.assemblies.compute_container import (
     CD_MATING_FRAME,
     CG_MATING_FRAME,
     COMMERCIAL_AC_BOM,
+    DEFENSE_AC_BOM,
     H_EXT_MM,
     L_EXT_MM,
     W_EXT_MM,
@@ -139,3 +140,42 @@ def test_exploded_nodes_are_staggered_in_z() -> None:
     z_positions = [n.loc.toTuple()[0][2] for n in nodes]
     assert z_positions == sorted(z_positions)
     assert z_positions[-1] > z_positions[0] + 1000  # cumulative stagger ≥ 1m
+
+
+# --- Defense-ac variant (per PM 2026-05-09, #18) ---
+
+
+def test_defense_ac_bom_carries_deployment_context_field() -> None:
+    # arrange / act / assert — defense BOM has top-level deployment_context flag
+    # that routes plate_loader.fetch to the -defense.step artifacts.
+    assert DEFENSE_AC_BOM.get("deployment_context") == "defense_forward"
+
+
+def test_defense_ac_bom_has_same_parts_as_commercial() -> None:
+    # arrange / act — defense vs commercial: same hardware, only plates differ
+    # (5083-H116 marine grade, 10 mm vs 6061-T6 6 mm). Parts list unchanged.
+    # assert
+    assert DEFENSE_AC_BOM["parts"] == COMMERCIAL_AC_BOM["parts"]
+    assert DEFENSE_AC_BOM["plates"] == COMMERCIAL_AC_BOM["plates"]
+
+
+def test_defense_ac_assembly_builds_with_same_plate_set() -> None:
+    # arrange / act
+    assy = build_compute_container(variant="defense-ac")
+    child_names = {c.name for c in assy.children}
+    # assert — same plate set (CG, CD); fetch routes to -defense.step variants
+    # (verified separately by plate_loader tests).
+    assert "ARC-PLT-CG" in child_names
+    assert "ARC-PLT-CD" in child_names
+
+
+def test_defense_ac_bbox_matches_container_envelope() -> None:
+    # arrange
+    bbox_tolerance_mm = 50.0
+    # act
+    assy = build_compute_container(variant="defense-ac")
+    bbox = assy.toCompound().BoundingBox()
+    # assert — same shell as commercial-ac, defense plates sit in same slots
+    assert abs(bbox.xlen - L_EXT_MM) < bbox_tolerance_mm
+    assert abs(bbox.ylen - W_EXT_MM) < bbox_tolerance_mm
+    assert abs(bbox.zlen - H_EXT_MM) < bbox_tolerance_mm

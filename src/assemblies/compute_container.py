@@ -2,13 +2,15 @@
 
 Per-container origin = floor center inside container; X axis points toward
 the grid container (+X end wall); Y axis across; Z axis up. Equipment
-envelopes imported from `equipment/{id}/envelope.step`; CG plate imported
-via `plate_loader.fetch("CG", "v1")`.
+envelopes imported from `equipment/{id}/envelope.step`; plates imported
+via `plate_loader.fetch(plate_id, version, deployment_context)`.
+
+Variants:
+- commercial-ac: 6 mm 6061-T6 plates (CG, CD).
+- defense-ac: same equipment, but plates are 5083-H116 marine grade,
+  10 mm thick (defense-context plate-defense.step artifacts).
 
 Emits `assemblies/compute-container/{variant}/{assembly.step,assembly.glb,bom.yaml}`.
-
-Per ADR-010 step 4 scope: only `commercial-ac` variant for v1; grid container
-is treated as a notional mating frame, not built.
 """
 
 import argparse
@@ -58,7 +60,7 @@ CD_MATING_FRAME: Final[cq.Location] = cq.Location(
     -90,
 )
 
-Variant = Literal["commercial-ac"]
+Variant = Literal["commercial-ac", "defense-ac"]
 
 # v1 commercial-ac BOM — multiplied by container count downstream by edp-api.
 # Per ADR-009: split parts: + plates: sections.
@@ -75,6 +77,23 @@ COMMERCIAL_AC_BOM: Final[dict] = {
         {"id": "CD", "version": "v1", "qty": 1},
     ],
 }
+
+# Defense BOM = same hardware, top-level deployment_context flag routes
+# plate_loader.fetch to the -defense.step artifacts.
+DEFENSE_AC_BOM: Final[dict] = {
+    **COMMERCIAL_AC_BOM,
+    "deployment_context": "defense_forward",
+}
+
+BOM_BY_VARIANT: Final[dict[str, dict]] = {
+    "commercial-ac": COMMERCIAL_AC_BOM,
+    "defense-ac": DEFENSE_AC_BOM,
+}
+
+
+def _deployment_context_for(variant: str) -> str:
+    """Map variant name prefix to the plate-fetch deployment_context."""
+    return "defense_forward" if variant.startswith("defense-") else "commercial"
 
 
 def _import_envelope(equipment_id: str) -> cq.Workplane:
@@ -100,13 +119,12 @@ def build_compute_container(
     Raises:
         NotImplementedError: For unsupported variants.
     """
-    if variant != "commercial-ac":
+    if variant not in BOM_BY_VARIANT:
         raise NotImplementedError(
-            f"variant={variant!r} not supported. compute_container hardware is "
-            "identical across all v1 profiles (commercial-ac handles ac, dc-int, "
-            "dc-ext, no-bess); defense-* lands when the deployment driver needs it."
+            f"variant={variant!r} not supported. Available: {sorted(BOM_BY_VARIANT)}"
         )
 
+    deployment_context = _deployment_context_for(variant)
     suffix = "-exploded" if exploded else ""
     assy = cq.Assembly(name=f"compute_container_{variant}{suffix}")
 
@@ -129,7 +147,7 @@ def build_compute_container(
 
     _rack_layout.place_rack_equipment(assy, exploded=exploded)
 
-    cg_plate_step = plate_loader.fetch("CG", "v1")
+    cg_plate_step = plate_loader.fetch("CG", "v1", deployment_context)
     cg_plate = cq.importers.importStep(str(cg_plate_step))
     cg_loc = CG_MATING_FRAME
     if exploded:
@@ -142,7 +160,7 @@ def build_compute_container(
         )
     assy.add(cg_plate, name="ARC-PLT-CG", loc=cg_loc, color=cq.Color(0.6, 0.6, 0.7))
 
-    cd_step = plate_loader.fetch("CD", "v1")
+    cd_step = plate_loader.fetch("CD", "v1", deployment_context)
     cd_plate = cq.importers.importStep(str(cd_step))
     cd_loc = CD_MATING_FRAME
     if exploded:
@@ -176,7 +194,7 @@ def emit_artifacts(
     }
     assy.export(str(paths["step"]))
     assy.export(str(paths["glb"]))
-    paths["bom"].write_text(yaml.safe_dump(COMMERCIAL_AC_BOM, sort_keys=False))
+    paths["bom"].write_text(yaml.safe_dump(BOM_BY_VARIANT[variant], sort_keys=False))
 
     if exploded_assy is not None:
         paths["glb_exploded"] = out_dir / "assembly-exploded.glb"
