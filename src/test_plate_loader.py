@@ -58,13 +58,40 @@ def test_sync_local_creates_symlink_to_existing_source(tmp_path: Path) -> None:
 
     with (
         patch.object(plate_loader, "CACHE_DIR", cache_dir),
-        patch.object(plate_loader, "LOCAL_PLATE_SOURCES", {("CG", "v1"): source}),
+        patch.object(
+            plate_loader,
+            "LOCAL_PLATE_SOURCES",
+            {("CG", "v1", "commercial"): source},
+        ),
     ):
         # act
         plate_loader.sync_local()
 
     # assert
     target = cache_dir / "CG" / "v1" / "plate.step"
+    assert target.is_symlink()
+    assert target.resolve() == source.resolve()
+
+
+def test_sync_local_creates_symlink_for_defense_artifact(tmp_path: Path) -> None:
+    # arrange
+    source = tmp_path / "fake_source-defense.step"
+    source.write_text("DEFENSE SOURCE")
+    cache_dir = tmp_path / "cache"
+
+    with (
+        patch.object(plate_loader, "CACHE_DIR", cache_dir),
+        patch.object(
+            plate_loader,
+            "LOCAL_PLATE_SOURCES",
+            {("CG", "v1", "defense_forward"): source},
+        ),
+    ):
+        # act
+        plate_loader.sync_local()
+
+    # assert — defense uses the -defense suffix, lives in same plate dir
+    target = cache_dir / "CG" / "v1" / "plate-defense.step"
     assert target.is_symlink()
     assert target.resolve() == source.resolve()
 
@@ -76,7 +103,11 @@ def test_sync_local_skips_missing_source(tmp_path: Path) -> None:
 
     with (
         patch.object(plate_loader, "CACHE_DIR", cache_dir),
-        patch.object(plate_loader, "LOCAL_PLATE_SOURCES", {("CG", "v1"): nonexistent}),
+        patch.object(
+            plate_loader,
+            "LOCAL_PLATE_SOURCES",
+            {("CG", "v1", "commercial"): nonexistent},
+        ),
     ):
         # act — should not raise
         plate_loader.sync_local()
@@ -84,3 +115,29 @@ def test_sync_local_skips_missing_source(tmp_path: Path) -> None:
     # assert
     target = cache_dir / "CG" / "v1" / "plate.step"
     assert not target.exists()
+
+
+def test_fetch_defense_uses_suffixed_filename(tmp_path: Path) -> None:
+    # arrange — defense artifact lands at plate-defense.step in cache
+    cache_dir = tmp_path / "cache"
+    fake_target = cache_dir / "CG" / "v1" / "plate-defense.step"
+    fake_target.parent.mkdir(parents=True)
+    fake_target.write_text("DEFENSE STEP")
+    with patch.object(plate_loader, "CACHE_DIR", cache_dir):
+        # act
+        actual = plate_loader.fetch("CG", "v1", "defense_forward")
+    # assert
+    assert actual == fake_target
+    assert actual.read_text() == "DEFENSE STEP"
+
+
+def test_sovereign_government_shares_defense_artifact(tmp_path: Path) -> None:
+    # arrange — sovereign + defense both resolve to plate-defense.step
+    cache_dir = tmp_path / "cache"
+    shared = cache_dir / "CG" / "v1" / "plate-defense.step"
+    shared.parent.mkdir(parents=True)
+    shared.write_text("SHARED")
+    with patch.object(plate_loader, "CACHE_DIR", cache_dir):
+        # act / assert
+        assert plate_loader.fetch("CG", "v1", "defense_forward") == shared
+        assert plate_loader.fetch("CG", "v1", "sovereign_government") == shared
