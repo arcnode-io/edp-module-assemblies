@@ -75,7 +75,7 @@ All v1 plates (CG, BG-AC, BG-DC, CD) use **radially-slotted bolt holes** at the 
 Round corner holes fail outright; long-axis midpoints have only 36 µm net margin (positive but too tight to ship). Short-axis midpoints have ample margin and can stay round.
 
 **Two mitigations were considered:**
-- **Option 1 — slot the affected holes** (adopted): slot length = D_hole + 2·(δ_thermal + δ_fab + δ_margin) = 11 + 2·(0.449 + 0.1 + 0.2) = 12.5 → **13 mm**, oriented radially toward the bolt-pattern center. Same slot length covers both corners (0.449 mm) and long-axis midpoints (0.364 mm) — the budget is set by the worst case. ~$5–10/plate fab cost delta. 0.11 mm headroom remains even at defense-extreme ΔT = 111 K (-40 to +71 °C MIL-STD-810H).
+- **Option 1 — slot the affected holes** (adopted): the constraint is bolt-to-slot-end clearance ≥ worst-case displacement. Min slot length = D_bolt + 2·(δ_thermal + δ_fab + δ_margin) = 10 + 2·(0.449 + 0.1 + 0.2) = 11.5 mm; rounded up to **13 mm** for round-number fab stock + extra safety. Per-side travel (slot_length − bolt_diameter)/2 = 1.5 mm covers both corners (0.449 mm budget = 0.749 mm with fab tol + margin) and long-axis midpoints (0.364 mm budget = 0.664 mm). Same slot length serves both. ~$5–10/plate fab cost delta. **Commercial headroom 0.75 mm; defense headroom 0.61 mm even at MIL-STD-810H ΔT = 111 K (-40 to +71 °C).**
 - **Option 2 — tighten to ISO 2768-f**: drops fab tolerance from ±100 µm to ±50 µm. Buys back 50 µm everywhere; 15–30% fab-cost premium per plate forever. Brittle under wider operating ranges.
 
 Option 1 is structurally robust (eliminates the constraint, not just shrinks fab uncertainty) and future-proof (defense ΔT works without rework).
