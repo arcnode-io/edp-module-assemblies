@@ -70,6 +70,122 @@ MAT_SPECS: Final[list[MatSpec]] = [
     MatSpec(
         "pcs", re.compile(r"^GRD-PCS-001$"), "#5b8c6a", 0.4, 0.50, 1.0, blend=False
     ),
+    # ── DLR carrier PCB groups ──
+    # Reason: scene graph from ems-line-controller-dlr-pcb has parent group
+    # nodes (no mesh) plus leaf children named `<group>__<refdes>`. Patterns
+    # match both: `^group(?:__.*)?$`. Colors: PCB green for the board,
+    # gold/silver for connectors, warm hues for sensors, cool hues for power,
+    # dark for SoC/modem packages.
+    MatSpec(
+        "pcb_board",
+        re.compile(r"^pcb_board(?:__.*)?$"),
+        "#1f3a26",
+        0.0,
+        0.70,
+        1.0,
+        blend=False,
+    ),
+    MatSpec(
+        "cm4_socket",
+        re.compile(r"^cm4_socket(?:__.*)?$"),
+        "#c8a058",
+        0.6,
+        0.40,
+        1.0,
+        blend=False,
+    ),
+    MatSpec(
+        "cellular_modem",
+        re.compile(r"^cellular_modem(?:__.*)?$"),
+        "#2d3137",
+        0.4,
+        0.50,
+        1.0,
+        blend=False,
+    ),
+    MatSpec(
+        "cellular_io",
+        re.compile(r"^cellular_io(?:__.*)?$"),
+        "#8a929b",
+        0.5,
+        0.50,
+        1.0,
+        blend=False,
+    ),
+    # Reason: lens must match BEFORE the general vision_thermal pattern below
+    # so the chrome bezel reads as silver, not matte black like the can body.
+    MatSpec(
+        "lepton_lens",
+        re.compile(r"^vision_thermal__lepton_lens$"),
+        "#c8ccd0",
+        0.85,
+        0.18,
+        1.0,
+        blend=False,
+    ),
+    MatSpec(
+        "vision_thermal",
+        re.compile(r"^vision_thermal(?:__.*)?$"),
+        "#1a1c20",
+        0.3,
+        0.60,
+        1.0,
+        blend=False,
+    ),
+    MatSpec(
+        "atmospherics",
+        re.compile(r"^atmospherics(?:__.*)?$"),
+        "#e0a050",
+        0.2,
+        0.60,
+        1.0,
+        blend=False,
+    ),
+    MatSpec(
+        "power_harvest",
+        re.compile(r"^power_harvest(?:__.*)?$"),
+        "#d49538",
+        0.3,
+        0.50,
+        1.0,
+        blend=False,
+    ),
+    MatSpec(
+        "power_buck",
+        re.compile(r"^power_buck(?:__.*)?$"),
+        "#5b8c6a",
+        0.3,
+        0.55,
+        1.0,
+        blend=False,
+    ),
+    MatSpec(
+        "power_ldo",
+        re.compile(r"^power_ldo(?:__.*)?$"),
+        "#7baa84",
+        0.3,
+        0.55,
+        1.0,
+        blend=False,
+    ),
+    MatSpec(
+        "bat_terminal",
+        re.compile(r"^bat_terminal(?:__.*)?$"),
+        "#8a3a3a",
+        0.3,
+        0.55,
+        1.0,
+        blend=False,
+    ),
+    MatSpec(
+        "debug_header",
+        re.compile(r"^debug_header(?:__.*)?$"),
+        "#b8b8b8",
+        0.5,
+        0.40,
+        1.0,
+        blend=False,
+    ),
 ]
 
 
@@ -132,6 +248,8 @@ HOTSPOT_COPY: Final[dict[str, list[HotspotCopy]]] = {
         HotspotCopy("pcs", re.compile(r"^GRD-PCS-001$"), "PCS", "DC → AC, 500 kW"),
     ],
     "grid-no-bess": _GRID_BASE,
+    # No hotspots on the DLR carrier viewer — explode is the only UX.
+    "dlr-carrier": [],
 }
 
 

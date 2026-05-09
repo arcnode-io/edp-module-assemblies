@@ -193,10 +193,17 @@ def _hotspots(gltf: GLTF2, kind: str) -> list[dict[str, object]]:
     return out
 
 
-def bake_module(kind: str, src_dir: Path, out_dir: Path) -> Path:
+def bake_module(
+    kind: str,
+    src_dir: Path,
+    out_dir: Path,
+    *,
+    assembled_name: str = "assembly.glb",
+    exploded_name: str = "assembly-exploded.glb",
+) -> Path:
     """Bake one module: read assembled+exploded sources, write animated GLB to out_dir."""
-    assembled = GLTF2().load_binary(str(src_dir / "assembly.glb"))
-    exploded = GLTF2().load_binary(str(src_dir / "assembly-exploded.glb"))
+    assembled = GLTF2().load_binary(str(src_dir / assembled_name))
+    exploded = GLTF2().load_binary(str(src_dir / exploded_name))
     exploded_translations = {
         n.name: node_translation(exploded, i)
         for i, n in enumerate(exploded.nodes)
