@@ -204,10 +204,12 @@ def bake_module(kind: str, src_dir: Path, out_dir: Path) -> Path:
     return out_path
 
 
-def bake_hotspots(out_dir: Path) -> Path:
-    """Read post-bake GLBs and emit hotspots.json."""
+def bake_hotspots(out_dir: Path, kinds: list[str] | None = None) -> Path:
+    """Read post-bake GLBs and emit hotspots.json for the given kinds."""
+    if kinds is None:
+        kinds = ["compute", "grid"]
     manifest: dict[str, list[dict[str, object]]] = {}
-    for kind in ("compute", "grid"):
+    for kind in kinds:
         gltf = GLTF2().load_binary(str(out_dir / f"{kind}.glb"))
         manifest[kind] = _hotspots(gltf, kind)
     out_path = out_dir / "hotspots.json"

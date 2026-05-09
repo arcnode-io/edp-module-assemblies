@@ -24,7 +24,15 @@ MAT_SPECS: Final[list[MatSpec]] = [
         "ghost", re.compile(r"^container_shell$"), "#3a4048", 0.0, 0.9, 0.18, blend=True
     ),
     MatSpec(
-        "platform", re.compile(r"^ARC-PLT-CG$"), "#6b7280", 0.6, 0.45, 1.0, blend=False
+        "platform",
+        # Reason: all interface plates render with the same brushed-aluminum
+        # look — CG, BG-AC, BG-DC, CD share the 6061-T6 finish in v1.
+        re.compile(r"^ARC-PLT-(CG|BG-AC|BG-DC|CD)$"),
+        "#6b7280",
+        0.6,
+        0.45,
+        1.0,
+        blend=False,
     ),
     MatSpec(
         "rack", re.compile(r"^CMP-RACK-001$"), "#2d3137", 0.7, 0.40, 0.22, blend=True
@@ -59,6 +67,9 @@ MAT_SPECS: Final[list[MatSpec]] = [
     MatSpec(
         "swg", re.compile(r"^GRD-SWG-001$"), "#b8482a", 0.3, 0.55, 1.0, blend=False
     ),
+    MatSpec(
+        "pcs", re.compile(r"^GRD-PCS-001$"), "#5b8c6a", 0.4, 0.50, 1.0, blend=False
+    ),
 ]
 
 
@@ -71,6 +82,13 @@ class HotspotCopy(NamedTuple):
     sub: str
 
 
+_GRID_BASE: Final[list[HotspotCopy]] = [
+    HotspotCopy("xfm", re.compile(r"^GRD-XFM-001$"), "Transformer", "MV → LV"),
+    HotspotCopy(
+        "swg", re.compile(r"^GRD-SWG-001$"), "Switchgear", "Protection + isolation"
+    ),
+]
+
 HOTSPOT_COPY: Final[dict[str, list[HotspotCopy]]] = {
     "compute": [
         HotspotCopy(
@@ -82,12 +100,12 @@ HOTSPOT_COPY: Final[dict[str, list[HotspotCopy]]] = {
         ),
         HotspotCopy("pdu", re.compile(r"^CMP-PDU-001#1$"), "PDUs", "Redundant power"),
     ],
-    "grid": [
-        HotspotCopy("xfm", re.compile(r"^GRD-XFM-001$"), "Transformer", "MV → LV"),
-        HotspotCopy(
-            "swg", re.compile(r"^GRD-SWG-001$"), "Switchgear", "Protection + isolation"
-        ),
+    "grid": _GRID_BASE,
+    "grid-dc-ext": [
+        *_GRID_BASE,
+        HotspotCopy("pcs", re.compile(r"^GRD-PCS-001$"), "PCS", "DC → AC, 500 kW"),
     ],
+    "grid-no-bess": _GRID_BASE,
 }
 
 
