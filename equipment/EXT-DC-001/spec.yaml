@@ -44,8 +44,12 @@ spec:
     port_size_dn: null                # deployment-specific; model-dependent
 
   mechanical:
-    weight_kg: null                   # model-dependent
-    dimensions_mm: null               # model-dependent; up to ~10m length for large units
+    # v1 default SKU: GFD 080 series, 2-fan V-shape EC unit, ~70-80 kW
+    # heat rejection (matches Compute Container 70 kW load per CD plate
+    # derivation in edp-interface-plates theory.ipynb). Sizing engine
+    # swaps to actual SKU at deployment via Güntner GPS selection.
+    weight_kg: 600.0                  # v1 default; GFD 080 2-fan typical
+    dimensions_mm: [3500, 1100, 1700] # L × W × H, GFD 080 2-fan V-shape
     container_type: null
     mounting: pad
     mounting_notes: |
@@ -112,9 +116,9 @@ geometry:
   equipment_envelope_path: geometry/envelopes/EXT-DC-001-equipment.step
   service_envelope_path: geometry/envelopes/EXT-DC-001-service.step
   bounding_box:
-    L_mm: null                        # model-dependent; populated by sizing engine
-    W_mm: null
-    H_mm: null
+    L_mm: 3500.0                      # v1 default GFD 080 2-fan
+    W_mm: 1100.0
+    H_mm: 1700.0
   service_clearance:
     front: 2000.0                     # airflow inlet, coil cleaning access
     rear: 2000.0                      # airflow outlet
@@ -140,10 +144,11 @@ provenance:
       flag: missing
       note: Depends on selected model. Typically DN80-DN150 for 200-600 kW range units.
     - field: spec.mechanical.weight_kg
-      flag: missing
+      flag: assumed_default
+      note: v1 default SKU GFD 080 2-fan typical weight. Sizing engine overrides at deployment.
     - field: spec.mechanical.dimensions_mm
-      flag: missing
-      note: GFD series ranges from compact single-fan units to ~10m long multi-fan arrays. Populated once sizing engine selects model.
+      flag: assumed_default
+      note: v1 default SKU GFD 080 2-fan envelope. Real envelope swapped at deployment via Güntner GPS selection.
     - field: spec.mechanical.noise_dba_at_1m
       flag: missing
       note: EC fans are variable speed; noise is operating-point dependent. Güntner GPS provides octave-band data for specific selections.

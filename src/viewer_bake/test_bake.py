@@ -52,8 +52,15 @@ def test_bake_hotspots_emits_meter_scale_centroids(tmp_path: Path) -> None:
     out = bake_hotspots(tmp_path)
     manifest = json.loads(out.read_text())
 
-    assert {h["id"] for h in manifest["compute"]} == {"rack", "cdu", "switch", "pdu"}
-    assert {h["id"] for h in manifest["grid"]} == {"xfm", "swg"}
+    assert {h["id"] for h in manifest["compute"]} == {
+        "rack",
+        "cdu",
+        "switch",
+        "pdu",
+        "plt-cg",
+        "plt-cd",
+    }
+    assert {h["id"] for h in manifest["grid"]} == {"xfm", "swg", "plt-cg", "plt-bg-ac"}
     # Container half-extents ~1.5m — sanity bound.
     for kind in ("compute", "grid"):
         for h in manifest[kind]:
@@ -101,7 +108,14 @@ def test_bake_hotspots_covers_all_grid_variants(tmp_path: Path) -> None:
     manifest = json.loads(out.read_text())
     # assert
     assert set(manifest.keys()) == {"compute", "grid", "grid-dc-ext", "grid-no-bess"}
-    # commercial-ac and no-bess have same hotspots; dc-ext adds PCS
-    assert {h["id"] for h in manifest["grid"]} == {"xfm", "swg"}
-    assert {h["id"] for h in manifest["grid-no-bess"]} == {"xfm", "swg"}
-    assert {h["id"] for h in manifest["grid-dc-ext"]} == {"xfm", "swg", "pcs"}
+    # commercial-ac has CG + BG-AC; dc-ext swaps BG-AC for BG-DC and adds PCS;
+    # no-bess is CG only on the plate side.
+    assert {h["id"] for h in manifest["grid"]} == {"xfm", "swg", "plt-cg", "plt-bg-ac"}
+    assert {h["id"] for h in manifest["grid-no-bess"]} == {"xfm", "swg", "plt-cg"}
+    assert {h["id"] for h in manifest["grid-dc-ext"]} == {
+        "xfm",
+        "swg",
+        "pcs",
+        "plt-cg",
+        "plt-bg-dc",
+    }

@@ -44,8 +44,11 @@ spec:
     port_size_dn: null
 
   mechanical:
-    weight_kg: null
-    dimensions_mm: null               # model-dependent
+    # v1 default SKU: smallest eco-Air EAW-DD double-stack V-coil unit,
+    # ~70-80 kW heat rejection (matches Compute Container 70 kW load).
+    # Sizing engine swaps to actual SKU at deployment via Evapco selection.
+    weight_kg: 800.0                  # v1 default; smallest EAW-DD typical
+    dimensions_mm: [2700, 1500, 2200] # L × W × H, smallest EAW-DD double-stack
     container_type: null
     mounting: pad
     mounting_notes: |
@@ -105,9 +108,9 @@ geometry:
   equipment_envelope_path: geometry/envelopes/EXT-DC-002-equipment.step
   service_envelope_path: geometry/envelopes/EXT-DC-002-service.step
   bounding_box:
-    L_mm: null
-    W_mm: null
-    H_mm: null
+    L_mm: 2700.0                      # v1 default smallest EAW-DD
+    W_mm: 1500.0
+    H_mm: 2200.0
   service_clearance:
     front: 2000.0
     rear: 2000.0
@@ -132,10 +135,11 @@ provenance:
     - field: spec.thermal.port_size_dn
       flag: missing
     - field: spec.mechanical.weight_kg
-      flag: missing
+      flag: assumed_default
+      note: v1 default smallest EAW-DD typical weight. Sizing engine overrides at deployment.
     - field: spec.mechanical.dimensions_mm
-      flag: missing
-      note: Double-stack V-coil configuration maximizes heat rejection per footprint. Specific dimensions follow model selection.
+      flag: assumed_default
+      note: v1 default smallest EAW-DD double-stack envelope. Real envelope swapped at deployment via Evapco selection.
     - field: spec.mechanical.ip_rating
       flag: assumed_default
       note: Motor starters in UL Type 4 enclosure per EVAPCO standard. IP equivalent of Type 4 is IP65. Confirm for fan motor housings separately.

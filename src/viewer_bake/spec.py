@@ -82,11 +82,35 @@ class HotspotCopy(NamedTuple):
     sub: str
 
 
+# Reason: plate labels are written from the perspective of the container the
+# viewer is looking at — the user sees the wall, the label names what's on the
+# other side. So `CG` reads "Grid Interface" inside the compute container and
+# "Compute Interface" inside the grid container.
+_PLATE_CG_FROM_COMPUTE: Final[HotspotCopy] = HotspotCopy(
+    "plt-cg", re.compile(r"^ARC-PLT-CG$"), "Grid Interface", "AC feeder + data"
+)
+_PLATE_CG_FROM_GRID: Final[HotspotCopy] = HotspotCopy(
+    "plt-cg", re.compile(r"^ARC-PLT-CG$"), "Compute Interface", "AC feeder + data"
+)
+_PLATE_CD: Final[HotspotCopy] = HotspotCopy(
+    "plt-cd",
+    re.compile(r"^ARC-PLT-CD$"),
+    "Drycooler Interface",
+    "Coolant supply/return",
+)
+_PLATE_BG_AC: Final[HotspotCopy] = HotspotCopy(
+    "plt-bg-ac", re.compile(r"^ARC-PLT-BG-AC$"), "BESS Interface", "AC-coupled"
+)
+_PLATE_BG_DC: Final[HotspotCopy] = HotspotCopy(
+    "plt-bg-dc", re.compile(r"^ARC-PLT-BG-DC$"), "BESS Interface", "DC-coupled"
+)
+
 _GRID_BASE: Final[list[HotspotCopy]] = [
     HotspotCopy("xfm", re.compile(r"^GRD-XFM-001$"), "Transformer", "MV → LV"),
     HotspotCopy(
         "swg", re.compile(r"^GRD-SWG-001$"), "Switchgear", "Protection + isolation"
     ),
+    _PLATE_CG_FROM_GRID,
 ]
 
 HOTSPOT_COPY: Final[dict[str, list[HotspotCopy]]] = {
@@ -99,11 +123,14 @@ HOTSPOT_COPY: Final[dict[str, list[HotspotCopy]]] = {
             "switch", re.compile(r"^CMP-SWITCH-001$"), "Network Switch", "400G fabric"
         ),
         HotspotCopy("pdu", re.compile(r"^CMP-PDU-001#1$"), "PDUs", "Redundant power"),
+        _PLATE_CG_FROM_COMPUTE,
+        _PLATE_CD,
     ],
-    "grid": _GRID_BASE,
+    "grid": [*_GRID_BASE, _PLATE_BG_AC],
     "grid-dc-ext": [
         *_GRID_BASE,
         HotspotCopy("pcs", re.compile(r"^GRD-PCS-001$"), "PCS", "DC → AC, 500 kW"),
+        _PLATE_BG_DC,
     ],
     "grid-no-bess": _GRID_BASE,
 }
