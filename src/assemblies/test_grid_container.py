@@ -201,6 +201,35 @@ def test_dc_ext_bbox_matches_container_envelope() -> None:
     assert abs(bbox.zlen - H_EXT_MM) < bbox_tolerance_mm
 
 
+def test_dc_ext_equipment_does_not_clash() -> None:
+    """Pairwise bbox-overlap check on the 3 equipment items (XFM, SWG, PCS).
+
+    Caught in conversation 2026-05-09: PCS was placed at +X + -Y wall which
+    clashed with SafeGear's rotated 2159 mm depth. Bbox-overlap test prevents
+    the regression.
+    """
+    # arrange
+    equipment_names = {"GRD-XFM-001", "GRD-SWG-001", "GRD-PCS-001"}
+    # act
+    assy = build_grid_container(variant="commercial-dc-ext")
+    children = [c for c in assy.children if c.name in equipment_names]
+    bboxes = {c.name: c.toCompound().BoundingBox() for c in children}
+    # assert — all 3 present
+    assert set(bboxes.keys()) == equipment_names
+    # assert — no pairwise overlap
+    for name_a, bb_a in bboxes.items():
+        for name_b, bb_b in bboxes.items():
+            if name_a >= name_b:
+                continue
+            x_overlap = (bb_a.xmin < bb_b.xmax) and (bb_b.xmin < bb_a.xmax)
+            y_overlap = (bb_a.ymin < bb_b.ymax) and (bb_b.ymin < bb_a.ymax)
+            z_overlap = (bb_a.zmin < bb_b.zmax) and (bb_b.zmin < bb_a.zmax)
+            assert not (x_overlap and y_overlap and z_overlap), (
+                f"clash: {name_a} bbox=({bb_a.xmin:.0f}..{bb_a.xmax:.0f}, "
+                f"{bb_a.ymin:.0f}..{bb_a.ymax:.0f}) overlaps {name_b}"
+            )
+
+
 # --- PCS sizing rule (per PM 2026-05-09) ---
 
 

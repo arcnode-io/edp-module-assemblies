@@ -1,9 +1,11 @@
 """Grid container interior equipment placement.
 
 v1 layout (Q6-B):
-- Trihal at -X side, anchored to -Y wall
-- SafeGear at +X side, rotated 90° about Z, depth aligned with +Y wall
-- PCS (commercial-dc-ext only): +X side, anchored to -Y wall, opposite SafeGear
+- Trihal at -X end, anchored to -Y wall
+- SafeGear at +X end, rotated 90° about Z, depth spans nearly full Y width
+- PCS (commercial-dc-ext only): -X end, anchored to +Y wall (opposite Trihal).
+  +X end is fully booked by SafeGear's rotated 2159 mm depth, so PCS sits at
+  -X end with DC bus routed across the container to the BG-DC plate at +X.
 RLY + MTR are inside SafeGear's LV compartment (Q7-A) — bom-only, no geometry.
 """
 
@@ -67,14 +69,15 @@ def safegear_position() -> cq.Vector:
 
 
 def pcs_position() -> cq.Vector:
-    """PCS anchored to +X end + -Y wall, on the floor (opposite SafeGear).
+    """PCS anchored to -X end + +Y wall, on the floor (opposite Trihal).
 
-    Cable routing rationale: BG-DC plate is centered on +X wall; DC bus runs
-    short distance to PCS DC input; PCS AC output runs along +X wall to
-    SafeGear AC input (also at +X end).
+    Constraint: SafeGear (rotated 2159 mm depth) consumes nearly all Y at +X end,
+    leaving no clear floor space there. PCS goes to -X end on the +Y wall,
+    diagonally opposite Trihal (-X + -Y wall). DC bus from BG-DC plate at +X
+    wall runs along ceiling/cable tray to PCS DC input (~3 m run).
     """
-    x = +(L_INT_MM / 2 - PCS_L_MM / 2)
-    y = -(W_INT_MM / 2 - PCS_W_MM / 2)
+    x = -(L_INT_MM / 2 - PCS_L_MM / 2)
+    y = +(W_INT_MM / 2 - PCS_W_MM / 2)
     z = PCS_H_MM / 2
     return cq.Vector(x, y, z)
 
