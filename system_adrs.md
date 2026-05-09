@@ -59,3 +59,17 @@ ARCNODE-default Trihal sub-config (GRD-XFM-001):
 That config lands at 1,580 × 820 × 1,860 mm. Container interior height 2,680 mm (ADR-004) gives 820 mm overhead, which exactly meets Schneider's natural-convection guideline. The 4× louver cutouts on long walls (Q5) augment but are not load-bearing for that guideline.
 
 Procurement-time check: confirm the procured Schneider SKU encodes this sub-config. Alternate sub-configs (top-entry terminals add ~140 mm height; on-load tap changers add more) push past the natural-convection budget — those would require forced ventilation in addition to louvers, captured as a separate ADR if a different sub-config is procured.
+
+## ADR-015 — Corner bolt-hole slots for thermal-expansion accommodation
+
+All v1 plates (CG, BG-AC, BG-DC, CD) use **radially-slotted corner bolt holes** (13 mm slot, 11 mm Ø). Edge-midpoint holes stay round.
+
+**Why slot vs tighter tolerance.** Round Ø11 corner holes leave only ~50 µm thermal-expansion margin: 6061-T6 plate vs A36 receiver frame Δα = 11.9e-6/K, bolt-pattern diagonal 888 mm, commercial ΔT = 85 K → 0.449 mm per-corner radial offset → 0.5 − 0.449 = 0.051 mm clearance. ISO 2768-m hole-position tolerance (±100 µm) consumes that margin entirely.
+
+Two mitigations were considered:
+- **Option 1 — slot the corner holes** (adopted): slot length = D_hole + 2·(δ_thermal + δ_fab + δ_margin) = 11 + 2·(0.449 + 0.1 + 0.2) = 12.5 → **13 mm**, oriented radially toward the bolt-pattern center. ~$5–10/plate fab cost delta. Eliminates the radial constraint. 0.11 mm headroom remains even at defense-extreme ΔT = 111 K (-40 to +71 °C MIL-STD-810H).
+- **Option 2 — tighten to ISO 2768-f**: drops fab tolerance from ±100 µm to ±50 µm. Margin equals fab uncertainty → zero safety factor; 15–30% fab-cost premium per plate forever. Brittle under wider operating ranges.
+
+Option 1 is structurally robust (eliminates the constraint, not just shrinks fab uncertainty) and future-proof (defense ΔT works without rework). Edge-midpoint bolts stay round because they sit on the symmetry axes, not the diagonal — radial offset there is a small fraction of the corner offset.
+
+Slot length is encoded in `mounting_bolts.corner_slot_length_mm` in each plate's `cad/specs/{plate_id}/spec.yaml`. Sim asserts the slot accommodates `δ_thermal + δ_fab + δ_margin` per side (`sim/cg/test_run.py::test_corner_slot_accommodates_thermal_offset`). Derivation lives in `theory.ipynb` "Design risk mitigation" cell.
