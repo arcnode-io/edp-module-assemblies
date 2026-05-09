@@ -73,3 +73,35 @@ Two mitigations were considered:
 Option 1 is structurally robust (eliminates the constraint, not just shrinks fab uncertainty) and future-proof (defense ΔT works without rework). Edge-midpoint bolts stay round because they sit on the symmetry axes, not the diagonal — radial offset there is a small fraction of the corner offset.
 
 Slot length is encoded in `mounting_bolts.corner_slot_length_mm` in each plate's `cad/specs/{plate_id}/spec.yaml`. Sim asserts the slot accommodates `δ_thermal + δ_fab + δ_margin` per side (`sim/cg/test_run.py::test_corner_slot_accommodates_thermal_offset`). Derivation lives in `theory.ipynb` "Design risk mitigation" cell.
+
+## ADR-016 — 4-plate fleet (CG, BG-AC, BG-DC, CD)
+
+Per PM 2026-05-08, the v1 plate fleet is exactly four variants:
+
+| Plate | Carries | Where it mounts |
+|---|---|---|
+| **CG** | Compute-to-Grid AC feeder + data | -X end of grid container / +X end of compute container |
+| **BG-AC** | BESS-to-grid AC feeders + BMS data | +X end of grid container (commercial_ac, commercial_dc_int) |
+| **BG-DC** | BESS-to-grid DC bus + BMS data | +X end of grid container (commercial_dc_ext) |
+| **CD** | Compute-to-drycooler coolant + drycooler comms | -Y long wall of compute container |
+
+**Why these four (and only these four):** Earlier scoping had a 6-plate fleet that included `EX-G` (external-services on grid long wall) and `EX-C` (external-services on compute long wall). Both were dropped because:
+
+- **EX-C** overlapped with **CD**: CD already crosses the compute long wall and carries the only signals that physically need to traverse it (coolant + drycooler comms). A separate "external services" plate alongside CD on the same wall was redundant.
+- **EX-G** had no remaining duty: BESS interconnect is owned by BG-AC/BG-DC at the +X end, utility-side tie-in lands directly on SafeGear via standard service entrance fittings (no ARCNODE plate needed), and SCADA can route through CG's data conduit. Nothing else physically crosses the grid long wall.
+
+**Plate set per profile:**
+
+| Profile | CG | BG-AC | BG-DC | CD |
+|---|---|---|---|---|
+| `commercial_ac` (BESS with integrated PCS) | ✓ | ✓ | | ✓ |
+| `commercial_dc_int` (PCS in BESS pad) | ✓ | ✓ | | ✓ |
+| `commercial_dc_ext` (PCS in grid container) | ✓ | | ✓ | ✓ |
+| `no_bess` (utility direct, no BESS) | ✓ | | | ✓ |
+
+**BG-AC vs BG-DC are explicit** (PM 2026-05-09): different connectors (AC busbar vs DC busbar), different ampacity, different cutout sizes. Don't collapse them into a single parametric BG plate. The +X end mating frame is shared (`BG_MATING_FRAME`); the plate's penetration schedule and material spec differ per variant.
+
+Implementation contract:
+- Plate fleet enumerated in `cad/model/build.py::PLATE_IDS = ("CG", "BG-AC", "BG-DC", "CD")`
+- Per-profile plate set in `manifest_profiles.yaml::profiles.{name}.interface_plates`
+- Container-side plate routing in `src/assemblies/grid_container.py::_BG_PLATE_BY_VARIANT`
