@@ -61,3 +61,47 @@ def test_bake_hotspots_emits_meter_scale_centroids(tmp_path: Path) -> None:
                 assert (
                     -3.0 < c < 3.0
                 ), f"{kind}/{h['id']} centroid {c} out of meter range"
+
+
+def test_bake_grid_dc_ext_has_pcs_material_matched(tmp_path: Path) -> None:
+    # arrange / act
+    src = ASSEMBLIES / "grid-container" / "commercial-dc-ext"
+    out = bake_module("grid-dc-ext", src, tmp_path)
+    g = GLTF2().load_binary(str(out))
+    # assert — pcs material exists in the spec set, no warnings emitted
+    material_names = {m.name for m in g.materials}
+    assert "pcs" in material_names
+    assert "platform" in material_names  # CG + BG-DC plates
+
+
+def test_bake_grid_no_bess_omits_bg_plate(tmp_path: Path) -> None:
+    # arrange / act — no-bess grid container has CG only
+    src = ASSEMBLIES / "grid-container" / "no-bess"
+    out = bake_module("grid-no-bess", src, tmp_path)
+    g = GLTF2().load_binary(str(out))
+    # assert — node names show CG present but no BG-AC / BG-DC
+    node_names = {n.name for n in g.nodes if n.name}
+    assert "ARC-PLT-CG" in node_names
+    assert "ARC-PLT-BG-AC" not in node_names
+    assert "ARC-PLT-BG-DC" not in node_names
+
+
+def test_bake_hotspots_covers_all_grid_variants(tmp_path: Path) -> None:
+    # arrange — bake all 4 kinds, then read hotspots manifest
+    bake_module("compute", ASSEMBLIES / "compute-container" / "commercial-ac", tmp_path)
+    bake_module("grid", ASSEMBLIES / "grid-container" / "commercial-ac", tmp_path)
+    bake_module(
+        "grid-dc-ext", ASSEMBLIES / "grid-container" / "commercial-dc-ext", tmp_path
+    )
+    bake_module("grid-no-bess", ASSEMBLIES / "grid-container" / "no-bess", tmp_path)
+    # act
+    out = bake_hotspots(
+        tmp_path, kinds=["compute", "grid", "grid-dc-ext", "grid-no-bess"]
+    )
+    manifest = json.loads(out.read_text())
+    # assert
+    assert set(manifest.keys()) == {"compute", "grid", "grid-dc-ext", "grid-no-bess"}
+    # commercial-ac and no-bess have same hotspots; dc-ext adds PCS
+    assert {h["id"] for h in manifest["grid"]} == {"xfm", "swg"}
+    assert {h["id"] for h in manifest["grid-no-bess"]} == {"xfm", "swg"}
+    assert {h["id"] for h in manifest["grid-dc-ext"]} == {"xfm", "swg", "pcs"}
