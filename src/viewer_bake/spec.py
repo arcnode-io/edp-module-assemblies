@@ -116,7 +116,7 @@ MAT_SPECS: Final[list[MatSpec]] = [
     # so the chrome bezel reads as silver, not matte black like the can body.
     MatSpec(
         "lepton_lens",
-        re.compile(r"^vision_thermal__lepton_lens$"),
+        re.compile(r"^(vision_thermal|lepton_daughterboard)__lepton_lens$"),
         "#c8ccd0",
         0.85,
         0.18,
@@ -125,7 +125,7 @@ MAT_SPECS: Final[list[MatSpec]] = [
     ),
     MatSpec(
         "vision_thermal",
-        re.compile(r"^vision_thermal(?:__.*)?$"),
+        re.compile(r"^(vision_thermal(?:__.*)?|lepton_daughterboard__lepton_body)$"),
         "#1a1c20",
         0.3,
         0.60,
@@ -227,6 +227,13 @@ HIDDEN_NODES: Final[dict[str, list[str]]] = {
     "compute": ["ARC-PLT-CD"],
     "grid": ["ARC-PLT-BG-AC"],
     "grid-dc-ext": ["ARC-PLT-BG-DC"],
+    # Daughterboard scaffolding (ADR-013) — marketing view shows the Lepton
+    # only; bracket + small PCB + socket pedestal stay out of the scene.
+    "dlr-carrier": [
+        "lepton_daughterboard__bracket",
+        "lepton_daughterboard__pcb",
+        "lepton_daughterboard__socket",
+    ],
 }
 
 
