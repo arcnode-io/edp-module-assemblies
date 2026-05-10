@@ -1,4 +1,6 @@
-# Per-assembly device topology consumed by edp-api dtm_generator (step 6.6).
+# Per-assembly device topology consumed by edp-api dtm_generator (PR 2 shape).
+# Per-instance host/port/unit_id live under connection:; protocol bindings live
+# in the matching template at edp-api/device_templates/<slug>.yaml.
 # SIM-mode hosts use mock-{protocol}-server convention; ems-device-api flips
 # to LIVE addresses on commissioning.
 #
@@ -7,189 +9,52 @@
 
 devices:
   # 7x HGX B200 nodes — Redfish on BMC
-  - device_type: gpu_node
+  - template: gpu_node
     description: HGX B200 server #1 (CMP-NODE-001)
-    host: mock-redfish-server
-    port: 8443
-    protocol_config:
-      protocol: redfish
-      username: arcnode
-      password_secret_ref: secrets/redfish/cmp_node_password
-      service_root: /redfish/v1
-      resource_maps:
-        - { name: power, uri: /Chassis/1/Power }
-        - { name: thermal, uri: /Chassis/1/Thermal }
-        - { name: gpus, uri: /Chassis/1/Processors }
-
-  - device_type: gpu_node
+    connection: { host: mock-redfish-server, port: 8443 }
+  - template: gpu_node
     description: HGX B200 server #2 (CMP-NODE-001)
-    host: mock-redfish-server
-    port: 8443
-    protocol_config:
-      protocol: redfish
-      username: arcnode
-      password_secret_ref: secrets/redfish/cmp_node_password
-      service_root: /redfish/v1
-      resource_maps:
-        - { name: power, uri: /Chassis/2/Power }
-        - { name: thermal, uri: /Chassis/2/Thermal }
-        - { name: gpus, uri: /Chassis/2/Processors }
-
-  - device_type: gpu_node
+    connection: { host: mock-redfish-server, port: 8443 }
+  - template: gpu_node
     description: HGX B200 server #3 (CMP-NODE-001)
-    host: mock-redfish-server
-    port: 8443
-    protocol_config:
-      protocol: redfish
-      username: arcnode
-      password_secret_ref: secrets/redfish/cmp_node_password
-      service_root: /redfish/v1
-      resource_maps:
-        - { name: power, uri: /Chassis/3/Power }
-        - { name: thermal, uri: /Chassis/3/Thermal }
-        - { name: gpus, uri: /Chassis/3/Processors }
-
-  - device_type: gpu_node
+    connection: { host: mock-redfish-server, port: 8443 }
+  - template: gpu_node
     description: HGX B200 server #4 (CMP-NODE-001)
-    host: mock-redfish-server
-    port: 8443
-    protocol_config:
-      protocol: redfish
-      username: arcnode
-      password_secret_ref: secrets/redfish/cmp_node_password
-      service_root: /redfish/v1
-      resource_maps:
-        - { name: power, uri: /Chassis/4/Power }
-        - { name: thermal, uri: /Chassis/4/Thermal }
-        - { name: gpus, uri: /Chassis/4/Processors }
-
-  - device_type: gpu_node
+    connection: { host: mock-redfish-server, port: 8443 }
+  - template: gpu_node
     description: HGX B200 server #5 (CMP-NODE-001)
-    host: mock-redfish-server
-    port: 8443
-    protocol_config:
-      protocol: redfish
-      username: arcnode
-      password_secret_ref: secrets/redfish/cmp_node_password
-      service_root: /redfish/v1
-      resource_maps:
-        - { name: power, uri: /Chassis/5/Power }
-        - { name: thermal, uri: /Chassis/5/Thermal }
-        - { name: gpus, uri: /Chassis/5/Processors }
-
-  - device_type: gpu_node
+    connection: { host: mock-redfish-server, port: 8443 }
+  - template: gpu_node
     description: HGX B200 server #6 (CMP-NODE-001)
-    host: mock-redfish-server
-    port: 8443
-    protocol_config:
-      protocol: redfish
-      username: arcnode
-      password_secret_ref: secrets/redfish/cmp_node_password
-      service_root: /redfish/v1
-      resource_maps:
-        - { name: power, uri: /Chassis/6/Power }
-        - { name: thermal, uri: /Chassis/6/Thermal }
-        - { name: gpus, uri: /Chassis/6/Processors }
-
-  - device_type: gpu_node
+    connection: { host: mock-redfish-server, port: 8443 }
+  - template: gpu_node
     description: HGX B200 server #7 (CMP-NODE-001)
-    host: mock-redfish-server
-    port: 8443
-    protocol_config:
-      protocol: redfish
-      username: arcnode
-      password_secret_ref: secrets/redfish/cmp_node_password
-      service_root: /redfish/v1
-      resource_maps:
-        - { name: power, uri: /Chassis/7/Power }
-        - { name: thermal, uri: /Chassis/7/Thermal }
-        - { name: gpus, uri: /Chassis/7/Processors }
+    connection: { host: mock-redfish-server, port: 8443 }
 
-  # Coolant Distribution Unit — Redfish per Motivair
-  - device_type: cdu
+  # Coolant Distribution Unit — Motivair MCDU-10
+  - template: cdu
     description: Motivair MCDU-10 210kW (CMP-CDU-001)
-    host: mock-redfish-server
-    port: 8443
-    protocol_config:
-      protocol: redfish
-      username: arcnode
-      password_secret_ref: secrets/redfish/cmp_cdu_password
-      service_root: /redfish/v1
-      resource_maps:
-        - { name: thermal, uri: /Chassis/CDU/Thermal }
-        - { name: pumps, uri: /Chassis/CDU/Pumps }
+    connection: { host: mock-redfish-server, port: 8443 }
 
-  # ToR Switch — Redfish (Cumulus Linux)
-  - device_type: network_switch
+  # ToR Switch — NVIDIA SN5600
+  - template: network_switch
     description: NVIDIA Spectrum-X SN5600 800GbE (CMP-SWITCH-001)
-    host: mock-redfish-server
-    port: 8443
-    protocol_config:
-      protocol: redfish
-      username: arcnode
-      password_secret_ref: secrets/redfish/cmp_switch_password
-      service_root: /redfish/v1
-      resource_maps:
-        - { name: thermal, uri: /Chassis/SW1/Thermal }
-        - { name: ports, uri: /Fabric/SW1/Ports }
+    connection: { host: mock-redfish-server, port: 8443 }
 
-  # 4x PDUs — SNMP (PRO3X Xerus)
-  - device_type: pdu
+  # 4x PDUs — Server Tech PRO3X SNMP
+  - template: pdu
     description: Server Tech PRO3X 60A 3ph #1 A-feed (CMP-PDU-001)
-    host: mock-snmp-server
-    port: 161
-    protocol_config:
-      protocol: snmp
-      creds:
-        user: arcnode_snmp
-        auth_proto: SHA256
-        priv_proto: AES256
-      oid_maps:
-        - { name: input_current, oid: 1.3.6.1.4.1.1718.4.1.3.3.1.7 }
-        - { name: input_voltage, oid: 1.3.6.1.4.1.1718.4.1.3.3.1.6 }
-        - { name: outlet_state, oid: 1.3.6.1.4.1.1718.4.1.8.5.1.2 }
-
-  - device_type: pdu
+    connection: { host: mock-snmp-server, port: 161 }
+  - template: pdu
     description: Server Tech PRO3X 60A 3ph #2 A-feed (CMP-PDU-001)
-    host: mock-snmp-server
-    port: 161
-    protocol_config:
-      protocol: snmp
-      creds:
-        user: arcnode_snmp
-        auth_proto: SHA256
-        priv_proto: AES256
-      oid_maps:
-        - { name: input_current, oid: 1.3.6.1.4.1.1718.4.1.3.3.1.7 }
-        - { name: input_voltage, oid: 1.3.6.1.4.1.1718.4.1.3.3.1.6 }
-        - { name: outlet_state, oid: 1.3.6.1.4.1.1718.4.1.8.5.1.2 }
-
-  - device_type: pdu
+    connection: { host: mock-snmp-server, port: 161 }
+  - template: pdu
     description: Server Tech PRO3X 60A 3ph #3 B-feed (CMP-PDU-001)
-    host: mock-snmp-server
-    port: 161
-    protocol_config:
-      protocol: snmp
-      creds:
-        user: arcnode_snmp
-        auth_proto: SHA256
-        priv_proto: AES256
-      oid_maps:
-        - { name: input_current, oid: 1.3.6.1.4.1.1718.4.1.3.3.1.7 }
-        - { name: input_voltage, oid: 1.3.6.1.4.1.1718.4.1.3.3.1.6 }
-        - { name: outlet_state, oid: 1.3.6.1.4.1.1718.4.1.8.5.1.2 }
-
-  - device_type: pdu
+    connection: { host: mock-snmp-server, port: 161 }
+  - template: pdu
     description: Server Tech PRO3X 60A 3ph #4 B-feed (CMP-PDU-001)
-    host: mock-snmp-server
-    port: 161
-    protocol_config:
-      protocol: snmp
-      creds:
-        user: arcnode_snmp
-        auth_proto: SHA256
-        priv_proto: AES256
-      oid_maps:
-        - { name: input_current, oid: 1.3.6.1.4.1.1718.4.1.3.3.1.7 }
-        - { name: input_voltage, oid: 1.3.6.1.4.1.1718.4.1.3.3.1.6 }
-        - { name: outlet_state, oid: 1.3.6.1.4.1.1718.4.1.8.5.1.2 }
+    connection: { host: mock-snmp-server, port: 161 }
+
+# Compute container has no buses at MVP — power flows in a single feed and
+# the 4 PDUs already encode the A/B feed split via descriptions.
+buses: []
