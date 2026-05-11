@@ -38,7 +38,7 @@ profiles:
     grid_container: commercial-dc-ext
     interface_plates: [CG, BG-DC, CD]
 
-  no_bess:
+  commercial_no_bess:
     # No BESS — site has utility power directly. Grid container still
     # present as utility tie-in / switchgear hub, no BG-* plate.
     compute_container: commercial-ac

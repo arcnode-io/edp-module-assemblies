@@ -27,7 +27,7 @@ def test_commercial_ac_includes_all_four_modules() -> None:
 
 def test_no_bess_omits_bess() -> None:
     # arrange / act
-    assy = build_deployment(profile="no_bess")
+    assy = build_deployment(profile="commercial_no_bess")
     child_names = {c.name for c in assy.children}
     # assert — DC still present, no BESS
     assert "EXT-DC-001" in child_names

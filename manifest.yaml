@@ -213,7 +213,7 @@ profiles:
     - CG
     - BG-DC
     - CD
-  no_bess:
+  commercial_no_bess:
     compute_container: commercial-ac
     grid_container: no-bess
     interface_plates:
