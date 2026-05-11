@@ -1,7 +1,8 @@
 """Pydantic models for `manifest.yaml` per ADR-006 + ADR-009.
 
-Manifest is the single hardware↔edp-api contract artifact. It absorbs the
-profile→asset mapping previously in `hardware_selector_map.yaml`.
+Manifest is the single hardware↔edp-api contract artifact: equipment
+specs, geometry, assembly variants, plates, and the curated profile→asset
+mapping all in one fetch. See ADR-006 for the rationale.
 
 Per ADR-012: in-file `version:` field is populated by semantic-release;
 URL-versioning deferred until schema stabilizes (post step 6).
