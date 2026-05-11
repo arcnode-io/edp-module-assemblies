@@ -255,8 +255,18 @@ HOTSPOT_COPY: Final[dict[str, list[HotspotCopy]]] = {
         HotspotCopy("pcs", re.compile(r"^GRD-PCS-001$"), "PCS", "DC → AC, 500 kW"),
     ],
     "grid-no-bess": _GRID_BASE,
-    # No hotspots on the DLR carrier viewer — explode is the only UX.
-    "dlr-carrier": [],
+    # Reason: the Lepton sits at a tilt that's not obvious from geometry alone
+    # without the (hidden) bracket showing the mechanism. A single hotspot at
+    # the lens explains why the camera is angled — ADR-013 boresight set by
+    # the integrator during commissioning.
+    "dlr-carrier": [
+        HotspotCopy(
+            "aim",
+            re.compile(r"^lepton_daughterboard__lepton_lens$"),
+            "Aim adjustment",
+            "±15° tilt set at commissioning",
+        ),
+    ],
 }
 
 
