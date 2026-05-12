@@ -65,10 +65,10 @@ spec:
       connector_spec: TBD
       mating_part: null
       qty: 1
-    - port_id: CAN0
-      type: can
-      role: bidirectional              # BMS comms to PCS and EMS
-      connector_spec: TBD
+    - port_id: ETH0
+      type: ethernet
+      role: bidirectional              # BMS Modbus TCP comms to PCS and EMS
+      connector_spec: RJ45 (Cat5 or better)
       mating_part: null
       qty: 1
     - port_id: AUX_PWR
@@ -79,8 +79,11 @@ spec:
       qty: 1
 
   control:
-    protocol: can                      # CATL three-level BMS: CSC → SBMU → MBMU
-    register_map_url: null             # proprietary, gated behind OEM agreement
+    protocol: modbus_tcp               # CATL three-level BMS (CSC → SBMU → MBMU);
+                                       # MBMU exposes Modbus TCP via ETH/RJ45 per
+                                       # "CATL BESS ModBus TCP Protocol" V1.3 (port
+                                       # 502, unit_id 0x64, FC 0x03/0x06/0x10)
+    register_map_url: https://www.scribd.com/document/825755082/ZNH-Modbus-TCP-prototol-V1-3
     command_latency_ms: null
     step_response_ms: null
     control_modes:
@@ -150,14 +153,21 @@ provenance:
     - field: spec.ports.DC_POS.connector_spec
       flag: missing
       note: DC connection style not in public refs. Applies to DC_POS, DC_NEG.
-    - field: spec.ports.CAN0.connector_spec
-      flag: missing
-      note: CAN connector type and pinout proprietary to CATL.
+    - field: spec.ports.ETH0.connector_spec
+      flag: resolved
+      note: RJ45 with Cat5+ cable, 100M self-adjusting, per CATL Modbus TCP Protocol V1.3.
     - field: spec.ports.AUX_PWR.connector_spec
       flag: missing
     - field: control.register_map_url
-      flag: missing
-      note: CAN message map proprietary. Required for PCS pairing and EMS integration. OEM agreement with CATL or authorized integrator (e.g., Eaton xStorage path) required.
+      flag: resolved
+      note: |
+        CATL BESS ModBus TCP Protocol V1.3 (CATL PMT, "In Analysis" state,
+        2022-04-24) located on Scribd. Local copy at register_map.pdf.
+        MBMU at 0x0000-0x03FF, SBMUn at 0x(400·n)-0x(400·n+3FF). Telemetry
+        keys: SoC 0x0022, SoH 0x0023, system V 0x0020 (0.1V/bit), system A
+        0x0021 (1A/bit offset -20000), max chg/dch power 0x0310/0x030F.
+        Control: EMS_cmd 0x0381, Fault_Clear 0x038C. Cell-level voltages
+        0x0480-0x06bf, temps 0x06c0-0x077f.
     - field: control.command_latency_ms
       flag: missing
     - field: control.step_response_ms
@@ -183,9 +193,13 @@ notes: |
 
   BMS architecture: CATL three-level distributed BMS — CSC (Cell Sensor
   Controller) → SBMU (String BMS Unit) → MBMU (Master BMS Unit). MBMU
-  exposes CAN to the PCS and EMS. Per the BESS Chrome session, this is
-  the industry-standard hierarchical pattern; CAN message map is
-  proprietary and gated behind OEM agreement.
+  exposes Modbus TCP to the PCS and EMS over RJ45 (port 502, unit_id
+  0x64, FC 0x03 read / 0x06 write-1 / 0x10 write-N, big-endian, 20 ms
+  minimum poll period). The legacy A-CAN bus is still present on newer
+  EnerX-class racks for backwards compatibility, but Modbus TCP is the
+  primary EMS integration path. Register map: see
+  `register_map.pdf` colocated in this directory (CATL ZNH Modbus TCP
+  Protocol V1.3, 2022).
 
   Thermal: EnerOne+ has an integrated thermal management system (chiller,
   PTC heater, liquid cooling pipes). This system is internal to the rack
