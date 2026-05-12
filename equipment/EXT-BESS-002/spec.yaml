@@ -153,21 +153,8 @@ provenance:
     - field: spec.ports.DC_POS.connector_spec
       flag: missing
       note: DC connection style not in public refs. Applies to DC_POS, DC_NEG.
-    - field: spec.ports.ETH0.connector_spec
-      flag: resolved
-      note: RJ45 with Cat5+ cable, 100M self-adjusting, per CATL Modbus TCP Protocol V1.3.
     - field: spec.ports.AUX_PWR.connector_spec
       flag: missing
-    - field: control.register_map_url
-      flag: resolved
-      note: |
-        CATL BESS ModBus TCP Protocol V1.3 (CATL PMT, "In Analysis" state,
-        2022-04-24) located on Scribd. Local copy at register_map.pdf.
-        MBMU at 0x0000-0x03FF, SBMUn at 0x(400·n)-0x(400·n+3FF). Telemetry
-        keys: SoC 0x0022, SoH 0x0023, system V 0x0020 (0.1V/bit), system A
-        0x0021 (1A/bit offset -20000), max chg/dch power 0x0310/0x030F.
-        Control: EMS_cmd 0x0381, Fault_Clear 0x038C. Cell-level voltages
-        0x0480-0x06bf, temps 0x06c0-0x077f.
     - field: control.command_latency_ms
       flag: missing
     - field: control.step_response_ms

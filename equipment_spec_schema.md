@@ -277,8 +277,9 @@ ports:
     qty: int                      # how many of this port type on this equipment
 
 control:
-  protocol: enum                  # modbus_tcp | modbus_rtu | can | dnp3 | iec61850 |
-                                  # snmp | redfish | proprietary | none
+  protocol: enum                  # modbus_tcp | modbus_rtu | dnp3 | iec61850 |
+                                  # snmp | redfish | bacnet_ip | bacnet_mstp |
+                                  # proprietary | none
   register_map_url: url | null    # link to register/object dictionary doc
   command_latency_ms: float | null
   step_response_ms: float | null
