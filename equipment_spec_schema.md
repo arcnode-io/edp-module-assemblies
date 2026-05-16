@@ -1,15 +1,4 @@
 # ARCNODE Equipment Spec Schema
-**Claude Code Handoff Brief | Strategy & Architecture Thread**
-Version 0.7 — For Implementation
-
-**Changelog:**
-- v0.7 — Architecture decisions ADR-003 and ADR-004: ARCNODE is now a two-container product (Compute Container and Grid Container). Thermal Module retired — CDU is rack-mounted inside Compute Container. `THM` module prefix retired; CDU moves to `CMP` prefix (CMP-CDU-001). New `container_type` field added to mechanical spec. New `infiniband` port type added. `bess` category retained as external equipment.
-- v0.6 — Architecture decision: BESS is external customer-supplied equipment, not an ARCNODE module. New `bess` category (interface-scoped, parallel to `dry_cooler`); existing `rack` category retained for compute/network rack-mounted equipment only. ARCNODE is now a three-module product (Compute, Thermal, Grid).
-- v0.5 — Patches from BESS Chrome session: `fab_tier` enum expanded from binary `commercial | itar_domestic` to three-tier `commercial | federal_civilian | dod_eligible`; new optional `restricted_entities` field captures DOD 1260H, BIS Entity List, NDAA 889 exposure for sourcing-aware sizing.
-- v0.4 — Patches from Dry Cooler Chrome session: `adiabatic_cooler` added to category enum (Frigel-class equipment with mandatory pad water supply); `dry_cooler` retained as separate category for pure-dry units (Güntner, Evapco, BAC, Modine).
-- v0.3 — Patches from Motivair MCDU-40 sanity check: `coolant_compatibility` enum extended with `pgw_20`, `pgw_25`, `egw_25`, `egw_40`; `pressure_drop_kpa` split into `pump_head_kpa` and `internal_pressure_drop_kpa`.
-- v0.2 — Patches from EPC PD500 sanity check: `coolant_compatibility` replaces single-value `coolant_type`; `power_factor_range` replaces single-value `power_factor`; `mounting` enum gains `proprietary_oem` plus free-text `mounting_notes`; new `control_power` port type; `fault_current_contribution_pu` rule softened.
-- v0.1 — Initial draft.
 
 ---
 
@@ -71,9 +60,8 @@ Examples:
 
 container: GRD | CMP | EXT     (3-letter, uppercase)
            GRD = Grid Container
-           CMP = Compute Container (absorbs former THM prefix)
+           CMP = Compute Container
            EXT = External customer-supplied equipment
-           THM prefix is retired as of v0.7
 category:  4-letter category code, uppercase
 sequence:  3-digit zero-padded, sequential within (container, category)
 ```
@@ -416,7 +404,7 @@ Notes that apply to specific categories during authoring. Not exhaustive; update
 
 - `control.control_modes` must explicitly list `grid_forming` if the vendor documents grid-forming capability. Marketing phrases like "grid support" or "voltage regulation" are not sufficient — confirm explicit GFM in datasheet or interconnect manual. Acceptable evidence includes datasheet entries for "V&f islanded mode", "grid-forming control", "virtual synchronous machine", or equivalent.
 - `electrical.fault_current_contribution_pu` is required *if vendor publishes it* for grid-forming PCS. If not published, leave null and add `confidence_flags` entry with flag `missing` — the value will be needed eventually for fault studies and is a sales-touch follow-up item.
-- `thermal` subsection required because PCS units are significant heat sources whose rejection has to integrate with the Thermal Module.
+- `thermal` subsection required because PCS units are significant heat sources whose rejection has to integrate with the Compute Container CDU loop (cross-container coupling — see `equipment/GRD-PCS-001/spec.yaml` notes for the PD500 selection rationale).
 - `electrical.power_factor_range` should typically be `[-1.0, 1.0]` for modern 4-quadrant PCS. Single-quadrant or limited-range devices are unusual at this product class — flag as ambiguous if vendor docs are unclear.
 - `mounting: proprietary_oem` is common for PCS at non-standard widths. Capture vendor cabinet model in `mounting_notes` when known.
 
@@ -426,7 +414,7 @@ Notes that apply to specific categories during authoring. Not exhaustive; update
 - `electrical.voltage_range_v` must overlap with the Grid Module PCS DC input range. For PD500, that's 310–1250 VDC; for sovereign deployments using GFM-capable PCS, the BESS voltage class drives PCS selection.
 - `electrical.power_kw` is the rated discharge power, not the energy capacity. Energy capacity (kWh) is captured in `notes` for now — schema does not yet have an energy field. (Defer until a real sizing decision forces it.)
 - `control.protocol` — Modbus TCP is most common at the system level for utility-scale BESS (Tesla, Fluence, Sungrow, etc.). CAN exists internally but is typically not exposed to external integrators. Use `modbus_tcp` unless vendor docs state otherwise.
-- `thermal` subsection is `n/a` — the BESS handles its own thermal management externally. ARCNODE's Thermal Module does not couple to BESS cooling.
+- `thermal` subsection is `n/a` — the BESS handles its own thermal management externally. ARCNODE does not couple to BESS cooling.
 - `mechanical.dimensions_mm` and `weight_kg` are captured for customer site planning reference, not for ARCNODE container fit. No service envelope or mounting detail beyond `mounting: pad`.
 - `fab_tier` and `restricted_entities` matter most in this category. BESS is the largest single line item in many deployments and the most regulated. CATL is on DOD 1260H; Tesla Megapack uses mixed-source cells with documented provenance; sovereign deployments need careful flagging.
 
@@ -457,7 +445,7 @@ Notes that apply to specific categories during authoring. Not exhaustive; update
 - BESS is customer-supplied equipment sited on the customer's pad, not inside ARCNODE. The equipment_spec is interface-scoped: capture only what ARCNODE's Grid Module PCS, EMS, and pad civil works need to integrate.
 - `electrical.voltage_v` and `voltage_range_v` are the DC bus operating range. Must overlap with the selected Grid Module PCS DC input range; sizing engine validates compatibility.
 - `electrical.power_kw` is rated discharge power, not energy capacity. Capture energy capacity in `notes` since the schema doesn't have a dedicated energy field (kWh is fundamentally different from kW; treat as deployment-level sizing concern, not equipment_spec field).
-- `thermal` subsection is optional and typically omitted. External BESS handles its own thermal management; ARCNODE does not integrate the BESS thermal loop with the Thermal Module CDU.
+- `thermal` subsection is optional and typically omitted. External BESS handles its own thermal management; ARCNODE does not couple to BESS cooling.
 - `control.protocol` is the supervisory interface — typically Modbus TCP for utility-scale BESS. The internal BMS protocol (CAN, vendor-proprietary) is the BESS vendor's concern, not ARCNODE's.
 - `control.control_modes` must indicate grid-forming compatibility if the BESS is intended to support black-start with the Grid Module PCS. Most modern utility BESS are grid-following only and rely on a paired PCS for grid-forming behavior.
 - `mechanical.mounting` is `pad`. Dimensions are for site planning and pad design, not ARCNODE container fit.
@@ -467,81 +455,65 @@ Notes that apply to specific categories during authoring. Not exhaustive; update
 
 ## 7. Library Directory Layout
 
+Equipment specs live in a flat per-ID directory tree. Each equipment dir co-locates the `spec.yaml`, the source `datasheet.pdf`, and a synthesized `envelope.step`:
+
 ```
-arcnode-equipment-library/
-├── README.md
-├── schema/
-│   ├── equipment_spec.schema.json     # generated from this doc
-│   └── version.txt                     # contains "0"
-├── specs/
-│   ├── grd/                            # Grid Module
-│   │   ├── pcs/
-│   │   │   └── GRD-PCS-001.yaml        # EPC PD500
-│   │   └── transformer/
-│   ├── cmp/                            # Compute Module
-│   │   ├── rack/
-│   │   ├── gpu_node/
-│   │   └── network_switch/
-│   ├── thm/                            # Thermal Module
-│   │   ├── cdu/
-│   │   └── manifold/
-│   └── ext/                            # external customer-supplied equipment
-│       ├── bess/                       # external BESS (Tesla Megapack, etc.)
-│       │   └── EXT-BESS-001.yaml
-│       ├── dry_cooler/                 # external dry cooler
-│       ├── adiabatic_cooler/           # external adiabatic cooler
-│       ├── connector/                  # cross-module commodity hardware
-│       ├── cable/
-│       └── hose/
-├── geometry/
-│   ├── envelopes/
-│   │   ├── GRD-PCS-001-equipment.step
-│   │   ├── GRD-PCS-001-service.step
-│   │   └── ...
-│   └── vendor-step/                    # cached vendor STEP, per §3 of curation pipeline
-│       └── ...
-├── datasheets/                         # cached vendor PDFs, hash-tracked
-│   └── ...
-└── indices/                            # generated, not hand-edited
-    ├── by-category.json
-    ├── by-vendor.json
-    └── by-tier.json
+edp-module-assemblies/
+├── equipment/                          # one dir per equipment ID
+│   ├── CMP-CDU-001/
+│   │   ├── spec.yaml                   # this schema
+│   │   ├── datasheet.pdf               # vendor source PDF
+│   │   └── envelope.step               # synthesized geometry envelope
+│   ├── CMP-NODE-001/
+│   ├── CMP-PDU-001/
+│   ├── CMP-RACK-001/
+│   ├── CMP-SWITCH-001/
+│   ├── CMP-SWITCH-002/
+│   ├── EXT-BESS-001/
+│   ├── EXT-BESS-002/
+│   ├── EXT-DC-001/
+│   ├── EXT-DC-002/
+│   ├── GRD-MTR-001/
+│   ├── GRD-PCS-001/
+│   ├── GRD-RLY-001/
+│   ├── GRD-SWG-001/
+│   └── GRD-XFM-001/
+├── assemblies/                         # container-scoped assembly logic
+│   ├── compute-container/
+│   ├── grid-container/
+│   └── deployment/
+├── manifest.yaml                       # generated: equipment_id → S3 spec URL
+├── manifest_plates.yaml
+├── manifest_profiles.yaml
+└── scripts/
+    └── build_manifest.py               # regenerates manifest.yaml
 ```
 
-The `indices/` directory is a generated artifact (see Equipment Curation Pipeline §4 step 4 — Cross-reference rebuild). Do not hand-edit.
+`manifest.yaml` is a generated artifact — do not hand-edit. Run `scripts/build_manifest.py` after adding or removing an equipment dir.
 
-ARCNODE is a three-module product (Grid, Compute, Thermal). The `ext/` directory holds equipment_specs for customer-supplied equipment that ARCNODE interfaces with but does not contain — BESS, dry coolers, adiabatic coolers — plus cross-module commodity hardware (connectors, cables, hoses) that is not specific to a single module.
+The three-letter prefix on each `equipment_id` classifies where the equipment lives:
+
+- `CMP-*` — installed inside the Compute Container
+- `GRD-*` — installed inside the Grid Container
+- `EXT-*` — external customer-supplied equipment that ARCNODE interfaces with but does not contain (BESS, dry coolers, adiabatic coolers, plus cross-container commodity hardware: connectors, cables, hoses)
+
+ARCNODE is a two-container product (Grid Container, Compute Container) per ADR-003. The `EXT-` prefix categorizes equipment that lives outside both containers — see §6 for per-category authoring notes.
 
 ---
 
-## 8. Versioning Policy
-
-Schema version is `0` for v0.1 of this document. There is one schema; all specs conform to it.
-
-When the schema changes:
-
-1. Bump `schema/version.txt`.
-2. Update this document.
-3. Migrate existing specs in a single PR; do not allow mixed-version specs in the library.
-
-A migration tool is deferred until a concrete schema change forces the issue. v0 explicitly accepts that a future schema break will require manual migration.
-
----
-
-## 9. Open Items and Deferrals
+## 8. Open Items and Deferrals
 
 | # | Item | Resolution | Notes |
 |---|---|---|---|
-| 1 | Schema versioning automation | Deferred | Per user direction; v0 = single schema. |
-| 2 | STEP file licensing per vendor | Open | Treated as cache-and-commit per user direction (public docs, non-lucrative use). Revisit if commercial licensing model changes. |
-| 3 | Confidence flag taxonomy completeness | Defined v0 | The five flags in §4.5 are the v0 set. Add as gaps appear. |
-| 4 | `control.register_map_url` for proprietary protocols | Open | Vendor-supplied register maps are often gated. Library may end up with null URL and a sales-engagement-required note. |
-| 5 | Cost field freshness | Open | `unit_cost_usd` decays in accuracy. No automated refresh in v0; flag with `confidence_flags.assumed_default` if older than 6 months. |
-| 6 | Multi-port equipment with per-port heterogeneous specs | Open | E.g., a switch with mixed 1G/10G/40G ports. Current schema represents this with multiple `ports` entries differing in `connector_spec`. Verify this scales. |
+| 1 | STEP file licensing per vendor | Open | Treated as cache-and-commit per user direction (public docs, non-lucrative use). Revisit if commercial licensing model changes. |
+| 2 | Confidence flag taxonomy completeness | Defined | The five flags in §4.5 are the initial set. Add as gaps appear. |
+| 3 | `control.register_map_url` for proprietary protocols | Open | Vendor-supplied register maps are often gated. Library may end up with null URL and a sales-engagement-required note. |
+| 4 | Cost field freshness | Open | `unit_cost_usd` decays in accuracy. No automated refresh; flag with `confidence_flags.assumed_default` if older than 6 months. |
+| 5 | Multi-port equipment with per-port heterogeneous specs | Open | E.g., a switch with mixed 1G/10G/40G ports. Current schema represents this with multiple `ports` entries differing in `connector_spec`. Verify this scales. |
 
 ---
 
-## 10. Standards Reference
+## 9. Standards Reference
 
 | Spec | Standard | Applies To |
 |---|---|---|
@@ -555,4 +527,4 @@ A migration tool is deferred until a concrete schema change forces the issue. v0
 
 ---
 
-*End of Equipment Spec Schema v0.1*
+*End of Equipment Spec Schema*
