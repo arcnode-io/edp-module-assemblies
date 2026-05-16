@@ -71,7 +71,7 @@ MAT_SPECS: Final[list[MatSpec]] = [
         "pcs", re.compile(r"^GRD-PCS-001$"), "#5b8c6a", 0.4, 0.50, 1.0, blend=False
     ),
     # ── DLR carrier PCB groups ──
-    # Reason: scene graph from ems-line-controller-dlr-pcb has parent group
+    # Reason: scene graph from dlr-pcb has parent group
     # nodes (no mesh) plus leaf children named `<group>__<refdes>`. Patterns
     # match both: `^group(?:__.*)?$`. Colors: PCB green for the board,
     # gold/silver for connectors, warm hues for sensors, cool hues for power,

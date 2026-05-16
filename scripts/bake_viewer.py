@@ -18,9 +18,7 @@ ASSEMBLIES_DIR: Final[Path] = REPO_ROOT / "assemblies"
 DEFAULT_OUT: Final[Path] = REPO_ROOT.parent / "website" / "assets" / "models"
 # Reason: the DLR carrier source-of-truth lives in the PCB repo, not in
 # edp-module-assemblies/assemblies (it's a board, not a container).
-DLR_PCB_OUT: Final[Path] = (
-    REPO_ROOT.parent / "ems-line-controller-dlr-pcb" / "output"
-)
+DLR_PCB_OUT: Final[Path] = REPO_ROOT.parent / "dlr-pcb" / "output"
 
 
 def main() -> None:
