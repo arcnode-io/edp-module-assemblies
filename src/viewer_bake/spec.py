@@ -310,15 +310,10 @@ HOTSPOT_COPY: Final[dict[str, list[HotspotCopy]]] = {
     # the per-material callouts. Lepton aim hotspot lives on the kit variant
     # viewers below where the bracket context makes the tilt meaningful.
     "dlr-carrier": [],
-    # Kit-variant hotspots: same Lepton aim hotspot + sensor body + PV +
-    # battery callouts so the variant card's 3D viewer is self-explaining.
+    # Kit-variant hotspots: sensor body + PV + battery callouts so the
+    # variant card's 3D viewer is self-explaining. Aim adjustment removed
+    # (per user request) — the Lepton callout lives in hover-labels.
     "dlr-carrier-hw": [
-        HotspotCopy(
-            "aim",
-            re.compile(r"^lepton_daughterboard__lepton_lens$"),
-            "Aim adjustment",
-            "±15° tilt set at commissioning",
-        ),
         HotspotCopy(
             "anemometer",
             re.compile(r"^anemometer_body$"),
@@ -339,12 +334,6 @@ HOTSPOT_COPY: Final[dict[str, list[HotspotCopy]]] = {
         ),
     ],
     "dlr-carrier-lw": [
-        HotspotCopy(
-            "aim",
-            re.compile(r"^lepton_daughterboard__lepton_lens$"),
-            "Aim adjustment",
-            "±15° tilt set at commissioning",
-        ),
         HotspotCopy(
             "anemometer",
             re.compile(r"^anemometer_body$"),
