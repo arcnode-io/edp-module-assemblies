@@ -315,6 +315,12 @@ HOTSPOT_COPY: Final[dict[str, list[HotspotCopy]]] = {
     # (per user request) — the Lepton callout lives in hover-labels.
     "dlr-carrier-hw": [
         HotspotCopy(
+            "carrier",
+            re.compile(r"^pcb_board$"),
+            "DLR carrier board",
+            "CM4 + cellular + IEEE 738 sensor suite",
+        ),
+        HotspotCopy(
             "anemometer",
             re.compile(r"^anemometer_body$"),
             "Calypso ULP STD",
@@ -334,6 +340,12 @@ HOTSPOT_COPY: Final[dict[str, list[HotspotCopy]]] = {
         ),
     ],
     "dlr-carrier-lw": [
+        HotspotCopy(
+            "carrier",
+            re.compile(r"^pcb_board$"),
+            "DLR carrier board",
+            "CM4 + cellular + IEEE 738 sensor suite",
+        ),
         HotspotCopy(
             "anemometer",
             re.compile(r"^anemometer_body$"),
