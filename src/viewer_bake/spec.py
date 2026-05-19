@@ -186,6 +186,46 @@ MAT_SPECS: Final[list[MatSpec]] = [
         1.0,
         blend=False,
     ),
+    # ── Field-kit nodes (per dlr-pcb build_assembly.py _build_field_kit) ──
+    MatSpec(
+        "anemometer_body",
+        re.compile(r"^anemometer_body$"),
+        # Variant-neutral: the body color is set per cq.Color in build_assembly
+        # (black for Calypso, light steel for WMT702). A mid-grey + low
+        # metallic + medium roughness reads OK for both at the marketing zoom.
+        "#9aa0a8",
+        0.55,
+        0.40,
+        1.0,
+        blend=False,
+    ),
+    MatSpec(
+        "sensor_cable",
+        re.compile(r"^sensor_cable$"),
+        "#1a1c20",  # black cable jacket
+        0.0,
+        0.85,
+        1.0,
+        blend=False,
+    ),
+    MatSpec(
+        "pv_panel",
+        re.compile(r"^pv_panel$"),
+        "#0e2a55",  # deep blue monocrystalline cells
+        0.2,
+        0.25,  # slight gloss to read as glass-faced
+        1.0,
+        blend=False,
+    ),
+    MatSpec(
+        "battery_pack",
+        re.compile(r"^battery_pack$"),
+        "#d8d8da",  # light grey ABS enclosure
+        0.05,
+        0.55,
+        1.0,
+        blend=False,
+    ),
 ]
 
 
@@ -234,6 +274,17 @@ HIDDEN_NODES: Final[dict[str, list[str]]] = {
         "lepton_daughterboard__pcb",
         "lepton_daughterboard__socket",
     ],
+    # Same scaffolding rule applies to both kit variants.
+    "dlr-carrier-hw": [
+        "lepton_daughterboard__bracket",
+        "lepton_daughterboard__pcb",
+        "lepton_daughterboard__socket",
+    ],
+    "dlr-carrier-lw": [
+        "lepton_daughterboard__bracket",
+        "lepton_daughterboard__pcb",
+        "lepton_daughterboard__socket",
+    ],
 }
 
 
@@ -265,6 +316,60 @@ HOTSPOT_COPY: Final[dict[str, list[HotspotCopy]]] = {
             re.compile(r"^lepton_daughterboard__lepton_lens$"),
             "Aim adjustment",
             "±15° tilt set at commissioning",
+        ),
+    ],
+    # Kit-variant hotspots: same Lepton aim hotspot + sensor body + PV +
+    # battery callouts so the variant card's 3D viewer is self-explaining.
+    "dlr-carrier-hw": [
+        HotspotCopy(
+            "aim",
+            re.compile(r"^lepton_daughterboard__lepton_lens$"),
+            "Aim adjustment",
+            "±15° tilt set at commissioning",
+        ),
+        HotspotCopy(
+            "anemometer",
+            re.compile(r"^anemometer_body$"),
+            "Calypso ULP STD",
+            "Ultra-low-power, 1 mW, 1 m/s threshold",
+        ),
+        HotspotCopy(
+            "pv",
+            re.compile(r"^pv_panel$"),
+            "Solar panel",
+            "20 W monocrystalline",
+        ),
+        HotspotCopy(
+            "battery",
+            re.compile(r"^battery_pack$"),
+            "Battery pack",
+            "50 Wh LiFePO4 · ~1.6 d autonomy",
+        ),
+    ],
+    "dlr-carrier-lw": [
+        HotspotCopy(
+            "aim",
+            re.compile(r"^lepton_daughterboard__lepton_lens$"),
+            "Aim adjustment",
+            "±15° tilt set at commissioning",
+        ),
+        HotspotCopy(
+            "anemometer",
+            re.compile(r"^anemometer_body$"),
+            "Vaisala WMT702",
+            "FAA / NWS grade · ±0.1 m/s · 0.01 m/s threshold",
+        ),
+        HotspotCopy(
+            "pv",
+            re.compile(r"^pv_panel$"),
+            "Solar panel",
+            "30 W monocrystalline",
+        ),
+        HotspotCopy(
+            "battery",
+            re.compile(r"^battery_pack$"),
+            "Battery pack",
+            "100 Wh LiFePO4 · ~2.2 d autonomy",
         ),
     ],
 }

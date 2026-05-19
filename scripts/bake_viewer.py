@@ -57,9 +57,35 @@ def main() -> None:
         assembled_name="dlr_carrier_pcb.glb",
         exploded_name="dlr_carrier_pcb-exploded.glb",
     )
+    # Field-kit variants (per dlr-pcb project_anemometer_sku.md): same PCB,
+    # different sensor body + cable harness + PV + battery in the kit BOM.
+    # HW = Calypso ULP STD + 20 W PV + 50 Wh.
+    # LW = Vaisala WMT702 + 30 W PV + 100 Wh.
+    bake_module(
+        "dlr-carrier-hw",
+        DLR_PCB_OUT,
+        args.out,
+        assembled_name="dlr_carrier_kit_hw.glb",
+        exploded_name="dlr_carrier_kit_hw-exploded.glb",
+    )
+    bake_module(
+        "dlr-carrier-lw",
+        DLR_PCB_OUT,
+        args.out,
+        assembled_name="dlr_carrier_kit_lw.glb",
+        exploded_name="dlr_carrier_kit_lw-exploded.glb",
+    )
     bake_hotspots(
         args.out,
-        kinds=["compute", "grid", "grid-dc-ext", "grid-no-bess", "dlr-carrier"],
+        kinds=[
+            "compute",
+            "grid",
+            "grid-dc-ext",
+            "grid-no-bess",
+            "dlr-carrier",
+            "dlr-carrier-hw",
+            "dlr-carrier-lw",
+        ],
     )
 
 
