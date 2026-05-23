@@ -89,6 +89,9 @@ restricted_entities: [enum] | null  # DOD_1260H | BIS_ENTITY_LIST | NDAA_889 |
                                   # state_owned_china | state_owned_russia
                                   # — null means none known; populated when
                                   # vendor or component is on a restricted list
+install_video_url: url | null     # vendor-published install / unboxing video
+                                  # for site installers; surfaced on BOM xlsx.
+                                  # null = not yet researched.
 lead_time_weeks: int | null
 unit_cost_usd: float | null
 

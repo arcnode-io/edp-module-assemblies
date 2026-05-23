@@ -9,6 +9,7 @@ datasheet_hash: TBD_compute_at_pipeline_run
 step_source: null
 fab_tier: dod_eligible
 restricted_entities: null
+install_video_url: null  # Track A enrichment — vendor-research pass populates
 lead_time_weeks: 6
 unit_cost_usd: null
 
