@@ -1,5 +1,5 @@
 equipment_id: CMP-RACK-001
-schema_version: "0"
+schema_version: "1"
 category: rack
 vendor: Schneider Electric (APC brand)
 model_number: NetShelter SX Advanced AR9658

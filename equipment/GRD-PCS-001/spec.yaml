@@ -1,5 +1,5 @@
 equipment_id: GRD-PCS-001
-schema_version: "0"
+schema_version: "1"
 category: pcs
 vendor: EPC Power
 model_number: PD500/AC-480 (50-100195)

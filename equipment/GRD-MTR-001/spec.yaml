@@ -1,5 +1,5 @@
 equipment_id: GRD-MTR-001
-schema_version: "0.7"
+schema_version: "1"
 category: revenue_meter
 vendor: Schneider Electric
 model_number: PowerLogic ION9000 (METSEION92xxx series, with display)

@@ -1,5 +1,5 @@
 equipment_id: GRD-SWG-001
-schema_version: "0"
+schema_version: "1"
 category: switchgear
 vendor: ABB
 model_number: SafeGear 15kV / 1200A / 50kA (single section, indoor)
@@ -84,6 +84,75 @@ spec:
       - manual_trip
       - auto_protective_trip
     black_start_capable: null           # not applicable (passive switching device)
+
+  alarms:
+    # Authored against SEL-351 element nomenclature (typical protective relay
+    # in 15kV-class metal-clad switchgear lineups). Modbus addresses are
+    # placeholders pending SEL-351 instruction manual + relay configuration
+    # — see provenance.confidence_flags. Discipline: 3 P1 entries (safety),
+    # 1 P2 (equipment damage avoidance) — within Hollifield's ~3 P1 heuristic.
+
+    - id: protective_overcurrent_trip
+      description: "51 phase overcurrent element picked up (≥1.25× I_nominal)"
+      condition_source:
+        type: discrete_register
+        address: 0                      # TBD — SEL-351 Modbus map word 0, bit for 51P1T
+        meaning_when_set: alarm
+      priority: P1
+      operator_action: |
+        Investigate downstream fault. Lock-out / tag-out before any close.
+        Verify CT polarity if event is unexpected. Capture event report.
+      on_delay_ms: 0                    # 51 element timing is already inverse-time
+      off_delay_ms: 0
+      reset: latched
+      reference_doc: "SEL-351 Instruction Manual §3 (Overcurrent Elements)"
+
+    - id: breaker_failure_50bf
+      description: "50BF breaker-failure timer expired — main breaker did not interrupt"
+      condition_source:
+        type: discrete_register
+        address: 0                      # TBD — SEL-351 50BF assertion bit
+        meaning_when_set: alarm
+      priority: P1
+      operator_action: |
+        Immediate. Open upstream backup device. Do NOT attempt re-close.
+        Field-verify breaker physical state (closed/open) before any action.
+      on_delay_ms: 0
+      off_delay_ms: 0
+      reset: latched
+      reference_doc: "SEL-351 Instruction Manual §6 (Breaker Failure)"
+
+    - id: arc_flash_detected
+      description: "Optical arc-flash sensor triggered — light + current confirmed"
+      condition_source:
+        type: discrete_register
+        address: 0                      # TBD — arc sensor input (SEL-651R or equivalent)
+        meaning_when_set: alarm
+      priority: P1
+      operator_action: |
+        Personnel must clear the room immediately. Do not approach until
+        thermal-imaging clearance + de-energization confirmed. Notify
+        on-call electrical engineer. Document for OSHA arc-flash incident report.
+      on_delay_ms: 0                    # arc-flash protection must be fastest path
+      off_delay_ms: 0
+      reset: latched
+      reference_doc: "IEEE C37.20.7 §6 (Arc-Resistant Switchgear)"
+
+    - id: breaker_close_coil_failure
+      description: "Breaker close command issued; close coil did not energize"
+      condition_source:
+        type: discrete_register
+        address: 0                      # TBD — close-coil monitoring point
+        meaning_when_set: alarm
+      priority: P2
+      operator_action: |
+        Verify close coil continuity + DC control voltage at the cabinet.
+        Coordinate with maintenance to test close circuit before next attempt.
+        Do not strip back the alarm without coil swap or cause confirmed.
+      on_delay_ms: 500                  # debounce close-cmd latency
+      off_delay_ms: 0
+      reset: latched
+      reference_doc: "ABB SafeGear Service Manual §4 (Control Circuit Diagnostics)"
 
 geometry:
   source: synthesized

@@ -1,5 +1,5 @@
 equipment_id: CMP-PDU-001
-schema_version: "0.7"
+schema_version: "1"
 category: pdu
 vendor: Server Technology (Legrand)
 model_number: PRO3X C3W36RL (Switched, 60A 3ph, 17.3kW, 36 outlets)

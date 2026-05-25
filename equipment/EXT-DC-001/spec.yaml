@@ -1,5 +1,5 @@
 equipment_id: EXT-DC-001
-schema_version: "0"
+schema_version: "1"
 category: dry_cooler
 vendor: Güntner (Güntner U.S. LLC)
 model_number: GFD Series (V-shape, ECM fans, fluid cooler)

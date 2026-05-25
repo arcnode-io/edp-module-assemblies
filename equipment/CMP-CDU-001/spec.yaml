@@ -1,5 +1,5 @@
 equipment_id: CMP-CDU-001
-schema_version: "0"
+schema_version: "1"
 category: cdu
 vendor: Motivair (a Schneider Electric company)
 model_number: MCDU-10 (19" model)
@@ -107,6 +107,79 @@ spec:
       - external_setpoint
       - last_known_value_fallback
     black_start_capable: null
+
+  alarms:
+    # Motivair MCDU-10 has both mechanical (leak, flow, pump) and electrical
+    # (control power) alarms. Cross-discipline pilot. Redfish event IDs are
+    # placeholders pending MCDU Redfish schema — see provenance.confidence_flags.
+    # Discipline: 2 P1 (safety + property damage), 2 P2 (operational).
+
+    - id: secondary_loop_leak
+      description: "Leak-detection sensor on secondary (TCS) loop triggered"
+      condition_source:
+        type: redfish_event
+        event_id: TBD_MCDU_SecondaryLoopLeak
+        severity: Critical
+      priority: P1
+      operator_action: |
+        Immediate. Command CDU to shutdown via Redfish action. Isolate
+        secondary loop manual valves. Personnel to evacuate compute container
+        if pooling observed. Notify facilities — coolant is dielectric but
+        slip + electrical-equipment exposure are real hazards.
+      on_delay_ms: 0
+      off_delay_ms: 0
+      reset: latched
+      reference_doc: "Motivair MCDU-10 Service Manual §6 (Leak Detection)"
+
+    - id: pump_failure_primary
+      description: "Primary-loop pump did not start or has stalled"
+      condition_source:
+        type: redfish_event
+        event_id: TBD_MCDU_PrimaryPumpFault
+        severity: Critical
+      priority: P1
+      operator_action: |
+        Immediate. CDU has redundant pumps — verify secondary pump took over
+        via Redfish PumpState query. If both failed, schedule emergency GPU
+        workload drain (CDUs can't sustain thermal load without pumps).
+        Replace pump before resuming primary loop.
+      on_delay_ms: 2000                 # 2s for restart attempts
+      off_delay_ms: 0
+      reset: latched
+      reference_doc: "Motivair MCDU-10 Service Manual §4 (Pump Diagnostics)"
+
+    - id: coolant_flow_low
+      description: "Secondary-loop flow rate below configured minimum"
+      condition_source:
+        type: redfish_event
+        event_id: TBD_MCDU_LowFlow
+        severity: Warning
+      priority: P2
+      operator_action: |
+        Check secondary-loop manifold valves are fully open. Verify pump
+        speed matches setpoint via Redfish. Inspect supply-side filters.
+        If flow stays low > 5 min, escalate to GPU power throttling.
+      on_delay_ms: 5000
+      off_delay_ms: 0
+      reset: auto
+      reference_doc: "Motivair MCDU-10 Service Manual §5 (Flow Monitoring)"
+
+    - id: control_power_loss
+      description: "AC control-power input lost; CDU running on last-known-value fallback"
+      condition_source:
+        type: redfish_event
+        event_id: TBD_MCDU_ControlPowerLost
+        severity: Warning
+      priority: P2
+      operator_action: |
+        Verify rack PDU outlet supplying CDU control power. If outlet OK,
+        check CDU AC/DC supply. CDU will continue cooling on last setpoint
+        but cannot accept new commands until control power is restored —
+        avoid GPU workload shifts during this window.
+      on_delay_ms: 1000
+      off_delay_ms: 0
+      reset: auto
+      reference_doc: "Motivair MCDU-10 Service Manual §3 (Power Topology)"
 
 geometry:
   source: synthesized

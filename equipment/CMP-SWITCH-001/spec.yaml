@@ -1,5 +1,5 @@
 equipment_id: CMP-SWITCH-001
-schema_version: "0"
+schema_version: "1"
 category: network_switch
 vendor: NVIDIA (Mellanox)
 model_number: Spectrum-X SN5600

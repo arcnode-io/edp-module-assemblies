@@ -1,5 +1,5 @@
 equipment_id: EXT-BESS-002
-schema_version: "0"
+schema_version: "1"
 category: bess
 vendor: CATL (Contemporary Amperex Technology Co.)
 model_number: EnerOne+ 379.4 kWh / 1C
@@ -9,9 +9,9 @@ datasheet_hash: TBD_compute_at_pipeline_run
 step_source: null
 fab_tier: federal_civilian
 restricted_entities:
-install_video_url: null  # Track A enrichment — vendor-research pass populates
   - DOD_1260H
   - state_owned_china
+install_video_url: null  # Track A enrichment — vendor-research pass populates
 lead_time_weeks: null
 unit_cost_usd: null
 
@@ -97,6 +97,85 @@ spec:
                                        # not the BESS's, in DC-coupled profile)
     black_start_capable: false         # battery itself does not black-start;
                                        # PCS provides grid-forming behavior
+
+  alarms:
+    # Authored against CATL ZNH Modbus TCP Protocol V1.3. Modbus addresses
+    # are placeholders pending full register-map ingestion (the published
+    # protocol doc lives at register_map_url). Discipline: 1 P1 + 2 P2 +
+    # 1 P3 — within Hollifield's ~3 P1 heuristic.
+
+    - id: pack_overtemperature
+      description: "Max cell temperature exceeds 55°C — thermal-runaway precursor"
+      condition_source:
+        type: analog_threshold
+        address: 0                      # TBD — CATL register for T_cell_max
+        threshold: 55.0
+        direction: above
+        unit: celsius
+        deadband_pct: 5.0               # 5% (≈2.75°C) deadband to suppress chatter
+      priority: P1
+      operator_action: |
+        Immediate. Command PCS to standby (stop both charge + discharge).
+        Engage TMS pre-cooling if not already active. Site personnel to
+        clear immediate vicinity until temp returns < 50°C for 5 minutes.
+        Do NOT bypass until BMS event log review.
+      on_delay_ms: 1000                 # avoid false trip on transient spike
+      off_delay_ms: 60000               # 1-min hold-off before auto-clear
+      reset: latched
+      reference_doc: "CATL ZNH Modbus TCP Protocol V1.3 §thermal"
+
+    - id: cell_voltage_imbalance
+      description: "ΔV (max cell V − min cell V) > 100 mV — pack health degrading"
+      condition_source:
+        type: analog_threshold
+        address: 0                      # TBD — CATL register for ΔV_cell
+        threshold: 0.100
+        direction: above
+        unit: volts
+        deadband_pct: 10.0
+      priority: P2
+      operator_action: |
+        Reduce charge current to ≤0.25C and allow balancer to equalize.
+        If ΔV persists >24h at low current, schedule cell-level diagnostic.
+      on_delay_ms: 5000                 # only persistent imbalance, not transients
+      off_delay_ms: 0
+      reset: auto
+      reference_doc: "CATL ZNH Modbus TCP Protocol V1.3 §cell_health"
+
+    - id: bms_communication_loss
+      description: "MBMU heartbeat register stops updating — BMS comms lost"
+      condition_source:
+        type: discrete_register
+        address: 0                      # TBD — CATL heartbeat / watchdog register
+        meaning_when_set: alarm
+      priority: P2
+      operator_action: |
+        Verify Ethernet link on MBMU. Restart MBMU comm board if necessary.
+        Command PCS to standby until BMS visibility is restored — operating
+        without cell-level telemetry violates the safe-operating envelope.
+      on_delay_ms: 3000                 # 3s window for ordinary jitter
+      off_delay_ms: 0
+      reset: auto
+      reference_doc: "CATL ZNH Modbus TCP Protocol V1.3 §comms"
+
+    - id: state_of_charge_imbalance
+      description: "ΔSoC across racks > 5% — rotation strategy not equalizing"
+      condition_source:
+        type: analog_threshold
+        address: 0                      # TBD — CATL ΔSoC_rack register
+        threshold: 5.0
+        direction: above
+        unit: percent
+        deadband_pct: 20.0              # SoC moves slowly; wide deadband
+      priority: P3
+      operator_action: |
+        Confirm rack-rotation logic in EMS is enabled. If yes, schedule
+        rack-balance cycle at next charge-discharge transition. Track over
+        next 48h; escalate to P2 if ΔSoC keeps growing.
+      on_delay_ms: 60000                # SoC is slow; chatter from polling jitter
+      off_delay_ms: 0
+      reset: auto
+      reference_doc: "CATL ZNH Modbus TCP Protocol V1.3 §rack_state"
 
 geometry:
   source: synthesized

@@ -1,5 +1,5 @@
 equipment_id: GRD-XFM-001
-schema_version: "0"
+schema_version: "1"
 category: transformer
 vendor: Schneider Electric
 model_number: Trihal TRI100013684152509 (1000 kVA, 13.8 kV / 415V, dyn11, IP31, copper, AN, side-entry HV+LV, off-load taps ±2.5/±5%, louvered top)

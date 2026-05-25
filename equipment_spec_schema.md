@@ -76,7 +76,7 @@ ARCNODE is a two-container product. The `EXT` prefix is used for customer-suppli
 
 ```yaml
 equipment_id: string              # GRD-PCS-001
-schema_version: string            # "0"
+schema_version: string            # "1"
 category: enum                    # see §4.2
 vendor: string
 model_number: string
@@ -100,7 +100,8 @@ spec:                             # see §4.3 — sparse per category
   thermal:    {...} | null
   mechanical: {...}                # always required
   ports:      [...] | null
-  control:    {...} | null
+  control:    {...} | null         # command surface (TO device)
+  alarms:     [...] | null         # emit surface (FROM device) — see §4.4.6
 
 geometry:                         # see §4.4
   source: enum                    # extracted | synthesized | traced
@@ -163,32 +164,34 @@ New categories require a schema revision. Don't add ad hoc.
 
 The `spec` block is sparse. Which subsections are required depends on category. The validator enforces this.
 
-| Category       | electrical | thermal | mechanical | ports | control |
-|----------------|------------|---------|------------|-------|---------|
-| rack           | required   | optional| required   | required | optional |
-| pcs            | required   | required| required   | required | required |
-| pdu            | required   | optional| required   | required | optional |
-| ups            | required   | optional| required   | required | optional |
-| switchgear     | required   | n/a     | required   | required | optional |
-| transformer    | required   | optional| required   | required | n/a     |
-| bess           | required   | optional| required   | required | required |
-| cdu            | required   | required| required   | required | required |
-| chiller        | required   | required| required   | required | required |
-| dry_cooler     | required   | required| required   | required | optional |
-| adiabatic_cooler | required | required| required   | required | optional |
-| manifold       | n/a        | required| required   | required | n/a     |
-| gpu_node       | required   | required| required   | required | optional |
-| network_switch | required   | optional| required   | required | optional |
-| serial_gateway | required   | n/a     | required   | required | optional |
-| bms            | required   | n/a     | required   | required | required |
-| sensor         | required   | optional| required   | required | required |
-| connector      | optional   | optional| required   | required | n/a     |
-| cable          | required   | n/a     | required   | required | n/a     |
-| hose           | n/a        | required| required   | required | n/a     |
-| plate          | n/a        | n/a     | required   | optional | n/a     |
-| fastener       | n/a        | n/a     | required   | n/a   | n/a     |
+| Category       | electrical | thermal | mechanical | ports | control | alarms |
+|----------------|------------|---------|------------|-------|---------|--------|
+| rack           | required   | optional| required   | required | optional | optional |
+| pcs            | required   | required| required   | required | required | required |
+| pdu            | required   | optional| required   | required | optional | optional |
+| ups            | required   | optional| required   | required | optional | required |
+| switchgear     | required   | n/a     | required   | required | optional | required |
+| transformer    | required   | optional| required   | required | n/a      | optional |
+| bess           | required   | optional| required   | required | required | required |
+| cdu            | required   | required| required   | required | required | required |
+| chiller        | required   | required| required   | required | required | required |
+| dry_cooler     | required   | required| required   | required | optional | required |
+| adiabatic_cooler | required | required| required   | required | optional | required |
+| manifold       | n/a        | required| required   | required | n/a      | optional |
+| gpu_node       | required   | required| required   | required | optional | optional |
+| network_switch | required   | optional| required   | required | optional | optional |
+| serial_gateway | required   | n/a     | required   | required | optional | optional |
+| bms            | required   | n/a     | required   | required | required | required |
+| sensor         | required   | optional| required   | required | required | optional |
+| connector      | optional   | optional| required   | required | n/a      | n/a    |
+| cable          | required   | n/a     | required   | required | n/a      | n/a    |
+| hose           | n/a        | required| required   | required | n/a      | n/a    |
+| plate          | n/a        | n/a     | required   | optional | n/a      | n/a    |
+| fastener       | n/a        | n/a     | required   | n/a   | n/a      | n/a    |
 
 `n/a` means the field must be omitted (or explicitly `null`). `optional` means it may be present and is consumed if present.
+
+`alarms: required` means the SKU has built-in alarm capability the operator needs to act on (per Hollifield criteria); the field must be populated for those categories. Migration of existing specs to populated `alarms[]` is incremental — see §4.4.6.
 
 ### 4.4 Spec subsection field definitions
 
@@ -278,6 +281,17 @@ control:
                                   # for PCS: ["grid_following", "grid_forming", "vf", "pq", "statcom"]
   black_start_capable: bool | null
 
+alarms:                           # see §4.4.6
+  - id: string
+    description: string
+    condition_source: {...}       # discriminated by type (see §4.4.6)
+    priority: P1 | P2 | P3 | P4
+    operator_action: string
+    on_delay_ms: int
+    off_delay_ms: int
+    reset: latched | auto
+    reference_doc: string
+
 geometry:
   source: enum                    # extracted | synthesized | traced
                                   #   extracted   = from vendor STEP via envelope_extractor
@@ -331,6 +345,93 @@ low_confidence_extraction       — skill flagged its own extraction as uncertai
 ```
 
 These flags drive the human review queue in the curation pipeline. Once reviewed, flags can remain on the spec (as audit trail) but downstream tools should treat reviewed specs as authoritative regardless of flag presence.
+
+### 4.4.6 Alarms
+
+The `spec.alarms[]` block catalogs the abnormal-condition surface this
+SKU can raise — the operator-action contract per the Hollifield High
+Performance HMI Handbook (Step 4: documentation & rationalization).
+Authoritative Pydantic models: `src/alarms/alarm_spec.py`.
+
+Each alarm:
+
+```yaml
+- id: string                    # stable slug; HMI binds to this for translations
+                                # + action playbooks; never rename without coordination
+  description: string           # one-line human-readable summary
+  condition_source: {...}       # discriminated union over 5 variants — see below
+  priority: P1 | P2 | P3 | P4   # 4-tier per Hollifield §7.19
+  operator_action: string       # what the operator does; if you can't write one,
+                                # the alarm shouldn't exist (Hollifield §A4 step 4)
+  on_delay_ms: int              # ≥0; chatter suppression — only fire if condition
+                                # is asserted continuously for this many ms
+  off_delay_ms: int             # ≥0; hold-off before clearing (auto reset only)
+  reset: latched | auto         # latched = requires operator ack; auto = clears on RTN
+  reference_doc: string         # datasheet / manual section ref for traceability
+```
+
+#### `condition_source` variants
+
+Discriminated by `type`. Pick the one that matches the device's transport:
+
+```yaml
+# Modbus discrete bit / coil
+condition_source:
+  type: discrete_register
+  address: int                  # Modbus register address
+  meaning_when_set: alarm | clear
+
+# Modbus analog crossing a threshold
+condition_source:
+  type: analog_threshold
+  address: int
+  threshold: float
+  direction: above | below
+  unit: string                  # celsius, volts, amps, percent, ...
+  deadband_pct: float | null    # optional; null = no deadband
+
+# SNMP trap OID (PDU thermal, switch port-down)
+condition_source:
+  type: snmp_trap
+  oid: string                   # dotted OID e.g. "1.3.6.1.4.1.1718.4.1.2.1.0"
+
+# DNP3 event point (protective relay, operating envelope)
+condition_source:
+  type: dnp_event
+  point_index: int
+  point_type: binary_input | analog_input
+
+# Redfish event (GPU node, CDU)
+condition_source:
+  type: redfish_event
+  event_id: string              # Redfish event registry MessageId
+  severity: OK | Warning | Critical | null
+```
+
+#### Priority discipline (not schema-enforced)
+
+Hollifield §7.19 guidance: a single SKU typically has ≤3 P1 alarms.
+If you find yourself adding a 4th, challenge the categorization in CR
+— most "must be P1" cases are actually P2 (equipment damage avoidance,
+no immediate safety threat). Switchgear legitimately has 4+ P1 cases
+(arc-flash, ground-fault, overvoltage-trip, breaker-failure), so the
+rule is heuristic, not absolute.
+
+This is NOT a Pydantic validator. Reviewers catch outliers in CR.
+
+#### Authoring discipline
+
+Per Hollifield §A4 step 4:
+
+1. Each alarm must have an `operator_action`. If you can't write a
+   distinct, actionable response, drop the alarm — it's just noise.
+2. `on_delay_ms` and `off_delay_ms` are required, not nullable. Chatter
+   suppression is part of the alarm definition; "no delay" is the
+   explicit choice `0`, not a missing field.
+3. Use `reset: latched` for any alarm where an operator must
+   acknowledge before the device returns to nominal (safety alarms,
+   equipment-damage alarms). Use `reset: auto` only when self-clearing
+   on RTN is safe and expected (transient warnings).
 
 ### 4.6 Fab tier and restricted entities
 

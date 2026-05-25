@@ -1,5 +1,5 @@
 equipment_id: EXT-DC-002
-schema_version: "0"
+schema_version: "1"
 category: dry_cooler
 vendor: EVAPCO Inc.
 model_number: eco-Air EAW-DD (Double Stack V-Series)
