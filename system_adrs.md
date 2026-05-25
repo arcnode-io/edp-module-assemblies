@@ -40,15 +40,11 @@ Two contract artifacts pinned: per-assembly `bom.yaml` (split sections — `part
 
 Step 4 builds `compute-container/commercial-ac` only. Grid container is treated as a notional mating frame (named coordinate constant per ADR-007), not a built assembly. Grid container assembly lands in step 6.1, which is the first end-to-end validation of the mating-frame contract. `commercial-dc` compute-container assumed identical to `commercial-ac` pending step 6.8 verification — if they diverge there, that's a real second variant; if not, commercial-dc becomes a pointer.
 
-## ADR-011 — CG plate parametric from day one; Module F is later authority
-
-CG plate cadquery model is parametric on conduit OD, data conduit count, deployment_context, and revision from the first commit. v1 commercial values are hand-computed (~80 kW @ 415Y/240V → ~111A → 2.5″ rigid conduit) and passed in. edp-api `sizing engine Module F` (not yet implemented) becomes the sole authoritative source for those parameters in production; the v1 hand-computed value becomes Module F's first regression test. Plate model owns geometry; Module F owns input math.
-
-## ADR-012 — Manifest URL versioning deferred
+## ADR-011 — Manifest URL versioning deferred
 
 v1 ships single mutable URL `s3://arcnode-artifacts/manifest.yaml` with an in-file `version:` field populated by semantic-release. No per-version URL pattern, no `MANIFEST_VERSION` config in edp-api, no startup version check. Revisit when the schema stabilizes (post step 6) and dev/staging environments split. Risk being accepted: an in-flight edp-api job reading the manifest mid-update sees a torn read; mitigation is per-job fetch + in-memory pin for job duration.
 
-## ADR-014 — Trihal sub-config locked for natural-convection clearance
+## ADR-013 — Trihal sub-config locked for natural-convection clearance
 
 ARCNODE-default Trihal sub-config (GRD-XFM-001):
   - 13.8 kV class (utility-typical US MV; matches GRD-SWG-001 SafeGear)
@@ -60,7 +56,7 @@ That config lands at 1,580 × 820 × 1,860 mm. Container interior height 2,680 m
 
 Procurement-time check: confirm the procured Schneider SKU encodes this sub-config. Alternate sub-configs (top-entry terminals add ~140 mm height; on-load tap changers add more) push past the natural-convection budget — those would require forced ventilation in addition to louvers, captured as a separate ADR if a different sub-config is procured.
 
-## ADR-015 — Slotted bolt holes for thermal-expansion accommodation
+## ADR-014 — Slotted bolt holes for thermal-expansion accommodation
 
 All v1 plates (CG, BG-AC, BG-DC, CD) use **radially-slotted bolt holes** at the 4 corners + 2 long-axis midpoints (6 of 8 perimeter bolts). 13 mm slot × 11 mm Ø. Short-axis midpoints stay round.
 
