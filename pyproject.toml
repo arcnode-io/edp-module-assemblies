@@ -1,7 +1,7 @@
 [project]
 name = "edp-module-assemblies"
 version = "0.1.0"
-requires-python = "==3.13.2"
+requires-python = ">=3.13,<3.14"
 dependencies = [
     "pydantic>=2.9.2",
     "pyyaml>=6.0.2",
