@@ -1,6 +1,6 @@
 equipment_id: GRD-MTR-001
 schema_version: "1"
-category: revenue_meter
+category: poi_meter
 vendor: Schneider Electric
 model_number: PowerLogic ION9000 (METSEION92xxx series, with display)
 description: Class 0.1S revenue and power quality meter, ANSI C12.20 / IEC 62053-22 certified, IEC 61850 + DNP3 + Modbus TCP, modular I/O
@@ -169,7 +169,7 @@ provenance:
       flag: low_confidence_extraction
 
 notes: |
-  Schneider PowerLogic ION9000 is the v1 reference revenue meter for the
+  Schneider PowerLogic ION9000 is the v1 reference POI meter (revenue-grade) for the
   ARCNODE Grid Container. Sits at the utility point of interconnect,
   measures bidirectional power flow for utility billing and ARCNODE EMS
   telemetry.
