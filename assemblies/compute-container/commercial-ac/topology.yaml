@@ -1,8 +1,8 @@
 # Per-assembly device topology consumed by edp-api dtm_generator (PR 2 shape).
 # Per-instance host/port/unit_id live under connection:; protocol bindings live
 # in the matching template at edp-api/device_templates/<slug>.yaml.
-# SIM-mode hosts use mock-{protocol}-server convention; ems-device-api flips
-# to LIVE addresses on commissioning.
+# Devices ship unprovisioned (ems system_adr §25); real addresses arrive via
+# POST /topology.
 #
 # Per BOM: 7x HGX nodes + 1x CDU + 1x switch + 4x PDUs. Rack is passive
 # (no protocol per spec) — not in topology.
@@ -11,49 +11,49 @@ devices:
   # 7x HGX B200 nodes — Redfish on BMC
   - template: gpu_node
     description: HGX B200 server #1 (CMP-NODE-001)
-    connection: { host: mock-redfish-server, port: 8443 }
+    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
   - template: gpu_node
     description: HGX B200 server #2 (CMP-NODE-001)
-    connection: { host: mock-redfish-server, port: 8443 }
+    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
   - template: gpu_node
     description: HGX B200 server #3 (CMP-NODE-001)
-    connection: { host: mock-redfish-server, port: 8443 }
+    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
   - template: gpu_node
     description: HGX B200 server #4 (CMP-NODE-001)
-    connection: { host: mock-redfish-server, port: 8443 }
+    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
   - template: gpu_node
     description: HGX B200 server #5 (CMP-NODE-001)
-    connection: { host: mock-redfish-server, port: 8443 }
+    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
   - template: gpu_node
     description: HGX B200 server #6 (CMP-NODE-001)
-    connection: { host: mock-redfish-server, port: 8443 }
+    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
   - template: gpu_node
     description: HGX B200 server #7 (CMP-NODE-001)
-    connection: { host: mock-redfish-server, port: 8443 }
+    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
 
   # Coolant Distribution Unit — Motivair MCDU-10
   - template: cdu
     description: Motivair MCDU-10 210kW (CMP-CDU-001)
-    connection: { host: mock-redfish-server, port: 8443 }
+    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
 
   # ToR Switch — NVIDIA SN5600
   - template: network_switch
     description: NVIDIA Spectrum-X SN5600 800GbE (CMP-SWITCH-001)
-    connection: { host: mock-redfish-server, port: 8443 }
+    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
 
   # 4x PDUs — Server Tech PRO3X SNMP
   - template: pdu
     description: Server Tech PRO3X 60A 3ph #1 A-feed (CMP-PDU-001)
-    connection: { host: mock-snmp-server, port: 161 }
+    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
   - template: pdu
     description: Server Tech PRO3X 60A 3ph #2 A-feed (CMP-PDU-001)
-    connection: { host: mock-snmp-server, port: 161 }
+    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
   - template: pdu
     description: Server Tech PRO3X 60A 3ph #3 B-feed (CMP-PDU-001)
-    connection: { host: mock-snmp-server, port: 161 }
+    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
   - template: pdu
     description: Server Tech PRO3X 60A 3ph #4 B-feed (CMP-PDU-001)
-    connection: { host: mock-snmp-server, port: 161 }
+    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
 
 # Compute container has no buses at MVP — power flows in a single feed and
 # the 4 PDUs already encode the A/B feed split via descriptions.

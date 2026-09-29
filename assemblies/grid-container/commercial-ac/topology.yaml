@@ -10,15 +10,15 @@
 devices:
   - template: switchgear
     description: ABB SafeGear 15kV cell (GRD-SWG-001)
-    connection: { host: mock-modbus-server, port: 502, unit_id: "1" }
+    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
 
   - template: protective_relay
     description: SEL-351-7 distribution feeder relay (GRD-RLY-001)
-    connection: { host: mock-dnp3-server, port: 20000 }
+    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
 
   - template: poi_meter
     description: Schneider PowerLogic ION9000 (GRD-MTR-001)
-    connection: { host: mock-modbus-server, port: 502, unit_id: "2" }
+    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
 
 # AC interconnect bus: switchgear feeds poi_meter via ION9000's voltage_in
 # port; protective_relay shares the same line for trip permissive logic.
