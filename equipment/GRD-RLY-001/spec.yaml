@@ -108,7 +108,7 @@ spec:
 
   control:
     protocol: dnp3
-    register_map_url: https://selinc.com/products/351/docs/
+    register_map_url: https://selinc.com/products/351/docs/  # SEL-351-5/-6/-7 DNP3 device profile (dnpDP-351R100)
     command_latency_ms: 4
     step_response_ms: 16
     control_modes:
