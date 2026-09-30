@@ -116,7 +116,7 @@ spec:
 
   control:
     protocol: modbus_tcp
-    register_map_url: https://www.se.com/ww/en/download/document/7EN02-0390/
+    register_map_url: https://www.se.com/us/en/faqs/FA362601/  # ION9000 Modbus map 004.005.000 (zip); 7EN02-0390 is the user manual
     command_latency_ms: null
     step_response_ms: null
     control_modes:
