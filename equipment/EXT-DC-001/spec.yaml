@@ -101,7 +101,7 @@ spec:
 
   control:
     protocol: bacnet_mstp             # primary; per-fan Modbus RTU also available
-    register_map_url: null
+    register_map_url: null            # Güntner "Interface Specification – Modbus GMM V_3.0" (GMM EC); vendor-supplied PDF
     command_latency_ms: null
     step_response_ms: null
     control_modes:
