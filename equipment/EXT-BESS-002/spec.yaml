@@ -264,9 +264,8 @@ notes: |
   0x64, FC 0x03 read / 0x06 write-1 / 0x10 write-N, big-endian, 20 ms
   minimum poll period). The legacy A-CAN bus is still present on newer
   EnerX-class racks for backwards compatibility, but Modbus TCP is the
-  primary EMS integration path. Register map: see
-  `register_map.pdf` colocated in this directory (CATL ZNH Modbus TCP
-  Protocol V1.3, 2022).
+  primary EMS integration path. Register map: CATL ZNH Modbus TCP
+  Protocol V1.3 (2022), at control.register_map_url.
 
   Thermal: EnerOne+ has an integrated thermal management system (chiller,
   PTC heater, liquid cooling pipes). This system is internal to the rack
