@@ -9,8 +9,7 @@
 
 devices:
   - template: switchgear
-    description: ABB SafeGear 15kV cell (GRD-SWG-001)
-    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
+    description: ABB SafeGear 15kV cell (GRD-SWG-001) — passive, no connection
 
   - template: protective_relay
     description: SEL-351-7 distribution feeder relay (GRD-RLY-001)
