@@ -99,7 +99,7 @@ spec:
 
   control:
     protocol: redfish
-    register_map_url: null
+    register_map_url: https://redfish.dmtf.org/schemas/v1/CoolingUnit.json  # DMTF standard; Motivair's own Redfish guide not public
     command_latency_ms: null
     step_response_ms: null
     control_modes:

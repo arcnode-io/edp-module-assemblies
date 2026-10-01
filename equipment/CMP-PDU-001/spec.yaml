@@ -105,7 +105,7 @@ spec:
 
   control:
     protocol: snmp
-    register_map_url: https://www.servertech.com/support/technical-references/manuals
+    register_map_url: https://www.servertech.com/support/technical-references/manuals  # Sentry4-MIB (st4LineCurrent, st4PhaseVoltage)
     command_latency_ms: null
     step_response_ms: null
     control_modes:

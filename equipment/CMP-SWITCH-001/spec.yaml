@@ -82,8 +82,8 @@ spec:
       qty: 1
 
   control:
-    protocol: redfish                 # NVIDIA Cumulus Linux supports Redfish for telemetry
-    register_map_url: null            # Redfish DMTF DSP0266 standards-based
+    protocol: snmp                    # Cumulus Linux: IF-MIB + ENTITY-SENSOR-MIB; no Redfish documented
+    register_map_url: https://docs.nvidia.com/networking-ethernet-software/cumulus-linux-510/Monitoring-and-Troubleshooting/Simple-Network-Management-Protocol-SNMP/Supported-MIBs/
     command_latency_ms: null
     step_response_ms: null
     control_modes:

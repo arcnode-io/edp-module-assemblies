@@ -106,7 +106,7 @@ spec:
 
   control:
     protocol: redfish
-    register_map_url: null
+    register_map_url: https://docs.nvidia.com/dgx/dgxb200-user-guide/redfish-api-supp.html  # GPU EnvironmentMetrics; ProcessorMetrics per NVIDIA/bmcweb; node per Supermicro Redfish guide
     command_latency_ms: null
     step_response_ms: null
     control_modes:
