@@ -76,9 +76,9 @@ spec:
     - port_id: PWR
       type: ac_power
       role: input
-      connector_spec: C19
-      mating_part: null
-      qty: 4
+      connector_spec: IEC 60320 C20 inlet, 16A (2 per PSU, both must be live)
+      mating_part: C19 cord
+      qty: 8
     - port_id: NET_GPU
       type: ethernet
       role: bidirectional
@@ -159,12 +159,13 @@ provenance:
     - field: spec.electrical.voltage_v
       flag: ambiguous
       note: |
-        4× 6600W Titanium PSUs accept 200-240V AC single-phase. ARCNODE
-        deployment uses 415Y/240V wye from Trihal secondary, giving
-        240V phase-to-neutral to each PSU via C19 outlet on PRO3X PDU.
+        4× PWS-6K61G-2R 6600W Titanium PSUs, 200-240V AC single-phase;
+        6600W only at 239-240V (6500W at 230-238.9V). ARCNODE uses
+        415Y/240V wye from Trihal secondary, giving 240V phase-to-neutral
+        to each PSU's two C20 inlets via the PX4 PDU's HDOT Cx outlets.
     - field: spec.electrical.current_a
       flag: assumed_default
-      note: 10.5 kW / 240V ≈ 44A typical sustained per node, drawn 4× across PSUs.
+      note: 10.5 kW / 240V ≈ 44A typical sustained per node, spread over 8 cords (~5.7A each); ~11.5A per cord with one feed lost (PSU rated 16-15A × 2).
     - field: spec.mechanical.dimensions_mm
       flag: assumed_default
       note: 4U height = 178mm; 19" width = 482mm; depth ~900mm typical for HGX 4U liquid-cooled chassis. Verify with full datasheet PDF.
@@ -224,6 +225,9 @@ notes: |
   - 1× dedicated BMC/IPMI port
 
   Power architecture: 4× 6600W = 26.4 kW peak PSU capacity (2+2 redundant).
+  Each PWS-6K61G-2R has two C20 inlets (16A each) and needs both live to
+  power on, so both cords of a PSU go to the same feed: PSUs 1-2 on A,
+  PSUs 3-4 on B. Cross-feeding one PSU loses it on either feed failure.
   Typical sustained operation ~10.5 kW AC per node. PDU and AC bus sizing
   should use 10.5 kW per node; peak PSU capacity (26.4 kW) is not the
   operating draw. ARCNODE Compute Container v1 holds 7 nodes per container

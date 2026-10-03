@@ -132,9 +132,6 @@ provenance:
   reviewed_by: TBD_pending_human_review
   reviewed_date: null
   confidence_flags:
-    - field: fab_tier
-      flag: low_confidence_extraction
-      note: Carried over from the Server Tech PRO3X (Reno NV fab); Raritan PX4 fab origin unverified.
     - field: spec.electrical.aic_rating_ka
       flag: missing
     - field: spec.thermal.heat_load_kw
@@ -164,13 +161,18 @@ notes: |
     surviving-side load at ~88 kW = 29.3 kW per PDU, still within rating.
 
   HGX B200 power architecture (per CMP-NODE-001):
-  - 4× 6600W Titanium PSUs per node (2+2 redundant), 200–240V AC input
-  - Each PSU connects phase-to-neutral on 415Y/240V wye = 240V
+  - 4× PWS-6K61G-2R 6600W PSUs per node (2+2), each with two C20 inlets
+    (16A each) that must both be live; phase-to-neutral 240V on 415Y/240V
   - Per-node sustained: ~10.5 kW; peak PSU capacity: 26.4 kW
-  - PDU outlets per node: 4× C19 (one per PSU), distributed 2 A-side
-    + 2 B-side per node for PSU-level redundancy
-  - 7 nodes × 4 C19 = 28 C19 outlets needed across 6 PDUs (108 Cx outlets)
+  - PDU outlets per node: 8 (PSUs 1-2 → 4 cords on A, PSUs 3-4 → 4 on B);
+    never split one PSU's two cords across feeds
+  - 7 nodes × 8 = 56 node cords across 6 PDUs (108 Cx outlets), ~9-10 per PDU
   - Plus 2× C13 per ToR switch, 1× C13 per CDU, 1× C13 for ancillary
+  - Outlet plan: at most one node cord per 16A branch breaker. A cord runs
+    ~5.7A normally and ~11.5A with one feed lost, so two on one breaker
+    (~23A) trip it on a feed loss. 12 breakers per PDU cover ~10 cords.
+  - Inrush: <30A per PSU inlet (Supermicro), 8 inlets per node; stagger
+    power-on across a PDU's breakers.
 
   HDOT Cx outlets accept either C14 or C20 plugs (16A, same as an IEC
   C19), so HGX node C20 plugs and switch/CDU C14 plugs share one SKU.
@@ -187,8 +189,10 @@ notes: |
   Cybersecurity: Xerus platform supports HTTPS, SSH, SNMPv3, RADIUS,
   LDAPS, 802.1X, and signed firmware updates. NERC CIP eligible.
 
-  Fab origin: Raritan's PX4 fab country not yet verified. Per-unit
-  fab origin verification at procurement for DOD-eligible.
+  Fab origin: Taiwan (GSA Advantage, GSIN 11000125269132, exact part).
+  TAA compliant (Raritan TAA statement; Taiwan is a FAR 25.003 designated
+  country); not BAA / Made in USA. Request a certificate of origin from
+  Legrand where TAA is contractually load-bearing.
 
   ADR-005 (415V LV architecture): Trihal secondary set to 415Y/240V
   enables this PDU sizing.
