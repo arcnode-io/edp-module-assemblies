@@ -4,7 +4,7 @@
 # Devices ship unprovisioned (ems system_adr §25); real addresses arrive via
 # POST /topology.
 #
-# Per BOM: 7x HGX nodes + 1x CDU + 1x switch + 4x PDUs. Rack is passive
+# Per BOM: 7x HGX nodes + 1x CDU + 1x switch + 6x PDUs. Rack is passive
 # (no protocol per spec) — not in topology.
 
 devices:
@@ -41,20 +41,26 @@ devices:
     description: NVIDIA Spectrum-X SN5600 800GbE (CMP-SWITCH-001)
     connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
 
-  # 4x PDUs — Server Tech PRO3X SNMP
+  # 6x PDUs — Raritan PX4 2U, SNMP (PDU2-MIB); 2N, 3 per feed
   - template: pdu
-    description: Server Tech PRO3X 60A 3ph #1 A-feed (CMP-PDU-001)
+    description: Raritan PX4 2U 60A 3ph #1 A-feed (CMP-PDU-001)
     connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
   - template: pdu
-    description: Server Tech PRO3X 60A 3ph #2 A-feed (CMP-PDU-001)
+    description: Raritan PX4 2U 60A 3ph #2 A-feed (CMP-PDU-001)
     connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
   - template: pdu
-    description: Server Tech PRO3X 60A 3ph #3 B-feed (CMP-PDU-001)
+    description: Raritan PX4 2U 60A 3ph #3 A-feed (CMP-PDU-001)
     connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
   - template: pdu
-    description: Server Tech PRO3X 60A 3ph #4 B-feed (CMP-PDU-001)
+    description: Raritan PX4 2U 60A 3ph #4 B-feed (CMP-PDU-001)
+    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
+  - template: pdu
+    description: Raritan PX4 2U 60A 3ph #5 B-feed (CMP-PDU-001)
+    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
+  - template: pdu
+    description: Raritan PX4 2U 60A 3ph #6 B-feed (CMP-PDU-001)
     connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
 
 # Compute container has no buses at MVP — power flows in a single feed and
-# the 4 PDUs already encode the A/B feed split via descriptions.
+# the 6 PDUs already encode the A/B feed split via descriptions.
 buses: []

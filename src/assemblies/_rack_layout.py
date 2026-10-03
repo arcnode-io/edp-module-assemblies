@@ -1,7 +1,7 @@
 """Rack-internal equipment placement for compute_container assembly.
 
-Stack-based v1 layout: nodes pile up vertically from rack floor; CDU + switch
-above; PDUs vertical 0U on rack rails. Rack U-precise positioning lands in
+Stack-based v1 layout: nodes pile up vertically from rack floor; CDU, switch
+and the 2U horizontal PDUs stack above. Rack U-precise positioning lands in
 step 6.7 (installation_graph). Exploded mode applies Q3-C offsets per part.
 """
 
@@ -16,13 +16,8 @@ EQUIPMENT_DIR: Final[Path] = Path(__file__).resolve().parents[2] / "equipment"
 
 NODE_PITCH_MM: Final[float] = 178.0  # 4U
 SWITCH_HALF_HEIGHT_MM: Final[float] = 22.0  # half of 1U
-PDU_LENGTH_MM: Final[float] = 1778.0
-PDU_POSITIONS: Final[list[tuple[float, float]]] = [
-    (-350, -300),
-    (-350, 300),
-    (350, -300),
-    (350, 300),
-]
+PDU_PITCH_MM: Final[float] = 88.0  # 2U
+PDU_COUNT: Final[int] = 6  # 2N, 3 per feed
 
 
 def _import_envelope(equipment_id: str) -> cq.Workplane:
@@ -71,14 +66,14 @@ def place_rack_equipment(assy: cq.Assembly, *, exploded: bool = False) -> None:
         color=cq.Color(0.4, 0.7, 0.4),
     )
 
-    # PDU envelope is 1778x56x56; rotate 90° so length points up (+Z).
-    for i, (x, y) in enumerate(PDU_POSITIONS):
-        pos = cq.Vector(x, y, PDU_LENGTH_MM / 2)
+    pdu_base_z = cdu_z + NODE_PITCH_MM / 2 + 2 * SWITCH_HALF_HEIGHT_MM
+    for i in range(PDU_COUNT):
+        pos = cq.Vector(0, 0, pdu_base_z + PDU_PITCH_MM / 2 + i * PDU_PITCH_MM)
         if exploded:
-            pos = pos.add(_explode.pdu_offset(1 if y > 0 else -1))
+            pos = pos.add(_explode.pdu_offset(node_count, i))
         assy.add(
             _import_envelope("CMP-PDU-001"),
             name=f"CMP-PDU-001#{i + 1}",
-            loc=cq.Location(pos, cq.Vector(0, 1, 0), 90),
+            loc=cq.Location(pos),
             color=cq.Color(0.5, 0.2, 0.2),
         )

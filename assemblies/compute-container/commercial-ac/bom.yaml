@@ -8,7 +8,7 @@ parts:
 - equipment_id: CMP-SWITCH-001
   qty: 1
 - equipment_id: CMP-PDU-001
-  qty: 4
+  qty: 6
 plates:
 - id: CG
   version: v1

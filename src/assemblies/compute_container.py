@@ -70,7 +70,7 @@ COMMERCIAL_AC_BOM: Final[dict] = {
         {"equipment_id": "CMP-RACK-001", "qty": 1},
         {"equipment_id": "CMP-CDU-001", "qty": 1},
         {"equipment_id": "CMP-SWITCH-001", "qty": 1},
-        {"equipment_id": "CMP-PDU-001", "qty": 4},  # ADR-005: 2N redundant
+        {"equipment_id": "CMP-PDU-001", "qty": 6},  # ADR-005: 2N, 3 per feed
     ],
     "plates": [
         {"id": "CG", "version": "v1", "qty": 1},

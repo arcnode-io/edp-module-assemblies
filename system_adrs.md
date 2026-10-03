@@ -18,7 +18,7 @@ All containers 10ft high-cube ISO (interior 2,680mm). SafeGear (2,413mm) does no
 
 ## ADR-005 — 415Y/240V LV distribution
 
-Trihal secondary 415Y/240V (not 480V). 60A 3-phase rack PDU = 43 kW per unit. 4× PDUs per Compute Container = true 2N at 80 kW. HGX PSUs accept 240V phase-to-neutral.
+Trihal secondary 415Y/240V (not 480V). 60A 3-phase rack PDU = 34.5 kW per unit (48A rated). 6× PDUs per Compute Container (3 per feed) = true 2N at 80 kW. HGX PSUs accept 240V phase-to-neutral.
 
 ## ADR-006 — Manifest absorbs profile→asset mapping
 

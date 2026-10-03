@@ -70,7 +70,7 @@ def test_bom_has_pdus_per_adr_005() -> None:
     # arrange
     parts_by_id = {p["equipment_id"]: p["qty"] for p in COMMERCIAL_AC_BOM["parts"]}
     # act / assert
-    expected_pdu_qty = 4  # ADR-005: 4x PDUs per Compute Container = 2N at 80kW
+    expected_pdu_qty = 6  # ADR-005: 3 per feed, 2N at 80kW on 34.5kW PDUs
     assert parts_by_id["CMP-PDU-001"] == expected_pdu_qty
 
 

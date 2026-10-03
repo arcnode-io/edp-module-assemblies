@@ -132,10 +132,9 @@ notes: |
   - Compute Container total: ~80 kW well within rack thermal envelope and
     power budget
 
-  Power distribution: NetShelter SX accommodates two rPDUs per rack
-  (front + rear or both at rear). For ARCNODE: NetShelter Rack PDU
-  Advanced 60A or 63A, 1+1 redundant, monitored. Captured as a separate
-  equipment_spec (CMP-PDU-001) — TBD authoring.
+  Power distribution: the rear zero-U channels take at most 4 rPDUs, so
+  ARCNODE's 6× 2U horizontal PDUs (CMP-PDU-001, 2N, 3 per feed) mount in
+  U space instead.
 
   Ganging: side panels removable for adjacent rack ganging if multi-rack
   Compute Container configurations are needed. v1 default is single-rack
