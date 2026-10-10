@@ -11,7 +11,9 @@ from src.assemblies.grid_container import (
     COMMERCIAL_DC_EXT_BOM,
     DEFENSE_AC_BOM,
     DEFENSE_DC_EXT_BOM,
+    DEFENSE_FEEDER_BOM,
     DEFENSE_NO_BESS_BOM,
+    FEEDER_BOM,
     H_EXT_MM,
     L_EXT_MM,
     NO_BESS_BOM,
@@ -95,6 +97,15 @@ def test_no_bess_bom_drops_bg_ac_keeps_cg_and_parts() -> None:
     assert parts_by_id["GRD-SWG-001"] == 1
     assert parts_by_id["GRD-RLY-001"] == 1
     assert parts_by_id["GRD-MTR-001"] == 1
+
+
+def test_feeder_bom_is_no_bess_without_the_poi_meter() -> None:
+    # arrange
+    parts = {p["equipment_id"] for p in FEEDER_BOM["parts"]}
+    plates = {p["id"] for p in FEEDER_BOM["plates"]}
+    # act / assert — a site has one POI, so only the primary carries the meter
+    assert (parts, plates) == ({"GRD-XFM-001", "GRD-SWG-001", "GRD-RLY-001"}, {"CG"})
+    assert DEFENSE_FEEDER_BOM == {**FEEDER_BOM, "deployment_context": "defense_forward"}
 
 
 def test_no_bess_assembly_omits_bg_ac_plate() -> None:

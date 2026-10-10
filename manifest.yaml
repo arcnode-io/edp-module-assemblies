@@ -156,6 +156,13 @@ assemblies:
       glb_exploded: s3://arcnode-artifacts/assemblies/grid-container/defense-dc-ext/assembly-exploded.glb
       step_exploded: s3://arcnode-artifacts/assemblies/grid-container/defense-dc-ext/assembly-exploded.step
       topology_yaml: null
+    defense-feeder:
+      bom: s3://arcnode-artifacts/assemblies/grid-container/defense-feeder/bom.yaml
+      step: s3://arcnode-artifacts/assemblies/grid-container/defense-feeder/assembly.step
+      glb: s3://arcnode-artifacts/assemblies/grid-container/defense-feeder/assembly.glb
+      glb_exploded: s3://arcnode-artifacts/assemblies/grid-container/defense-feeder/assembly-exploded.glb
+      step_exploded: s3://arcnode-artifacts/assemblies/grid-container/defense-feeder/assembly-exploded.step
+      topology_yaml: null
     defense-no-bess:
       bom: s3://arcnode-artifacts/assemblies/grid-container/defense-no-bess/bom.yaml
       step: s3://arcnode-artifacts/assemblies/grid-container/defense-no-bess/assembly.step
@@ -163,6 +170,13 @@ assemblies:
       glb_exploded: s3://arcnode-artifacts/assemblies/grid-container/defense-no-bess/assembly-exploded.glb
       step_exploded: s3://arcnode-artifacts/assemblies/grid-container/defense-no-bess/assembly-exploded.step
       topology_yaml: null
+    feeder:
+      bom: s3://arcnode-artifacts/assemblies/grid-container/feeder/bom.yaml
+      step: s3://arcnode-artifacts/assemblies/grid-container/feeder/assembly.step
+      glb: s3://arcnode-artifacts/assemblies/grid-container/feeder/assembly.glb
+      glb_exploded: s3://arcnode-artifacts/assemblies/grid-container/feeder/assembly-exploded.glb
+      step_exploded: s3://arcnode-artifacts/assemblies/grid-container/feeder/assembly-exploded.step
+      topology_yaml: s3://arcnode-artifacts/assemblies/grid-container/feeder/topology.yaml
     no-bess:
       bom: s3://arcnode-artifacts/assemblies/grid-container/no-bess/bom.yaml
       step: s3://arcnode-artifacts/assemblies/grid-container/no-bess/assembly.step
@@ -195,6 +209,7 @@ profiles:
   commercial_ac:
     compute_container: commercial-ac
     grid_container: commercial-ac
+    grid_feeder_container: feeder
     interface_plates:
     - CG
     - BG-AC
@@ -202,6 +217,7 @@ profiles:
   commercial_dc_int:
     compute_container: commercial-ac
     grid_container: commercial-ac
+    grid_feeder_container: feeder
     interface_plates:
     - CG
     - BG-AC
@@ -209,6 +225,7 @@ profiles:
   commercial_dc_ext:
     compute_container: commercial-ac
     grid_container: commercial-dc-ext
+    grid_feeder_container: feeder
     interface_plates:
     - CG
     - BG-DC
@@ -216,12 +233,14 @@ profiles:
   commercial_no_bess:
     compute_container: commercial-ac
     grid_container: no-bess
+    grid_feeder_container: feeder
     interface_plates:
     - CG
     - CD
   defense_ac:
     compute_container: defense-ac
     grid_container: defense-ac
+    grid_feeder_container: defense-feeder
     interface_plates:
     - CG
     - BG-AC
@@ -229,6 +248,7 @@ profiles:
   defense_dc_ext:
     compute_container: defense-ac
     grid_container: defense-dc-ext
+    grid_feeder_container: defense-feeder
     interface_plates:
     - CG
     - BG-DC
@@ -236,6 +256,7 @@ profiles:
   defense_no_bess:
     compute_container: defense-ac
     grid_container: defense-no-bess
+    grid_feeder_container: defense-feeder
     interface_plates:
     - CG
     - CD

@@ -20,6 +20,7 @@ profiles:
     # BESS pad outputs AC, lands on grid container's BG-AC plate.
     compute_container: commercial-ac
     grid_container: commercial-ac
+    grid_feeder_container: feeder
     interface_plates: [CG, BG-AC, CD]
 
   commercial_dc_int:
@@ -28,6 +29,7 @@ profiles:
     # Same plate set as commercial_ac; differs only in BESS-pad packaging.
     compute_container: commercial-ac
     grid_container: commercial-ac
+    grid_feeder_container: feeder
     interface_plates: [CG, BG-AC, CD]
 
   commercial_dc_ext:
@@ -36,6 +38,7 @@ profiles:
     # variant adds GRD-PCS-001 to the equipment layout.
     compute_container: commercial-ac
     grid_container: commercial-dc-ext
+    grid_feeder_container: feeder
     interface_plates: [CG, BG-DC, CD]
 
   commercial_no_bess:
@@ -43,6 +46,7 @@ profiles:
     # present as utility tie-in / switchgear hub, no BG-* plate.
     compute_container: commercial-ac
     grid_container: no-bess
+    grid_feeder_container: feeder
     interface_plates: [CG, CD]
 
   defense_ac:
@@ -50,16 +54,19 @@ profiles:
     # commercial_ac but plates are 5083-H116 marine grade, 10 mm thick.
     compute_container: defense-ac
     grid_container: defense-ac
+    grid_feeder_container: defense-feeder
     interface_plates: [CG, BG-AC, CD]
 
   defense_dc_ext:
     # DC strings, PCS in grid container, defense forward.
     compute_container: defense-ac
     grid_container: defense-dc-ext
+    grid_feeder_container: defense-feeder
     interface_plates: [CG, BG-DC, CD]
 
   defense_no_bess:
     # No BESS, defense forward (utility tie-in only).
     compute_container: defense-ac
     grid_container: defense-no-bess
+    grid_feeder_container: defense-feeder
     interface_plates: [CG, CD]

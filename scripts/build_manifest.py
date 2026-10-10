@@ -144,13 +144,13 @@ def _validate_profile_refs(manifest: Manifest) -> list[str]:
                 f"profile '{profile_name}': compute_container variant "
                 f"'{profile.compute_container}' not found in assemblies"
             )
-        if profile.grid_container is not None:
-            gc_variants = manifest.assemblies.get("grid_container", {})
-            if profile.grid_container not in gc_variants:
-                warnings.append(
-                    f"profile '{profile_name}': grid_container variant "
-                    f"'{profile.grid_container}' not found in assemblies"
-                )
+        gc_variants = manifest.assemblies.get("grid_container", {})
+        warnings.extend(
+            f"profile '{profile_name}': grid_container variant "
+            f"'{variant}' not found in assemblies"
+            for variant in (profile.grid_container, profile.grid_feeder_container)
+            if variant is not None and variant not in gc_variants
+        )
         warnings.extend(
             f"profile '{profile_name}': plate '{plate_id}' not found"
             for plate_id in profile.interface_plates

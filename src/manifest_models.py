@@ -46,6 +46,8 @@ class ProfileAssemblies(BaseModel):
 
     compute_container: str  # variant key, e.g. "commercial-ac"
     grid_container: str | None  # variant key or null for no_bess profiles
+    # Added per extra transformer a site needs; same gear minus the POI meter.
+    grid_feeder_container: str | None = None
     interface_plates: list[str] = Field(default_factory=list)  # plate ids
 
 

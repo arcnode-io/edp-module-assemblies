@@ -13,7 +13,9 @@ Variants:
   BESS pad outputs raw DC strings.
 - no-bess: CG (-X) only. No BESS connection; utility tie-in routes
   through SafeGear's standard service entrance fitting.
-- defense-ac / defense-dc-ext / defense-no-bess: same equipment as the
+- feeder: no-bess minus the POI meter. Sites past one transformer add
+  N-1 of these beside the primary; a site has one POI, so one meter.
+- defense-ac / defense-dc-ext / defense-no-bess / defense-feeder: same equipment as the
   commercial counterpart but plates are 5083-H116 marine grade, 10 mm
   thick, with hard anodize + EPDM secondary seal. Plate fetcher pulls
   the -defense.step artifact via deployment_context="defense_forward".
@@ -69,6 +71,8 @@ Variant = Literal[
     "defense-ac",
     "defense-dc-ext",
     "defense-no-bess",
+    "feeder",
+    "defense-feeder",
 ]
 
 # Reason: hardware doesn't change between commercial-ac and no-bess —
@@ -131,6 +135,13 @@ NO_BESS_BOM: Final[dict] = {
     ],
 }
 
+FEEDER_BOM: Final[dict] = {
+    "parts": [p for p in _PARTS if p["equipment_id"] != "GRD-MTR-001"],
+    "plates": [
+        {"id": "CG", "version": "v1", "qty": 1},
+    ],
+}
+
 # Reason: defense variants share equipment + plate IDs with their commercial
 # counterparts; the difference is the deployment_context flag at the BOM root,
 # which routes plate_loader.fetch to the -defense.step artifacts (5083-H116
@@ -149,6 +160,10 @@ DEFENSE_NO_BESS_BOM: Final[dict] = {
     **NO_BESS_BOM,
     "deployment_context": "defense_forward",
 }
+DEFENSE_FEEDER_BOM: Final[dict] = {
+    **FEEDER_BOM,
+    "deployment_context": "defense_forward",
+}
 
 BOM_BY_VARIANT: Final[dict[str, dict]] = {
     "commercial-ac": COMMERCIAL_AC_BOM,
@@ -157,6 +172,8 @@ BOM_BY_VARIANT: Final[dict[str, dict]] = {
     "defense-ac": DEFENSE_AC_BOM,
     "defense-dc-ext": DEFENSE_DC_EXT_BOM,
     "defense-no-bess": DEFENSE_NO_BESS_BOM,
+    "feeder": FEEDER_BOM,
+    "defense-feeder": DEFENSE_FEEDER_BOM,
 }
 
 # Reason: which BG-* plate goes at the +X end for each variant.
@@ -169,6 +186,8 @@ _BG_PLATE_BY_VARIANT: Final[dict[str, str | None]] = {
     "defense-ac": "BG-AC",
     "defense-dc-ext": "BG-DC",
     "defense-no-bess": None,
+    "feeder": None,
+    "defense-feeder": None,
 }
 
 # Reason: variants that include GRD-PCS-001 in the equipment layout.

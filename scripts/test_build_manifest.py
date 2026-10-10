@@ -59,6 +59,21 @@ def test_manifest_profile_commercial_ac_resolved() -> None:
     assert "CG" in profile.interface_plates
 
 
+def test_grid_profiles_name_a_feeder_variant_without_the_poi_meter() -> None:
+    # arrange — sites past one transformer add feeder grid containers
+    manifest = build_manifest()
+    # act
+    feeders = {
+        name: p.grid_feeder_container
+        for name, p in manifest.profiles.items()
+        if p.grid_container is not None
+    }
+    # assert
+    assert feeders["commercial_ac"] == "feeder"
+    assert feeders["defense_ac"] == "defense-feeder"
+    assert all(feeders.values())
+
+
 def test_validate_profile_refs_clean_after_all_v1_variants_built() -> None:
     # arrange — commercial-ac, commercial-dc-ext, and no-bess all exist
     # end-to-end after steps 6.1, 6.5, and 6.8. No deferred warnings expected.
