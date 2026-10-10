@@ -71,6 +71,8 @@ COMMERCIAL_AC_BOM: Final[dict] = {
         {"equipment_id": "CMP-CDU-001", "qty": 1},
         {"equipment_id": "CMP-SWITCH-001", "qty": 1},
         {"equipment_id": "CMP-PDU-001", "qty": 6},  # ADR-005: 2N, 3 per feed
+        # Outdoor on the customer's pad; rejects this container's CDU loop heat.
+        {"equipment_id": "EXT-DC-001", "qty": 1},
     ],
     "plates": [
         {"id": "CG", "version": "v1", "qty": 1},
@@ -78,10 +80,15 @@ COMMERCIAL_AC_BOM: Final[dict] = {
     ],
 }
 
-# Defense BOM = same hardware, top-level deployment_context flag routes
-# plate_loader.fetch to the -defense.step artifacts.
+# Defense BOM = same hardware but the DoD-eligible US-fab dry cooler; the
+# top-level deployment_context flag routes plate_loader.fetch to the
+# -defense.step artifacts.
 DEFENSE_AC_BOM: Final[dict] = {
     **COMMERCIAL_AC_BOM,
+    "parts": [
+        {**p, "equipment_id": "EXT-DC-002"} if p["equipment_id"] == "EXT-DC-001" else p
+        for p in COMMERCIAL_AC_BOM["parts"]
+    ],
     "deployment_context": "defense_forward",
 }
 

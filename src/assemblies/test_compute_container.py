@@ -151,11 +151,26 @@ def test_defense_ac_bom_carries_deployment_context_field() -> None:
     assert DEFENSE_AC_BOM.get("deployment_context") == "defense_forward"
 
 
+def test_each_compute_container_rejects_heat_through_its_own_dry_cooler() -> None:
+    # arrange
+    commercial = {p["equipment_id"]: p["qty"] for p in COMMERCIAL_AC_BOM["parts"]}
+    defense = {p["equipment_id"]: p["qty"] for p in DEFENSE_AC_BOM["parts"]}
+    # act / assert — defense takes the DoD-eligible US-fab EVAPCO
+    assert (commercial.get("EXT-DC-001"), defense.get("EXT-DC-002")) == (1, 1)
+
+
 def test_defense_ac_bom_has_same_parts_as_commercial() -> None:
-    # arrange / act — defense vs commercial: same hardware, only plates differ
-    # (5083-H116 marine grade, 10 mm vs 6061-T6 6 mm). Parts list unchanged.
+    # arrange / act — defense vs commercial: same hardware except the dry
+    # cooler; plates differ only in material (5083-H116 10 mm vs 6061-T6 6 mm).
+    def swap(eid: str) -> str:
+        return {"EXT-DC-001": "EXT-DC-002"}.get(eid, eid)
+
+    expected = [
+        {**p, "equipment_id": swap(p["equipment_id"])}
+        for p in COMMERCIAL_AC_BOM["parts"]
+    ]
     # assert
-    assert DEFENSE_AC_BOM["parts"] == COMMERCIAL_AC_BOM["parts"]
+    assert DEFENSE_AC_BOM["parts"] == expected
     assert DEFENSE_AC_BOM["plates"] == COMMERCIAL_AC_BOM["plates"]
 
 
