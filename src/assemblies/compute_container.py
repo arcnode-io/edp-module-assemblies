@@ -62,9 +62,21 @@ CD_MATING_FRAME: Final[cq.Location] = cq.Location(
 
 Variant = Literal["commercial-ac", "defense-ac"]
 
+# Reason: built-to-order line, like the plates. The box vendor comes from an
+# RFQ against these requirements; nobody sells this shell off the shelf.
+SHELL: Final[dict] = {
+    "part_number": "ARC-CNT-CMP-001",
+    "description": (
+        f"Compute container shell: new-build 10ft ISO high-cube, {L_EXT_MM:.0f} x {W_EXT_MM:.0f} x {H_EXT_MM:.0f} mm exterior, "
+        "2,680 mm interior height (ADR-004). CSC-plated and rated to lift loaded, "
+        "so not cut down from a 20ft. ARCNODE cuts the plate penetrations and louvers."
+    ),
+}
+
 # v1 commercial-ac BOM — multiplied by container count downstream by edp-api.
 # Per ADR-009: split parts: + plates: sections.
 COMMERCIAL_AC_BOM: Final[dict] = {
+    "shell": SHELL,
     "parts": [
         {"equipment_id": "CMP-NODE-001", "qty": 7},
         {"equipment_id": "CMP-RACK-001", "qty": 1},

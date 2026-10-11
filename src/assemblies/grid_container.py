@@ -78,6 +78,17 @@ Variant = Literal[
 # Reason: hardware doesn't change between commercial-ac and no-bess —
 # transformer + switchgear + relay + meter are needed for utility tie-in
 # regardless of whether BESS is present. Only the +X end plate differs.
+# Reason: built-to-order line, like the plates. The box vendor comes from an
+# RFQ against these requirements; nobody sells this shell off the shelf.
+SHELL: Final[dict] = {
+    "part_number": "ARC-CNT-GRD-001",
+    "description": (
+        f"Grid container shell: new-build 10ft ISO high-cube, {L_EXT_MM:.0f} x {W_EXT_MM:.0f} x {H_EXT_MM:.0f} mm exterior, "
+        "2,680 mm interior height (ADR-004). CSC-plated and rated to lift loaded, "
+        "so not cut down from a 20ft. ARCNODE cuts the plate penetrations and louvers."
+    ),
+}
+
 _PARTS: Final[list[dict]] = [
     {"equipment_id": "GRD-XFM-001", "qty": 1},
     {"equipment_id": "GRD-SWG-001", "qty": 1},
@@ -86,6 +97,7 @@ _PARTS: Final[list[dict]] = [
 ]
 
 COMMERCIAL_AC_BOM: Final[dict] = {
+    "shell": SHELL,
     "parts": _PARTS,
     "plates": [
         {"id": "CG", "version": "v1", "qty": 1},
@@ -116,6 +128,7 @@ def pcs_qty_for(compute_container_count: int) -> int:
 
 
 COMMERCIAL_DC_EXT_BOM: Final[dict] = {
+    "shell": SHELL,
     "parts": [
         *_PARTS,
         # qty pinned for v1 single-Compute build; deployment-level sizing engine
@@ -129,6 +142,7 @@ COMMERCIAL_DC_EXT_BOM: Final[dict] = {
 }
 
 NO_BESS_BOM: Final[dict] = {
+    "shell": SHELL,
     "parts": _PARTS,
     "plates": [
         {"id": "CG", "version": "v1", "qty": 1},
@@ -136,6 +150,7 @@ NO_BESS_BOM: Final[dict] = {
 }
 
 FEEDER_BOM: Final[dict] = {
+    "shell": SHELL,
     "parts": [p for p in _PARTS if p["equipment_id"] != "GRD-MTR-001"],
     "plates": [
         {"id": "CG", "version": "v1", "qty": 1},
