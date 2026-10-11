@@ -77,3 +77,7 @@ Round corner holes fail outright; long-axis midpoints have only 36 µm net margi
 Option 1 is structurally robust (eliminates the constraint, not just shrinks fab uncertainty) and future-proof (defense ΔT works without rework).
 
 Slot length is encoded in `mounting_bolts.slot_length_mm` in each plate's `cad/specs/{plate_id}/spec.yaml`. Geometry logic in `cad/model/_plate.py::_cut_mounting_bolts` (corners + long-axis midpoints get slots, short-axis midpoints get round holes). Sim asserts the slot accommodates `δ_thermal + δ_fab + δ_margin` per side (`sim/cg/test_run.py::test_slot_accommodates_thermal_offset`). Derivation lives in `theory.ipynb` "Design risk mitigation" cell.
+
+## ADR-015 — Grid gear serviced from outside
+
+SafeGear and the PCS pair are worked from outside through the container's side doors, not from inside. The interior is not a working space, so the Trihal and PCS #1 may sit in front of SafeGear's face (NEC 110.34 working space is outside the doors).
