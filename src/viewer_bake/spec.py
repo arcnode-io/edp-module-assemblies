@@ -305,7 +305,6 @@ HOTSPOT_COPY: Final[dict[str, list[HotspotCopy]]] = {
         *_GRID_BASE,
         HotspotCopy("pcs", re.compile(r"^GRD-PCS-001#1$"), "PCS", "DC → AC, 2x 417 kW"),
     ],
-    "grid-no-bess": _GRID_BASE,
     # PCB-only viewer ships with no permanent hotspots — hover-labels carry
     # the per-material callouts. Lepton aim hotspot lives on the kit variant
     # viewers below where the bracket context makes the tilt meaningful.

@@ -106,27 +106,6 @@ assemblies:
       glb_exploded: null
       step_exploded: null
       topology_yaml: null
-    defense_dc_ext:
-      bom: s3://arcnode-artifacts/assemblies/deployment/defense_dc_ext/bom.yaml
-      step: s3://arcnode-artifacts/assemblies/deployment/defense_dc_ext/assembly.step
-      glb: s3://arcnode-artifacts/assemblies/deployment/defense_dc_ext/assembly.glb
-      glb_exploded: null
-      step_exploded: null
-      topology_yaml: null
-    defense_no_bess:
-      bom: s3://arcnode-artifacts/assemblies/deployment/defense_no_bess/bom.yaml
-      step: s3://arcnode-artifacts/assemblies/deployment/defense_no_bess/assembly.step
-      glb: s3://arcnode-artifacts/assemblies/deployment/defense_no_bess/assembly.glb
-      glb_exploded: null
-      step_exploded: null
-      topology_yaml: null
-    no_bess:
-      bom: s3://arcnode-artifacts/assemblies/deployment/no_bess/bom.yaml
-      step: s3://arcnode-artifacts/assemblies/deployment/no_bess/assembly.step
-      glb: s3://arcnode-artifacts/assemblies/deployment/no_bess/assembly.glb
-      glb_exploded: null
-      step_exploded: null
-      topology_yaml: null
   grid_container:
     commercial-ac:
       bom: s3://arcnode-artifacts/assemblies/grid-container/commercial-ac/bom.yaml
@@ -156,33 +135,12 @@ assemblies:
       glb_exploded: s3://arcnode-artifacts/assemblies/grid-container/defense-ac/assembly-exploded.glb
       step_exploded: s3://arcnode-artifacts/assemblies/grid-container/defense-ac/assembly-exploded.step
       topology_yaml: null
-    defense-dc-ext:
-      bom: s3://arcnode-artifacts/assemblies/grid-container/defense-dc-ext/bom.yaml
-      step: s3://arcnode-artifacts/assemblies/grid-container/defense-dc-ext/assembly.step
-      glb: s3://arcnode-artifacts/assemblies/grid-container/defense-dc-ext/assembly.glb
-      glb_exploded: s3://arcnode-artifacts/assemblies/grid-container/defense-dc-ext/assembly-exploded.glb
-      step_exploded: s3://arcnode-artifacts/assemblies/grid-container/defense-dc-ext/assembly-exploded.step
-      topology_yaml: null
-    defense-dc-ext-feeder:
-      bom: s3://arcnode-artifacts/assemblies/grid-container/defense-dc-ext-feeder/bom.yaml
-      step: s3://arcnode-artifacts/assemblies/grid-container/defense-dc-ext-feeder/assembly.step
-      glb: s3://arcnode-artifacts/assemblies/grid-container/defense-dc-ext-feeder/assembly.glb
-      glb_exploded: s3://arcnode-artifacts/assemblies/grid-container/defense-dc-ext-feeder/assembly-exploded.glb
-      step_exploded: s3://arcnode-artifacts/assemblies/grid-container/defense-dc-ext-feeder/assembly-exploded.step
-      topology_yaml: null
     defense-feeder:
       bom: s3://arcnode-artifacts/assemblies/grid-container/defense-feeder/bom.yaml
       step: s3://arcnode-artifacts/assemblies/grid-container/defense-feeder/assembly.step
       glb: s3://arcnode-artifacts/assemblies/grid-container/defense-feeder/assembly.glb
       glb_exploded: s3://arcnode-artifacts/assemblies/grid-container/defense-feeder/assembly-exploded.glb
       step_exploded: s3://arcnode-artifacts/assemblies/grid-container/defense-feeder/assembly-exploded.step
-      topology_yaml: null
-    defense-no-bess:
-      bom: s3://arcnode-artifacts/assemblies/grid-container/defense-no-bess/bom.yaml
-      step: s3://arcnode-artifacts/assemblies/grid-container/defense-no-bess/assembly.step
-      glb: s3://arcnode-artifacts/assemblies/grid-container/defense-no-bess/assembly.glb
-      glb_exploded: s3://arcnode-artifacts/assemblies/grid-container/defense-no-bess/assembly-exploded.glb
-      step_exploded: s3://arcnode-artifacts/assemblies/grid-container/defense-no-bess/assembly-exploded.step
       topology_yaml: null
     feeder:
       bom: s3://arcnode-artifacts/assemblies/grid-container/feeder/bom.yaml
@@ -191,13 +149,6 @@ assemblies:
       glb_exploded: s3://arcnode-artifacts/assemblies/grid-container/feeder/assembly-exploded.glb
       step_exploded: s3://arcnode-artifacts/assemblies/grid-container/feeder/assembly-exploded.step
       topology_yaml: s3://arcnode-artifacts/assemblies/grid-container/feeder/topology.yaml
-    no-bess:
-      bom: s3://arcnode-artifacts/assemblies/grid-container/no-bess/bom.yaml
-      step: s3://arcnode-artifacts/assemblies/grid-container/no-bess/assembly.step
-      glb: s3://arcnode-artifacts/assemblies/grid-container/no-bess/assembly.glb
-      glb_exploded: s3://arcnode-artifacts/assemblies/grid-container/no-bess/assembly-exploded.glb
-      step_exploded: s3://arcnode-artifacts/assemblies/grid-container/no-bess/assembly-exploded.step
-      topology_yaml: null
 plates:
   CG:
     spec: s3://arcnode-artifacts/plates/CG/v1/spec.yaml
@@ -244,13 +195,6 @@ profiles:
     - CG
     - BG-DC
     - CD
-  commercial_no_bess:
-    compute_container: commercial-ac
-    grid_container: no-bess
-    grid_feeder_container: feeder
-    interface_plates:
-    - CG
-    - CD
   defense_ac:
     compute_container: defense-ac
     grid_container: defense-ac
@@ -258,19 +202,4 @@ profiles:
     interface_plates:
     - CG
     - BG-AC
-    - CD
-  defense_dc_ext:
-    compute_container: defense-ac
-    grid_container: defense-dc-ext
-    grid_feeder_container: defense-dc-ext-feeder
-    interface_plates:
-    - CG
-    - BG-DC
-    - CD
-  defense_no_bess:
-    compute_container: defense-ac
-    grid_container: defense-no-bess
-    grid_feeder_container: defense-feeder
-    interface_plates:
-    - CG
     - CD

@@ -11,14 +11,11 @@ Variants:
 - commercial-ac: CG (-X) + BG-AC (+X). BESS lands AC at grid wall.
 - commercial-dc-ext: CG (-X) + BG-DC (+X). PCS lives in grid container,
   BESS pad outputs raw DC strings. Two PD500s (834 kW at 415 V).
-- no-bess: CG (-X) only. No BESS connection; utility tie-in routes
-  through SafeGear's standard service entrance fitting.
-- feeder: no-bess minus the POI meter. Sites past one transformer add
+- feeder: commercial-ac minus the POI meter and the BG plate. Sites past one transformer add
   N-1 of these beside the primary; a site has one POI, so one meter.
 - dc-ext-feeder: commercial-dc-ext minus the POI meter (keeps its PCS pair
   + BG-DC, since each container converts its own BESS strings).
-- defense-ac / defense-dc-ext / defense-no-bess / defense-feeder /
-  defense-dc-ext-feeder: same equipment as the
+- defense-ac / defense-feeder: same equipment as the
   commercial counterpart but plates are 5083-H116 marine grade, 10 mm
   thick, with hard anodize + EPDM secondary seal. Plate fetcher pulls
   the -defense.step artifact via deployment_context="defense_forward".
@@ -69,19 +66,12 @@ BG_MATING_FRAME: Final[cq.Location] = cq.Location(
 Variant = Literal[
     "commercial-ac",
     "commercial-dc-ext",
-    "no-bess",
     "defense-ac",
-    "defense-dc-ext",
-    "defense-no-bess",
     "feeder",
     "defense-feeder",
     "dc-ext-feeder",
-    "defense-dc-ext-feeder",
 ]
 
-# Reason: hardware doesn't change between commercial-ac and no-bess —
-# transformer + switchgear + relay + meter are needed for utility tie-in
-# regardless of whether BESS is present. Only the +X end plate differs.
 # Reason: built-to-order line, like the plates. The box vendor comes from an
 # RFQ against these requirements; nobody sells this shell off the shelf.
 SHELL: Final[dict] = {
@@ -127,14 +117,6 @@ COMMERCIAL_DC_EXT_BOM: Final[dict] = {
     ],
 }
 
-NO_BESS_BOM: Final[dict] = {
-    "shell": SHELL,
-    "parts": _PARTS,
-    "plates": [
-        {"id": "CG", "version": "v1", "qty": 1},
-    ],
-}
-
 FEEDER_BOM: Final[dict] = {
     "shell": SHELL,
     "parts": [p for p in _PARTS if p["equipment_id"] != "GRD-MTR-001"],
@@ -154,57 +136,35 @@ DC_EXT_FEEDER_BOM: Final[dict] = {
 # Reason: defense variants share equipment + plate IDs with their commercial
 # counterparts; the difference is the deployment_context flag at the BOM root,
 # which routes plate_loader.fetch to the -defense.step artifacts (5083-H116
-# marine grade, 10 mm). PM 2026-05-09 confirms defense_dc_int is invalid
-# (CATL EnerOne integrated PCS excluded from DoD); module_resolver rejects
-# that combination at Pydantic ingress.
+# marine grade, 10 mm). Defense is AC only: our DC batteries are CATL
+# (DOD 1260H), and edp-api rejects federal + either DC coupling at ingress.
 DEFENSE_AC_BOM: Final[dict] = {
     **COMMERCIAL_AC_BOM,
-    "deployment_context": "defense_forward",
-}
-DEFENSE_DC_EXT_BOM: Final[dict] = {
-    **COMMERCIAL_DC_EXT_BOM,
-    "deployment_context": "defense_forward",
-}
-DEFENSE_NO_BESS_BOM: Final[dict] = {
-    **NO_BESS_BOM,
     "deployment_context": "defense_forward",
 }
 DEFENSE_FEEDER_BOM: Final[dict] = {
     **FEEDER_BOM,
     "deployment_context": "defense_forward",
 }
-DEFENSE_DC_EXT_FEEDER_BOM: Final[dict] = {
-    **DC_EXT_FEEDER_BOM,
-    "deployment_context": "defense_forward",
-}
 
 BOM_BY_VARIANT: Final[dict[str, dict]] = {
     "commercial-ac": COMMERCIAL_AC_BOM,
     "commercial-dc-ext": COMMERCIAL_DC_EXT_BOM,
-    "no-bess": NO_BESS_BOM,
     "defense-ac": DEFENSE_AC_BOM,
-    "defense-dc-ext": DEFENSE_DC_EXT_BOM,
-    "defense-no-bess": DEFENSE_NO_BESS_BOM,
     "feeder": FEEDER_BOM,
     "defense-feeder": DEFENSE_FEEDER_BOM,
     "dc-ext-feeder": DC_EXT_FEEDER_BOM,
-    "defense-dc-ext-feeder": DEFENSE_DC_EXT_FEEDER_BOM,
 }
 
 # Reason: which BG-* plate goes at the +X end for each variant.
-# no-bess (and its defense twin) has no BG plate (wall is closed;
-# utility through SafeGear).
+# Feeders have no BG plate (the BESS lands on the primary).
 _BG_PLATE_BY_VARIANT: Final[dict[str, str | None]] = {
     "commercial-ac": "BG-AC",
     "commercial-dc-ext": "BG-DC",
-    "no-bess": None,
     "defense-ac": "BG-AC",
-    "defense-dc-ext": "BG-DC",
-    "defense-no-bess": None,
     "feeder": None,
     "defense-feeder": None,
     "dc-ext-feeder": "BG-DC",
-    "defense-dc-ext-feeder": "BG-DC",
 }
 
 
@@ -219,7 +179,7 @@ def build_grid_container(
     """Build the grid_container assembly.
 
     Args:
-        variant: Grid container variant — "commercial-ac" or "no-bess".
+        variant: Grid container variant, a key of BOM_BY_VARIANT.
         exploded: If True, top-open shell + Q8 explode offsets.
 
     Returns:
@@ -253,7 +213,7 @@ def build_grid_container(
 
 
 def _add_plates(assy: cq.Assembly, *, variant: Variant, exploded: bool) -> None:
-    """Place CG (always) + BG-* (per variant). no-bess skips BG entirely.
+    """Place CG (always) + BG-* (per variant). AC feeders skip BG entirely.
 
     Defense variants pull -defense.step artifacts via plate_loader's
     deployment_context arg; commercial variants pull plate.step.

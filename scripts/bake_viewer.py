@@ -37,17 +37,12 @@ def main() -> None:
         "compute", ASSEMBLIES_DIR / "compute-container" / "commercial-ac", args.out
     )
     # Reason: `grid.glb` stays pinned to commercial-ac for backward compat with
-    # arc-node.html. DC-ext + no-bess variants ship as additional assets the
+    # arc-node.html. The DC-ext variant ships as an additional asset the
     # website can reference when it wires variant switching.
     bake_module("grid", ASSEMBLIES_DIR / "grid-container" / "commercial-ac", args.out)
     bake_module(
         "grid-dc-ext",
         ASSEMBLIES_DIR / "grid-container" / "commercial-dc-ext",
-        args.out,
-    )
-    bake_module(
-        "grid-no-bess",
-        ASSEMBLIES_DIR / "grid-container" / "no-bess",
         args.out,
     )
     bake_module(
@@ -81,7 +76,6 @@ def main() -> None:
             "compute",
             "grid",
             "grid-dc-ext",
-            "grid-no-bess",
             "dlr-carrier",
             "dlr-carrier-hw",
             "dlr-carrier-lw",

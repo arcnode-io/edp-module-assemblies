@@ -45,7 +45,7 @@ class ProfileAssemblies(BaseModel):
     """Profile→asset selection. References ids/keys defined elsewhere in the manifest."""
 
     compute_container: str  # variant key, e.g. "commercial-ac"
-    grid_container: str | None  # variant key or null for no_bess profiles
+    grid_container: str  # variant key; every site has a BESS, so a grid container
     # Added per extra transformer a site needs; same gear minus the POI meter.
     grid_feeder_container: str | None = None
     interface_plates: list[str] = Field(default_factory=list)  # plate ids

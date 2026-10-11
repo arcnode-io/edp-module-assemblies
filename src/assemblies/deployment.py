@@ -9,10 +9,10 @@ composes them with offsets (PM 2026-05-09):
   front service clearance).
 - EXT-BESS at +X beyond grid with 3000 mm clearance (customer pad).
 
-Defense profiles route external equipment by deployment_context: EXT-DC-002
-(Evapco eco-Air, US-fab) + EXT-BESS-002 in place of commercial EXT-DC-001
-(Güntner GFD) + EXT-BESS-001 (Tesla Megapack). Same logic as plate fetch
-context routing in {compute,grid}_container.py.
+Defense profiles route the dry cooler by deployment_context: EXT-DC-002
+(Evapco eco-Air, US-fab) in place of commercial EXT-DC-001 (Güntner GFD).
+The BESS follows the coupling: AC = EXT-BESS-001 (Tesla Megapack), DC =
+EXT-BESS-002 (CATL EnerOne+, commercial only — DOD 1260H).
 
 Emits assemblies/deployment/{profile}/{assembly.step,assembly.glb}.
 """
@@ -58,21 +58,16 @@ Profile = Literal[
     "commercial_ac",
     "commercial_dc_int",
     "commercial_dc_ext",
-    "commercial_no_bess",
     "defense_ac",
-    "defense_dc_ext",
-    "defense_no_bess",
 ]
 
-# Reason: profile → (compute_variant, grid_variant, has_bess).
-_PROFILE_CONFIG: Final[dict[str, tuple[str, str, bool]]] = {
-    "commercial_ac": ("commercial-ac", "commercial-ac", True),
-    "commercial_dc_int": ("commercial-ac", "commercial-ac", True),
-    "commercial_dc_ext": ("commercial-ac", "commercial-dc-ext", True),
-    "commercial_no_bess": ("commercial-ac", "no-bess", False),
-    "defense_ac": ("defense-ac", "defense-ac", True),
-    "defense_dc_ext": ("defense-ac", "defense-dc-ext", True),
-    "defense_no_bess": ("defense-ac", "defense-no-bess", False),
+# Reason: profile → (compute_variant, grid_variant, bess_id). The battery
+# follows the coupling: AC = Megapack (own inverter), DC = CATL EnerOne+.
+_PROFILE_CONFIG: Final[dict[str, tuple[str, str, str]]] = {
+    "commercial_ac": ("commercial-ac", "commercial-ac", "EXT-BESS-001"),
+    "commercial_dc_int": ("commercial-ac", "commercial-ac", "EXT-BESS-002"),
+    "commercial_dc_ext": ("commercial-ac", "commercial-dc-ext", "EXT-BESS-002"),
+    "defense_ac": ("defense-ac", "defense-ac", "EXT-BESS-001"),
 }
 
 
@@ -82,10 +77,6 @@ def _is_defense(profile: str) -> bool:
 
 def _ext_dc_id(profile: str) -> str:
     return "EXT-DC-002" if _is_defense(profile) else "EXT-DC-001"
-
-
-def _ext_bess_id(profile: str) -> str:
-    return "EXT-BESS-002" if _is_defense(profile) else "EXT-BESS-001"
 
 
 def _import_envelope(equipment_id: str) -> cq.Workplane:
@@ -111,7 +102,7 @@ def build_deployment(profile: Profile) -> cq.Assembly:
             f"profile={profile!r} not supported. Available: {sorted(_PROFILE_CONFIG)}"
         )
 
-    compute_variant, grid_variant, has_bess = _PROFILE_CONFIG[profile]
+    compute_variant, grid_variant, bess_id = _PROFILE_CONFIG[profile]
     deployment = cq.Assembly(name=f"deployment_{profile}")
 
     # Compute Container at deployment origin (floor center = (0, 0, 0)).
@@ -140,16 +131,14 @@ def build_deployment(profile: Profile) -> cq.Assembly:
     )
 
     # EXT-BESS at +X beyond Grid +X wall with 3000 mm clearance.
-    if has_bess:
-        bess_id = _ext_bess_id(profile)
-        bess_l, _, bess_h = _EXT_BESS_DIMS_MM[bess_id]
-        grid_plus_x_wall = grid_center_x + L_EXT_MM / 2
-        bess_center_x = grid_plus_x_wall + BESS_OFFSET_FROM_GRID_X_MM + bess_l / 2
-        deployment.add(
-            _import_envelope(bess_id),
-            name=bess_id,
-            loc=cq.Location(cq.Vector(bess_center_x, 0.0, bess_h / 2)),
-        )
+    bess_l, _, bess_h = _EXT_BESS_DIMS_MM[bess_id]
+    grid_plus_x_wall = grid_center_x + L_EXT_MM / 2
+    bess_center_x = grid_plus_x_wall + BESS_OFFSET_FROM_GRID_X_MM + bess_l / 2
+    deployment.add(
+        _import_envelope(bess_id),
+        name=bess_id,
+        loc=cq.Location(cq.Vector(bess_center_x, 0.0, bess_h / 2)),
+    )
 
     return deployment
 

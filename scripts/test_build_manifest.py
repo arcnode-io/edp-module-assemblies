@@ -72,12 +72,11 @@ def test_grid_profiles_name_a_feeder_variant_without_the_poi_meter() -> None:
     assert feeders["commercial_ac"] == "feeder"
     assert feeders["defense_ac"] == "defense-feeder"
     assert feeders["commercial_dc_ext"] == "dc-ext-feeder"
-    assert feeders["defense_dc_ext"] == "defense-dc-ext-feeder"
     assert all(feeders.values())
 
 
 def test_validate_profile_refs_clean_after_all_v1_variants_built() -> None:
-    # arrange — commercial-ac, commercial-dc-ext, and no-bess all exist
+    # arrange — every profile's variants exist
     # end-to-end after steps 6.1, 6.5, and 6.8. No deferred warnings expected.
     manifest = build_manifest()
     # act

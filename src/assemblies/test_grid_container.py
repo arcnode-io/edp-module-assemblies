@@ -10,16 +10,12 @@ from src.assemblies.grid_container import (
     COMMERCIAL_AC_BOM,
     COMMERCIAL_DC_EXT_BOM,
     DEFENSE_AC_BOM,
-    DEFENSE_DC_EXT_BOM,
     DEFENSE_FEEDER_BOM,
-    DEFENSE_NO_BESS_BOM,
     FEEDER_BOM,
     H_EXT_MM,
     L_EXT_MM,
-    NO_BESS_BOM,
     W_EXT_MM,
     DC_EXT_FEEDER_BOM,
-    DEFENSE_DC_EXT_FEEDER_BOM,
     build_grid_container,
 )
 
@@ -87,20 +83,7 @@ def test_bom_plates_match_4_plate_fleet() -> None:
     assert plate_ids == {"CG", "BG-AC"}
 
 
-def test_no_bess_bom_drops_bg_ac_keeps_cg_and_parts() -> None:
-    # arrange
-    plate_ids = {p["id"] for p in NO_BESS_BOM["plates"]}
-    parts_by_id = {p["equipment_id"]: p["qty"] for p in NO_BESS_BOM["parts"]}
-    # act / assert — same hardware (utility tie-in still needs xfm + swg + relay
-    # + meter), only the BESS-side plate is gone
-    assert plate_ids == {"CG"}
-    assert parts_by_id["GRD-XFM-001"] == 1
-    assert parts_by_id["GRD-SWG-001"] == 1
-    assert parts_by_id["GRD-RLY-001"] == 1
-    assert parts_by_id["GRD-MTR-001"] == 1
-
-
-def test_feeder_bom_is_no_bess_without_the_poi_meter() -> None:
+def test_feeder_bom_drops_the_poi_meter_and_bess_plate() -> None:
     # arrange
     parts = {p["equipment_id"] for p in FEEDER_BOM["parts"]}
     plates = {p["id"] for p in FEEDER_BOM["plates"]}
@@ -122,31 +105,6 @@ def test_dc_ext_feeder_carries_its_own_pcs_but_not_the_poi_meter() -> None:
         "GRD-PCS-001": 2,
     }
     assert (parts, plates) == (expected_parts, {"CG", "BG-DC"})
-    assert DEFENSE_DC_EXT_FEEDER_BOM == {
-        **DC_EXT_FEEDER_BOM,
-        "deployment_context": "defense_forward",
-    }
-
-
-def test_no_bess_assembly_omits_bg_ac_plate() -> None:
-    # arrange / act
-    assy = build_grid_container(variant="no-bess")
-    child_names = {c.name for c in assy.children}
-    # assert
-    assert "ARC-PLT-CG" in child_names
-    assert "ARC-PLT-BG-AC" not in child_names
-
-
-def test_no_bess_bbox_matches_container_envelope() -> None:
-    # arrange — same shell as commercial-ac, just missing one plate
-    bbox_tolerance_mm = 50.0
-    # act
-    assy = build_grid_container(variant="no-bess")
-    bbox = assy.toCompound().BoundingBox()
-    # assert
-    assert abs(bbox.xlen - L_EXT_MM) < bbox_tolerance_mm
-    assert abs(bbox.ylen - W_EXT_MM) < bbox_tolerance_mm
-    assert abs(bbox.zlen - H_EXT_MM) < bbox_tolerance_mm
 
 
 def test_bg_ac_plate_placed_at_positive_x_end() -> None:
@@ -279,24 +237,6 @@ def test_defense_ac_bom_carries_deployment_context() -> None:
     assert DEFENSE_AC_BOM["plates"] == COMMERCIAL_AC_BOM["plates"]
 
 
-def test_defense_dc_ext_bom_carries_deployment_context_and_pcs() -> None:
-    # arrange / act / assert — defense DC-ext BOM mirrors commercial DC-ext
-    # (PCS included) and adds the deployment_context flag.
-    assert DEFENSE_DC_EXT_BOM["deployment_context"] == "defense_forward"
-    parts_by_id = {p["equipment_id"]: p["qty"] for p in DEFENSE_DC_EXT_BOM["parts"]}
-    assert parts_by_id["GRD-PCS-001"] == 2
-    plate_ids = {p["id"] for p in DEFENSE_DC_EXT_BOM["plates"]}
-    assert plate_ids == {"CG", "BG-DC"}
-
-
-def test_defense_no_bess_bom_carries_deployment_context_no_bg() -> None:
-    # arrange / act / assert — defense no-bess BOM mirrors commercial no-bess
-    # (CG only, no BG plate) and adds the deployment_context flag.
-    assert DEFENSE_NO_BESS_BOM["deployment_context"] == "defense_forward"
-    plate_ids = {p["id"] for p in DEFENSE_NO_BESS_BOM["plates"]}
-    assert plate_ids == {"CG"}
-
-
 def test_defense_ac_assembly_builds_with_bg_ac_plate() -> None:
     # arrange / act
     assy = build_grid_container(variant="defense-ac")
@@ -305,25 +245,4 @@ def test_defense_ac_assembly_builds_with_bg_ac_plate() -> None:
     # to -defense.step artifacts (plate_loader tests cover the routing).
     assert "ARC-PLT-CG" in child_names
     assert "ARC-PLT-BG-AC" in child_names
-    assert not any(n.startswith("GRD-PCS-001") for n in child_names)
-
-
-def test_defense_dc_ext_assembly_builds_with_pcs_and_bg_dc() -> None:
-    # arrange / act
-    assy = build_grid_container(variant="defense-dc-ext")
-    child_names = {c.name for c in assy.children}
-    # assert — PCS pair placed (same layout as commercial-dc-ext), BG-DC plate
-    assert {"GRD-PCS-001#1", "GRD-PCS-001#2"} <= child_names
-    assert "ARC-PLT-BG-DC" in child_names
-    assert "ARC-PLT-BG-AC" not in child_names
-
-
-def test_defense_no_bess_assembly_builds_without_bg_plate() -> None:
-    # arrange / act
-    assy = build_grid_container(variant="defense-no-bess")
-    child_names = {c.name for c in assy.children}
-    # assert — CG only, no BG plate, no PCS
-    assert "ARC-PLT-CG" in child_names
-    assert "ARC-PLT-BG-AC" not in child_names
-    assert "ARC-PLT-BG-DC" not in child_names
     assert not any(n.startswith("GRD-PCS-001") for n in child_names)

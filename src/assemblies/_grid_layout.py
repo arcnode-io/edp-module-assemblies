@@ -46,7 +46,7 @@ PCS_GAP_MM: Final[float] = 100.0  # service gap between the two PCS
 
 # Reason: dc-ext primaries and feeders both carry the PCS pair.
 VARIANTS_WITH_PCS: Final[frozenset[str]] = frozenset(
-    {"commercial-dc-ext", "defense-dc-ext", "dc-ext-feeder", "defense-dc-ext-feeder"}
+    {"commercial-dc-ext", "dc-ext-feeder"}
 )
 
 

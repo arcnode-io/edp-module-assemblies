@@ -25,24 +25,25 @@ def test_commercial_ac_includes_all_four_modules() -> None:
     assert "EXT-BESS-001" in child_names
 
 
-def test_no_bess_omits_bess() -> None:
-    # arrange / act
-    assy = build_deployment(profile="commercial_no_bess")
-    child_names = {c.name for c in assy.children}
-    # assert — DC still present, no BESS
-    assert "EXT-DC-001" in child_names
-    assert "EXT-BESS-001" not in child_names
-    assert "EXT-BESS-002" not in child_names
-
-
-def test_defense_routes_to_evapco_dc_and_dod_bess() -> None:
+def test_defense_routes_to_evapco_dc_and_ac_megapack() -> None:
     # arrange / act
     assy = build_deployment(profile="defense_ac")
     child_names = {c.name for c in assy.children}
-    # assert — Evapco eco-Air (US-fab) replaces Güntner; EXT-BESS-002 in place
+    # assert — Evapco eco-Air (US-fab) replaces Güntner; the battery follows
+    # the coupling (AC = Megapack), never CATL at a federal site
     assert "EXT-DC-002" in child_names
     assert "EXT-DC-001" not in child_names
+    assert "EXT-BESS-001" in child_names
+    assert "EXT-BESS-002" not in child_names
+
+
+def test_dc_ext_deployment_shows_the_dc_battery() -> None:
+    # arrange / act
+    assy = build_deployment(profile="commercial_dc_ext")
+    child_names = {c.name for c in assy.children}
+    # assert — CATL EnerOne+ is our DC-output battery
     assert "EXT-BESS-002" in child_names
+    assert "EXT-BESS-001" not in child_names
 
 
 def test_grid_container_300mm_gap_from_compute() -> None:
