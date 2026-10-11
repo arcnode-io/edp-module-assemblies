@@ -1,0 +1,22 @@
+shell:
+  part_number: ARC-CNT-GRD-001
+  description: 'Grid container shell: new-build 10ft ISO high-cube, 2991 x 2438 x
+    2896 mm exterior, 2,680 mm interior height (ADR-004). CSC-plated and rated to
+    lift loaded, so not cut down from a 20ft. ARCNODE cuts the plate penetrations
+    and louvers.'
+parts:
+- equipment_id: GRD-XFM-001
+  qty: 1
+- equipment_id: GRD-SWG-001
+  qty: 1
+- equipment_id: GRD-RLY-001
+  qty: 1
+- equipment_id: GRD-PCS-001
+  qty: 2
+plates:
+- id: CG
+  version: v1
+  qty: 1
+- id: BG-DC
+  version: v1
+  qty: 1

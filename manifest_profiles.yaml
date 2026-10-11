@@ -35,10 +35,11 @@ profiles:
   commercial_dc_ext:
     # DC strings, PCS lives INSIDE grid container. BESS pad outputs raw
     # DC bus → DC at grid container's BESS wall → BG-DC. Grid container
-    # variant adds GRD-PCS-001 to the equipment layout.
+    # variant adds a GRD-PCS-001 pair to the equipment layout; feeders keep
+    # the pair so every container converts its own strings.
     compute_container: commercial-ac
     grid_container: commercial-dc-ext
-    grid_feeder_container: feeder
+    grid_feeder_container: dc-ext-feeder
     interface_plates: [CG, BG-DC, CD]
 
   commercial_no_bess:
@@ -61,7 +62,7 @@ profiles:
     # DC strings, PCS in grid container, defense forward.
     compute_container: defense-ac
     grid_container: defense-dc-ext
-    grid_feeder_container: defense-feeder
+    grid_feeder_container: defense-dc-ext-feeder
     interface_plates: [CG, BG-DC, CD]
 
   defense_no_bess:

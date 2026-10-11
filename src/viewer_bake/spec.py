@@ -68,7 +68,7 @@ MAT_SPECS: Final[list[MatSpec]] = [
         "swg", re.compile(r"^GRD-SWG-001$"), "#b8482a", 0.3, 0.55, 1.0, blend=False
     ),
     MatSpec(
-        "pcs", re.compile(r"^GRD-PCS-001$"), "#5b8c6a", 0.4, 0.50, 1.0, blend=False
+        "pcs", re.compile(r"^GRD-PCS-001#\d+$"), "#5b8c6a", 0.4, 0.50, 1.0, blend=False
     ),
     # ── DLR carrier PCB groups ──
     # Reason: scene graph from dlr-pcb has parent group
@@ -303,7 +303,7 @@ HOTSPOT_COPY: Final[dict[str, list[HotspotCopy]]] = {
     "grid": _GRID_BASE,
     "grid-dc-ext": [
         *_GRID_BASE,
-        HotspotCopy("pcs", re.compile(r"^GRD-PCS-001$"), "PCS", "DC → AC, 500 kW"),
+        HotspotCopy("pcs", re.compile(r"^GRD-PCS-001#1$"), "PCS", "DC → AC, 2x 417 kW"),
     ],
     "grid-no-bess": _GRID_BASE,
     # PCB-only viewer ships with no permanent hotspots — hover-labels carry

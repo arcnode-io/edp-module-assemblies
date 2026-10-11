@@ -18,8 +18,9 @@ from src.assemblies.grid_container import (
     L_EXT_MM,
     NO_BESS_BOM,
     W_EXT_MM,
+    DC_EXT_FEEDER_BOM,
+    DEFENSE_DC_EXT_FEEDER_BOM,
     build_grid_container,
-    pcs_qty_for,
 )
 
 
@@ -108,6 +109,25 @@ def test_feeder_bom_is_no_bess_without_the_poi_meter() -> None:
     assert DEFENSE_FEEDER_BOM == {**FEEDER_BOM, "deployment_context": "defense_forward"}
 
 
+def test_dc_ext_feeder_carries_its_own_pcs_but_not_the_poi_meter() -> None:
+    # arrange
+    parts = {p["equipment_id"]: p["qty"] for p in DC_EXT_FEEDER_BOM["parts"]}
+    plates = {p["id"] for p in DC_EXT_FEEDER_BOM["plates"]}
+    # act / assert — each dc-ext container converts its own BESS DC, so it
+    # needs its own PCS pair and BG-DC; the one POI meter stays on the primary
+    expected_parts = {
+        "GRD-XFM-001": 1,
+        "GRD-SWG-001": 1,
+        "GRD-RLY-001": 1,
+        "GRD-PCS-001": 2,
+    }
+    assert (parts, plates) == (expected_parts, {"CG", "BG-DC"})
+    assert DEFENSE_DC_EXT_FEEDER_BOM == {
+        **DC_EXT_FEEDER_BOM,
+        "deployment_context": "defense_forward",
+    }
+
+
 def test_no_bess_assembly_omits_bg_ac_plate() -> None:
     # arrange / act
     assy = build_grid_container(variant="no-bess")
@@ -174,8 +194,8 @@ def test_dc_ext_bom_has_pcs_and_bg_dc() -> None:
     # arrange
     parts_by_id = {p["equipment_id"]: p["qty"] for p in COMMERCIAL_DC_EXT_BOM["parts"]}
     plate_ids = {p["id"] for p in COMMERCIAL_DC_EXT_BOM["plates"]}
-    # act / assert — PCS present, BG-DC instead of BG-AC
-    assert parts_by_id["GRD-PCS-001"] == 1
+    # act / assert — two PCS (417 kW each at 415 V), BG-DC instead of BG-AC
+    assert parts_by_id["GRD-PCS-001"] == 2
     assert plate_ids == {"CG", "BG-DC"}
 
 
@@ -184,7 +204,7 @@ def test_dc_ext_assembly_includes_pcs_and_bg_dc_plate() -> None:
     assy = build_grid_container(variant="commercial-dc-ext")
     child_names = {c.name for c in assy.children}
     # assert
-    assert "GRD-PCS-001" in child_names
+    assert {"GRD-PCS-001#1", "GRD-PCS-001#2"} <= child_names
     assert "ARC-PLT-BG-DC" in child_names
     assert "ARC-PLT-BG-AC" not in child_names
 
@@ -217,20 +237,21 @@ def test_dc_ext_bbox_matches_container_envelope() -> None:
     assert abs(bbox.zlen - H_EXT_MM) < bbox_tolerance_mm
 
 
-def test_dc_ext_equipment_does_not_clash() -> None:
-    """Pairwise bbox-overlap check on the 3 equipment items (XFM, SWG, PCS).
+@pytest.mark.parametrize("variant", ["commercial-dc-ext", "dc-ext-feeder"])
+def test_dc_ext_equipment_does_not_clash(variant: str) -> None:
+    """Pairwise bbox-overlap check on the equipment (XFM, SWG, 2x PCS).
 
     Caught in conversation 2026-05-09: PCS was placed at +X + -Y wall which
     clashed with SafeGear's rotated 2159 mm depth. Bbox-overlap test prevents
     the regression.
     """
     # arrange
-    equipment_names = {"GRD-XFM-001", "GRD-SWG-001", "GRD-PCS-001"}
+    equipment_names = {"GRD-XFM-001", "GRD-SWG-001", "GRD-PCS-001#1", "GRD-PCS-001#2"}
     # act
-    assy = build_grid_container(variant="commercial-dc-ext")
+    assy = build_grid_container(variant=variant)
     children = [c for c in assy.children if c.name in equipment_names]
     bboxes = {c.name: c.toCompound().BoundingBox() for c in children}
-    # assert — all 3 present
+    # assert — all present
     assert set(bboxes.keys()) == equipment_names
     # assert — no pairwise overlap
     for name_a, bb_a in bboxes.items():
@@ -244,34 +265,6 @@ def test_dc_ext_equipment_does_not_clash() -> None:
                 f"clash: {name_a} bbox=({bb_a.xmin:.0f}..{bb_a.xmax:.0f}, "
                 f"{bb_a.ymin:.0f}..{bb_a.ymax:.0f}) overlaps {name_b}"
             )
-
-
-# --- PCS sizing rule (per PM 2026-05-09) ---
-
-
-def test_pcs_qty_single_compute_uses_one_pcs() -> None:
-    # arrange / act / assert — 80 kW < 500 kW
-    assert pcs_qty_for(1) == 1
-
-
-def test_pcs_qty_four_computes_still_one_pcs() -> None:
-    # arrange / act / assert — 320 kW < 500 kW
-    assert pcs_qty_for(4) == 1
-
-
-def test_pcs_qty_six_computes_still_one_pcs() -> None:
-    # arrange / act / assert — 480 kW < 500 kW (right at the edge)
-    assert pcs_qty_for(6) == 1
-
-
-def test_pcs_qty_seven_computes_needs_two_pcs() -> None:
-    # arrange / act / assert — 560 kW > 500 kW (first qty=2 deployment)
-    assert pcs_qty_for(7) == 2
-
-
-def test_pcs_qty_thirteen_computes_needs_three_pcs() -> None:
-    # arrange / act / assert — 1040 kW > 1000 kW
-    assert pcs_qty_for(13) == 3
 
 
 # --- Defense variants (per PM 2026-05-09, #18) ---
@@ -291,7 +284,7 @@ def test_defense_dc_ext_bom_carries_deployment_context_and_pcs() -> None:
     # (PCS included) and adds the deployment_context flag.
     assert DEFENSE_DC_EXT_BOM["deployment_context"] == "defense_forward"
     parts_by_id = {p["equipment_id"]: p["qty"] for p in DEFENSE_DC_EXT_BOM["parts"]}
-    assert parts_by_id["GRD-PCS-001"] == 1
+    assert parts_by_id["GRD-PCS-001"] == 2
     plate_ids = {p["id"] for p in DEFENSE_DC_EXT_BOM["plates"]}
     assert plate_ids == {"CG", "BG-DC"}
 
@@ -312,15 +305,15 @@ def test_defense_ac_assembly_builds_with_bg_ac_plate() -> None:
     # to -defense.step artifacts (plate_loader tests cover the routing).
     assert "ARC-PLT-CG" in child_names
     assert "ARC-PLT-BG-AC" in child_names
-    assert "GRD-PCS-001" not in child_names
+    assert not any(n.startswith("GRD-PCS-001") for n in child_names)
 
 
 def test_defense_dc_ext_assembly_builds_with_pcs_and_bg_dc() -> None:
     # arrange / act
     assy = build_grid_container(variant="defense-dc-ext")
     child_names = {c.name for c in assy.children}
-    # assert — PCS placed (same layout as commercial-dc-ext), BG-DC plate
-    assert "GRD-PCS-001" in child_names
+    # assert — PCS pair placed (same layout as commercial-dc-ext), BG-DC plate
+    assert {"GRD-PCS-001#1", "GRD-PCS-001#2"} <= child_names
     assert "ARC-PLT-BG-DC" in child_names
     assert "ARC-PLT-BG-AC" not in child_names
 
@@ -333,4 +326,4 @@ def test_defense_no_bess_assembly_builds_without_bg_plate() -> None:
     assert "ARC-PLT-CG" in child_names
     assert "ARC-PLT-BG-AC" not in child_names
     assert "ARC-PLT-BG-DC" not in child_names
-    assert "GRD-PCS-001" not in child_names
+    assert not any(n.startswith("GRD-PCS-001") for n in child_names)

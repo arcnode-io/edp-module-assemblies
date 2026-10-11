@@ -10,12 +10,15 @@ plus -exploded.{step,glb} per Q8.
 Variants:
 - commercial-ac: CG (-X) + BG-AC (+X). BESS lands AC at grid wall.
 - commercial-dc-ext: CG (-X) + BG-DC (+X). PCS lives in grid container,
-  BESS pad outputs raw DC strings.
+  BESS pad outputs raw DC strings. Two PD500s (834 kW at 415 V).
 - no-bess: CG (-X) only. No BESS connection; utility tie-in routes
   through SafeGear's standard service entrance fitting.
 - feeder: no-bess minus the POI meter. Sites past one transformer add
   N-1 of these beside the primary; a site has one POI, so one meter.
-- defense-ac / defense-dc-ext / defense-no-bess / defense-feeder: same equipment as the
+- dc-ext-feeder: commercial-dc-ext minus the POI meter (keeps its PCS pair
+  + BG-DC, since each container converts its own BESS strings).
+- defense-ac / defense-dc-ext / defense-no-bess / defense-feeder /
+  defense-dc-ext-feeder: same equipment as the
   commercial counterpart but plates are 5083-H116 marine grade, 10 mm
   thick, with hard anodize + EPDM secondary seal. Plate fetcher pulls
   the -defense.step artifact via deployment_context="defense_forward".
@@ -23,7 +26,6 @@ Variants:
 
 import argparse
 import logging
-import math
 from pathlib import Path
 from typing import Final, Literal
 
@@ -73,6 +75,8 @@ Variant = Literal[
     "defense-no-bess",
     "feeder",
     "defense-feeder",
+    "dc-ext-feeder",
+    "defense-dc-ext-feeder",
 ]
 
 # Reason: hardware doesn't change between commercial-ac and no-bess —
@@ -105,35 +109,17 @@ COMMERCIAL_AC_BOM: Final[dict] = {
     ],
 }
 
-# Reason: PCS qty is a function of total compute load, not BESS nameplate.
-# Each EPC PD500/AC-480 handles 500 kW; each compute container peaks at 80 kW
-# (per ADR-005). Single Compute Container deployment → 1 PCS; 7+ → 2 PCS.
-# pcs_qty_for(n) is the sizing rule; the BOM below pins qty=1 as the v1
-# single-Compute default for cad/STEP/GLB build. Sizing engine (edp-api) calls
-# pcs_qty_for() at deployment time to override the manifest BOM.
-COMPUTE_CONTAINER_LOAD_KW: Final[int] = 80  # peak per ADR-005
-PCS_RATED_KW: Final[int] = 500  # GRD-PCS-001 EPC PD500/AC-480
-
-
-def pcs_qty_for(compute_container_count: int) -> int:
-    """PCS qty needed to handle aggregate compute load.
-
-    Args:
-        compute_container_count: Number of Compute Containers in the deployment.
-
-    Returns:
-        ceil(total_load_kW / PCS_rated_kW). Always >= 1.
-    """
-    return math.ceil(compute_container_count * COMPUTE_CONTAINER_LOAD_KW / PCS_RATED_KW)
-
+# Reason: on our 415 V bus the PD500 runs its 400 V setting, 417 kW each
+# (EPC PD Family datasheet), so two per dc-ext grid container = 834 kW.
+# edp-api sizes dc_ext sites on that number. A third would have to stack.
+PCS_PER_GRID_CONTAINER: Final[int] = 2
+_PCS: Final[dict] = {"equipment_id": "GRD-PCS-001", "qty": PCS_PER_GRID_CONTAINER}
 
 COMMERCIAL_DC_EXT_BOM: Final[dict] = {
     "shell": SHELL,
     "parts": [
         *_PARTS,
-        # qty pinned for v1 single-Compute build; deployment-level sizing engine
-        # overrides via pcs_qty_for(compute_container_count).
-        {"equipment_id": "GRD-PCS-001", "qty": 1},
+        _PCS,
     ],
     "plates": [
         {"id": "CG", "version": "v1", "qty": 1},
@@ -155,6 +141,14 @@ FEEDER_BOM: Final[dict] = {
     "plates": [
         {"id": "CG", "version": "v1", "qty": 1},
     ],
+}
+
+# Reason: each dc-ext container converts its own BESS strings, so a feeder
+# keeps the PCS pair and BG-DC; it only drops the site's one POI meter.
+DC_EXT_FEEDER_BOM: Final[dict] = {
+    **FEEDER_BOM,
+    "parts": [*FEEDER_BOM["parts"], _PCS],
+    "plates": COMMERCIAL_DC_EXT_BOM["plates"],
 }
 
 # Reason: defense variants share equipment + plate IDs with their commercial
@@ -179,6 +173,10 @@ DEFENSE_FEEDER_BOM: Final[dict] = {
     **FEEDER_BOM,
     "deployment_context": "defense_forward",
 }
+DEFENSE_DC_EXT_FEEDER_BOM: Final[dict] = {
+    **DC_EXT_FEEDER_BOM,
+    "deployment_context": "defense_forward",
+}
 
 BOM_BY_VARIANT: Final[dict[str, dict]] = {
     "commercial-ac": COMMERCIAL_AC_BOM,
@@ -189,6 +187,8 @@ BOM_BY_VARIANT: Final[dict[str, dict]] = {
     "defense-no-bess": DEFENSE_NO_BESS_BOM,
     "feeder": FEEDER_BOM,
     "defense-feeder": DEFENSE_FEEDER_BOM,
+    "dc-ext-feeder": DC_EXT_FEEDER_BOM,
+    "defense-dc-ext-feeder": DEFENSE_DC_EXT_FEEDER_BOM,
 }
 
 # Reason: which BG-* plate goes at the +X end for each variant.
@@ -203,12 +203,9 @@ _BG_PLATE_BY_VARIANT: Final[dict[str, str | None]] = {
     "defense-no-bess": None,
     "feeder": None,
     "defense-feeder": None,
+    "dc-ext-feeder": "BG-DC",
+    "defense-dc-ext-feeder": "BG-DC",
 }
-
-# Reason: variants that include GRD-PCS-001 in the equipment layout.
-_VARIANTS_WITH_PCS: Final[frozenset[str]] = frozenset(
-    {"commercial-dc-ext", "defense-dc-ext"}
-)
 
 
 def _deployment_context_for(variant: str) -> str:

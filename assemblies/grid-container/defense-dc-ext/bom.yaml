@@ -14,7 +14,7 @@ parts:
 - equipment_id: GRD-MTR-001
   qty: 1
 - equipment_id: GRD-PCS-001
-  qty: 1
+  qty: 2
 plates:
 - id: CG
   version: v1

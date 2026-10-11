@@ -3,7 +3,7 @@ schema_version: "1"
 category: pcs
 vendor: EPC Power
 model_number: PD500/AC-480 (50-100195)
-description: 500 kW bidirectional grid-forming PCS, 480 VAC, liquid-cooled rack module
+description: 417 kW bidirectional grid-forming PCS on its 400 VAC setting (500 kW at 480 VAC), liquid-cooled rack module
 datasheet_url: https://cdn.prod.website-files.com/665e2b85042bf6bc36c01479/67588b7148b5cdaf6ec56b40_PD%20Family%2012.9.24.pdf
 datasheet_hash: TBD_compute_at_pipeline_run
 step_source: null
@@ -15,12 +15,14 @@ unit_cost_usd: null
 
 spec:
   electrical:
-    voltage_v: 480.0
-    voltage_range_v: [422.4, 528.0]   # 480 +10%/-12%
+    # Reason: our LV bus is 415 V (ADR-005), outside the 480 V setting's range.
+    # Same model runs a 400 V setting (datasheet AC table) that covers it.
+    voltage_v: 400.0
+    voltage_range_v: [352.0, 440.0]   # 400 +10%/-12%
     current_a: 602.0
     phase: 3ph
     frequency_hz: 60.0                # 50/60 configurable
-    power_kw: 500.0
+    power_kw: 417.0                   # datasheet AC export/import at 400 VRMS
     power_factor_range: [-1.0, 1.0]   # full 4-quadrant
     efficiency_pct: 98.4              # peak DC-AC at 480 VAC
     breaker_size_a: null
@@ -150,7 +152,7 @@ provenance:
       note: Per §6.1, vendor-published only. Not in public datasheet. Sales touch follow-up.
     - field: spec.thermal.heat_load_kw
       flag: assumed_default
-      note: Computed from efficiency (500/0.984 - 500 = 8.13 kW). Vendor does not state heat dissipation directly.
+      note: Computed from efficiency at the 480 V rating (500/0.984 - 500 = 8.13 kW), an upper bound at our 417 kW. Vendor does not state heat dissipation directly.
     - field: spec.thermal.flow_rate_lpm
       flag: missing
       note: Pump curve / flow specification not in public datasheet.
