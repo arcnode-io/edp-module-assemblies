@@ -7,7 +7,8 @@ v1 layout (Q6-B):
   #2 beside it, turned 90° so its 530 mm width runs along X and it stops
   short of SafeGear. +X end is fully booked by SafeGear's rotated 2159 mm
   depth. DC bus runs across the container to the BG-DC plate at +X.
-RLY + MTR are inside SafeGear's LV compartment (Q7-A) — bom-only, no geometry.
+RLY is inside SafeGear's LV compartment (Q7-A); MTR ships loose to the POI
+(ADR-020). Both are bom-only, no geometry.
 """
 
 from pathlib import Path

@@ -86,7 +86,7 @@ _PARTS: Final[list[dict]] = [
     {"equipment_id": "GRD-XFM-001", "qty": 1},
     {"equipment_id": "GRD-SWG-001", "qty": 1},
     {"equipment_id": "GRD-RLY-001", "qty": 1},  # in SafeGear LV (Q7-A)
-    {"equipment_id": "GRD-MTR-001", "qty": 1},  # panel mount on SafeGear (Q7-A)
+    {"equipment_id": "GRD-MTR-001", "qty": 1},  # ships loose to the POI (ADR-020)
 ]
 
 COMMERCIAL_AC_BOM: Final[dict] = {

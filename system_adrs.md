@@ -92,8 +92,12 @@ Grid container: a 415 V LV switchboard (GRD-LVS-001) with a main breaker on the 
 
 ## ADR-018 — Compute containers split evenly over grid containers
 
-Site with N compute and M grid containers: grid container k feeds compute containers in order, q = ceil(N / M) each (G1 feeds C1…Cq, G2 the next q, and so on). M is sized from site peak, so an even split keeps each under its rating. The 13.8 kV site bus joining the utility service, the M grid containers and the BESS step-up is by others. G1 carries the ION9000; with M > 1 it meters G1's feed only.
+Site with N compute and M grid containers: grid container k feeds compute containers in order, q = ceil(N / M) each (G1 feeds C1…Cq, G2 the next q, and so on). M is sized from site peak, so an even split keeps each under its rating. The 13.8 kV site bus joining the utility service, the M grid containers and the BESS step-up is by others.
 
 ## ADR-019 — Management network
 
 Each container gets a 1 GbE managed switch for device management: server BMCs, PDUs, CDU, relay, meter, PCS. The SN5600 stays the data-plane fabric. Compute switches (CMP-SWITCH-003) uplink through CG to the grid container switch (GRD-SWITCH-001), which carries the uplink to the EMS gateway. Gateway hardware is the platform-ems-iso host, not specified here. Parts are pending selection, datasheet check and CAD fit.
+
+## ADR-020 — POI meter sits at the utility service
+
+The ION9000 (GRD-MTR-001) meters the point of interconnection: the utility service ahead of the 13.8 kV site bus. Inside G1 it would miss the MV-tied BESS (ADR-016) and every other grid container (ADR-018), so the EMS would read the wrong site import/export. It ships loose with G1 (one per site, on G1's BOM) and is installed at the service with revenue-class CTs/PTs by the site MV contractor, along with any utility-required interconnection protection. Its Ethernet runs to G1's management switch (ADR-019).
