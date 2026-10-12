@@ -1,0 +1,143 @@
+equipment_id: CMP-SWITCH-003
+schema_version: "1"
+category: network_switch
+vendor: NVIDIA (Mellanox)
+model_number: SN2201 (920-9N110-00F1-0C0, Cumulus Linux, P2C airflow)
+description: 1U 48-port 1GbE RJ45 + 4x QSFP28 out-of-band management switch, Cumulus Linux, dual AC PSU
+datasheet_url: https://www.delltechnologies.com/asset/en-us/products/networking/technical-support/nvidia-spectrum-sn2201-datasheet.pdf
+datasheet_hash: TBD_compute_at_pipeline_run
+step_source: null
+fab_tier: federal_civilian
+restricted_entities: null
+install_video_url: null
+lead_time_weeks: null
+unit_cost_usd: null
+
+spec:
+  electrical:
+    voltage_v: 240.0                  # datasheet: input range 100-264 VAC
+    voltage_range_v: [100.0, 264.0]
+    current_a: 4.5                    # datasheet: input current 2.9-4.5 A
+    phase: 1ph
+    frequency_hz: 60.0
+    power_kw: 0.1                     # datasheet: typical power (ATIS) 100 W (estimated)
+    power_factor_range: null
+    efficiency_pct: null
+    breaker_size_a: null
+    aic_rating_ka: null
+    thd_pct: null
+    fault_current_contribution_pu: null
+
+  thermal:
+    heat_load_kw: 0.1                 # all input power becomes heat
+    heat_rejection_kw: null
+    coolant_compatibility:
+      - air                           # P2C airflow, matches the SN5600 (CMP-SWITCH-001)
+    flow_rate_lpm: null
+    supply_temp_c: null
+    return_temp_c: null
+    pump_head_kpa: null
+    internal_pressure_drop_kpa: null
+    port_size_dn: null
+
+  mechanical:
+    weight_kg: 7.41                   # datasheet
+    dimensions_mm: [432, 428, 43.9]   # datasheet: 43.9 H x 428 W x 432 D (L x W x H here)
+    container_type: 10ft_ISO_high_cube
+    mounting: rack_19in
+    mounting_notes: |
+      1U 19" rack-mount, short depth; rail kit included in the SKU
+      (tool-less 4-post kit 930-9NRKT-00JS-000).
+    rack_units: 1
+    ip_rating: null
+    lift_points: null
+    ambient_temp_range_c: [0, 40]     # user manual: operational 0-40 °C
+    max_elevation_m: 5000             # user manual: altitude 5000 m
+    noise_dba_at_1m: null
+
+  ports:
+    - port_id: AC_PWR
+      type: ac_power
+      role: input
+      connector_spec: IEC C14 inlet per PSU (250 W PSU, power cord included)
+      mating_part: null
+      qty: 2                          # datasheet: 2 (1+1 redundant)
+    - port_id: ETH_1G
+      type: ethernet
+      role: bidirectional             # BMCs, PDUs, CDU, SN5600 mgmt port
+      connector_spec: RJ45 10/100/1000Base-T
+      mating_part: null
+      qty: 48
+    - port_id: QSFP28
+      type: ethernet
+      role: bidirectional             # fiber uplink to the grid container switch
+      connector_spec: QSFP28 up to 100 GbE (1/10 GbE via breakout)
+      mating_part: null
+      qty: 4
+    - port_id: MGMT
+      type: ethernet
+      role: bidirectional
+      connector_spec: RJ45
+      mating_part: null
+      qty: 1
+    - port_id: CONSOLE
+      type: signal_serial
+      role: bidirectional
+      connector_spec: RJ45
+      mating_part: null
+      qty: 1
+
+  control:
+    protocol: snmp                    # Cumulus Linux SNMP (IF-MIB, ENTITY-SENSOR-MIB)
+    register_map_url: https://docs.nvidia.com/networking-ethernet-software/cumulus-linux-510/Monitoring-and-Troubleshooting/Simple-Network-Management-Protocol-SNMP/Supported-MIBs/
+    command_latency_ms: null
+    step_response_ms: null
+    control_modes:
+      - normal_operation
+      - maintenance
+      - port_disabled
+    black_start_capable: null
+
+geometry:
+  source: synthesized
+  fidelity: bounding_box
+  equipment_envelope_path: geometry/envelopes/CMP-SWITCH-003-equipment.step
+  service_envelope_path: geometry/envelopes/CMP-SWITCH-003-service.step
+  bounding_box:
+    L_mm: 432.0
+    W_mm: 428.0
+    H_mm: 43.9
+  service_clearance:
+    front: 600.0
+    rear: 600.0
+    left: 0.0
+    right: 0.0
+    top: 0.0
+    bottom: 0.0
+    install_clearance: null
+
+provenance:
+  authored_by: power-engineer
+  authored_date: 2026-10-12
+  reviewed_by: TBD_pending_human_review
+  reviewed_date: null
+  confidence_flags:
+    - field: fab_tier
+      flag: assumed_default
+      note: Same basis as CMP-SWITCH-001 (NVIDIA design, Taiwan/Israel assembly) — federal_civilian.
+    - field: unit_cost_usd
+      flag: missing
+    - field: lead_time_weeks
+      flag: missing
+
+notes: |
+  Management switch per ADR-019: NVIDIA's own OOB management switch for
+  HGX/DGX racks. Takes the 7 node BMCs, 6 PDUs, the CDU and the SN5600's
+  management port (15 of 48 RJ45); uplinks over fiber (QSFP28, breakout to
+  1/10 GbE) through CG to the grid container switch. Fiber between
+  containers avoids ground-potential differences between separate
+  structures. Sits in the rack's free U above the PDUs.
+
+  Sources: datasheet (datasheet_url) for ports, power, size, weight, SKUs;
+  NVIDIA user manual https://networking-docs.nvidia.com/sn2201hw/specifications
+  for the 0-40 °C operating range and 5000 m altitude.

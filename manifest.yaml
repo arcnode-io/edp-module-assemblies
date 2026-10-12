@@ -6,6 +6,7 @@ specs:
   CMP-RACK-001: s3://arcnode-artifacts/equipment/CMP-RACK-001/spec.yaml
   CMP-SWITCH-001: s3://arcnode-artifacts/equipment/CMP-SWITCH-001/spec.yaml
   CMP-SWITCH-002: s3://arcnode-artifacts/equipment/CMP-SWITCH-002/spec.yaml
+  CMP-SWITCH-003: s3://arcnode-artifacts/equipment/CMP-SWITCH-003/spec.yaml
   EXT-BESS-001: s3://arcnode-artifacts/equipment/EXT-BESS-001/spec.yaml
   EXT-BESS-002: s3://arcnode-artifacts/equipment/EXT-BESS-002/spec.yaml
   EXT-DC-001: s3://arcnode-artifacts/equipment/EXT-DC-001/spec.yaml
@@ -33,6 +34,9 @@ geometry:
     vendor_step: null
   CMP-SWITCH-002:
     envelope: s3://arcnode-artifacts/equipment/CMP-SWITCH-002/envelope.step
+    vendor_step: null
+  CMP-SWITCH-003:
+    envelope: s3://arcnode-artifacts/equipment/CMP-SWITCH-003/envelope.step
     vendor_step: null
   EXT-BESS-001:
     envelope: s3://arcnode-artifacts/equipment/EXT-BESS-001/envelope.step

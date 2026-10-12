@@ -77,3 +77,16 @@ def place_rack_equipment(assy: cq.Assembly, *, exploded: bool = False) -> None:
             loc=cq.Location(pos),
             color=cq.Color(0.5, 0.2, 0.2),
         )
+
+    # Management switch (ADR-019) in the next free U above the PDUs.
+    mgmt_pos = cq.Vector(
+        0, 0, pdu_base_z + PDU_COUNT * PDU_PITCH_MM + SWITCH_HALF_HEIGHT_MM
+    )
+    if exploded:
+        mgmt_pos = mgmt_pos.add(_explode.switch_offset(node_count))
+    assy.add(
+        _import_envelope("CMP-SWITCH-003"),
+        name="CMP-SWITCH-003",
+        loc=cq.Location(mgmt_pos),
+        color=cq.Color(0.4, 0.7, 0.4),
+    )

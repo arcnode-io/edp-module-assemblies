@@ -13,6 +13,8 @@ parts:
   qty: 1
 - equipment_id: CMP-SWITCH-001
   qty: 1
+- equipment_id: CMP-SWITCH-003
+  qty: 1
 - equipment_id: CMP-PDU-001
   qty: 6
 - equipment_id: EXT-DC-001

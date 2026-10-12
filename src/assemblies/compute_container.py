@@ -82,6 +82,7 @@ COMMERCIAL_AC_BOM: Final[dict] = {
         {"equipment_id": "CMP-RACK-001", "qty": 1},
         {"equipment_id": "CMP-CDU-001", "qty": 1},
         {"equipment_id": "CMP-SWITCH-001", "qty": 1},
+        {"equipment_id": "CMP-SWITCH-003", "qty": 1},  # ADR-019 management switch
         {"equipment_id": "CMP-PDU-001", "qty": 6},  # ADR-005: 2N, 3 per feed
         # Outdoor on the customer's pad; rejects this container's CDU loop heat.
         {"equipment_id": "EXT-DC-001", "qty": 1},

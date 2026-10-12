@@ -194,3 +194,11 @@ def test_defense_ac_bbox_matches_container_envelope() -> None:
     assert abs(bbox.xlen - L_EXT_MM) < bbox_tolerance_mm
     assert abs(bbox.ylen - W_EXT_MM) < bbox_tolerance_mm
     assert abs(bbox.zlen - H_EXT_MM) < bbox_tolerance_mm
+
+
+def test_management_switch_rides_in_the_rack() -> None:
+    # arrange / act — ADR-019: 1 GbE management switch per container
+    parts = {p["equipment_id"]: p["qty"] for p in COMMERCIAL_AC_BOM["parts"]}
+    children = {c.name for c in build_compute_container("commercial-ac").children}
+    # assert
+    assert (parts["CMP-SWITCH-003"], "CMP-SWITCH-003" in children) == (1, True)
