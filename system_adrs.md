@@ -18,7 +18,7 @@ All containers 10ft high-cube ISO (interior 2,680mm). SafeGear (2,413mm) does no
 
 ## ADR-005 — 415Y/240V LV distribution
 
-Trihal secondary 415Y/240V (not 480V). 60A 3-phase rack PDU = 34.5 kW per unit (48A rated). 6× PDUs per Compute Container (3 per feed) = true 2N at 80 kW. HGX PSUs accept 240V phase-to-neutral.
+Trihal secondary 415Y/240V (not 480V). 60A 3-phase rack PDU = 34.5 kW per unit (48A rated). 6× PDUs per Compute Container (3 per feed) = 2N distribution at 80 kW, single source: the A and B feeds share one CG feeder and one Trihal, so 2N covers PDU and branch failures, not loss of the grid container. HGX PSUs accept 240V phase-to-neutral.
 
 ## ADR-006 — Manifest absorbs profile→asset mapping
 
@@ -81,3 +81,19 @@ Slot length is encoded in `mounting_bolts.slot_length_mm` in each plate's `cad/s
 ## ADR-015 — Grid gear serviced from outside
 
 SafeGear and the PCS pair are worked from outside through the container's side doors, not from inside. The interior is not a working space, so the Trihal and PCS #1 may sit in front of SafeGear's face (NEC 110.34 working space is outside the doors).
+
+## ADR-016 — AC-output BESS ties in at 13.8 kV
+
+AC-output batteries (Tesla Megapack 2 XL, 480 V; CATL with its own PCS) connect to the site 13.8 kV bus through a customer-supplied step-up transformer and MV disconnect (BYOB, ADR-001). They don't land on the grid container's 415 V bus: Megapack's 480 V can't parallel a 415Y/240V bus, and a 480/415 transformer doesn't fit the grid container. BG-AC is retired. dc_ext is unchanged: CATL DC enters through BG-DC to the PCS pair on the 415 V bus.
+
+## ADR-017 — LV protection
+
+Grid container: a 415 V LV switchboard (GRD-LVS-001) with a main breaker on the Trihal secondary and one feeder breaker per compute container it feeds (plus one per PCS on dc_ext). Compute container: a panelboard (CMP-PNL-001) with one branch breaker per PDU, the CDU and the dry cooler. Parts are pending selection, datasheet check and CAD fit.
+
+## ADR-018 — Compute containers split evenly over grid containers
+
+Site with N compute and M grid containers: grid container k feeds compute containers in order, q = ceil(N / M) each (G1 feeds C1…Cq, G2 the next q, and so on). M is sized from site peak, so an even split keeps each under its rating. The 13.8 kV site bus joining the utility service, the M grid containers and the BESS step-up is by others. G1 carries the ION9000; with M > 1 it meters G1's feed only.
+
+## ADR-019 — Management network
+
+Each container gets a 1 GbE managed switch for device management: server BMCs, PDUs, CDU, relay, meter, PCS. The SN5600 stays the data-plane fabric. Compute switches (CMP-SWITCH-003) uplink through CG to the grid container switch (GRD-SWITCH-001), which carries the uplink to the EMS gateway. Gateway hardware is the platform-ems-iso host, not specified here. Parts are pending selection, datasheet check and CAD fit.
