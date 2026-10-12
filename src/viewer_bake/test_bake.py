@@ -93,16 +93,7 @@ def test_bake_compute_hides_drycooler_plate(tmp_path: Path) -> None:
 
 
 def test_bake_grid_hides_bess_plate(tmp_path: Path) -> None:
-    # commercial-ac → BG-AC hidden; dc-ext → BG-DC hidden; CG kept in both.
-    out_ac = bake_module(
-        "grid", ASSEMBLIES / "grid-container" / "commercial-ac", tmp_path
-    )
-    g_ac = GLTF2().load_binary(str(out_ac))
-    bg_ac_node = next(n for n in g_ac.nodes if n.name == "ARC-PLT-BG-AC")
-    cg_ac_node = next(n for n in g_ac.nodes if n.name == "ARC-PLT-CG")
-    assert bg_ac_node.mesh is None
-    assert cg_ac_node.mesh is not None
-
+    # dc-ext → BG-DC hidden; CG kept.
     out_dc = bake_module(
         "grid-dc-ext", ASSEMBLIES / "grid-container" / "commercial-dc-ext", tmp_path
     )

@@ -155,11 +155,6 @@ plates:
     step: s3://arcnode-artifacts/plates/CG/v1/plate.step
     dxf: s3://arcnode-artifacts/plates/CG/v1/plate.dxf
     drawing_meta: s3://arcnode-artifacts/plates/CG/v1/drawing_meta.json
-  BG-AC:
-    spec: s3://arcnode-artifacts/plates/BG-AC/v1/spec.yaml
-    step: s3://arcnode-artifacts/plates/BG-AC/v1/plate.step
-    dxf: s3://arcnode-artifacts/plates/BG-AC/v1/plate.dxf
-    drawing_meta: s3://arcnode-artifacts/plates/BG-AC/v1/drawing_meta.json
   BG-DC:
     spec: s3://arcnode-artifacts/plates/BG-DC/v1/spec.yaml
     step: s3://arcnode-artifacts/plates/BG-DC/v1/plate.step
@@ -177,7 +172,6 @@ profiles:
     grid_feeder_container: feeder
     interface_plates:
     - CG
-    - BG-AC
     - CD
   commercial_dc_int:
     compute_container: commercial-ac
@@ -185,7 +179,6 @@ profiles:
     grid_feeder_container: feeder
     interface_plates:
     - CG
-    - BG-AC
     - CD
   commercial_dc_ext:
     compute_container: commercial-ac
@@ -201,5 +194,4 @@ profiles:
     grid_feeder_container: defense-feeder
     interface_plates:
     - CG
-    - BG-AC
     - CD

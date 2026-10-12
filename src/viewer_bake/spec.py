@@ -26,8 +26,8 @@ MAT_SPECS: Final[list[MatSpec]] = [
     MatSpec(
         "platform",
         # Reason: all interface plates render with the same brushed-aluminum
-        # look — CG, BG-AC, BG-DC, CD share the 6061-T6 finish in v1.
-        re.compile(r"^ARC-PLT-(CG|BG-AC|BG-DC|CD)$"),
+        # look — CG, BG-DC, CD share the 6061-T6 finish in v1.
+        re.compile(r"^ARC-PLT-(CG|BG-DC|CD)$"),
         "#6b7280",
         0.6,
         0.45,
@@ -265,7 +265,6 @@ _GRID_BASE: Final[list[HotspotCopy]] = [
 # preserved in source assemblies.
 HIDDEN_NODES: Final[dict[str, list[str]]] = {
     "compute": ["ARC-PLT-CD"],
-    "grid": ["ARC-PLT-BG-AC"],
     "grid-dc-ext": ["ARC-PLT-BG-DC"],
     # Daughterboard scaffolding (ADR-013) — marketing view shows the Lepton
     # only; bracket + small PCB + socket pedestal stay out of the scene.

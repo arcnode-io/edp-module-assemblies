@@ -8,10 +8,11 @@ Emits assemblies/grid-container/{variant}/{assembly.step,assembly.glb,bom.yaml}
 plus -exploded.{step,glb} per Q8.
 
 Variants:
-- commercial-ac: CG (-X) + BG-AC (+X). BESS lands AC at grid wall.
+- commercial-ac: CG (-X) only. AC batteries tie in at 13.8 kV outside the
+  container (ADR-016).
 - commercial-dc-ext: CG (-X) + BG-DC (+X). PCS lives in grid container,
   BESS pad outputs raw DC strings. Two PD500s (834 kW at 415 V).
-- feeder: commercial-ac minus the POI meter and the BG plate. Sites past one transformer add
+- feeder: commercial-ac minus the POI meter. Sites past one transformer add
   N-1 of these beside the primary; a site has one POI, so one meter.
 - dc-ext-feeder: commercial-dc-ext minus the POI meter (keeps its PCS pair
   + BG-DC, since each container converts its own BESS strings).
@@ -53,9 +54,7 @@ CG_MATING_FRAME: Final[cq.Location] = cq.Location(
     +90,
 )
 
-# Reason: BG-* plate at +X end (BESS-facing). Single mating frame shared
-# across BG-AC (commercial-ac) and BG-DC (commercial-dc-ext) — the wall
-# location is identical; only the plate's penetration schedule differs.
+# Reason: BG-DC plate at +X end (BESS-facing) on the dc-ext variants.
 # Plate built normal +Z; rotation -90° about Y → normal +X.
 BG_MATING_FRAME: Final[cq.Location] = cq.Location(
     cq.Vector(+L_EXT_MM / 2, 0.0, PLATE_CENTER_Z_MM),
@@ -95,7 +94,6 @@ COMMERCIAL_AC_BOM: Final[dict] = {
     "parts": _PARTS,
     "plates": [
         {"id": "CG", "version": "v1", "qty": 1},
-        {"id": "BG-AC", "version": "v1", "qty": 1},
     ],
 }
 
@@ -156,12 +154,12 @@ BOM_BY_VARIANT: Final[dict[str, dict]] = {
     "dc-ext-feeder": DC_EXT_FEEDER_BOM,
 }
 
-# Reason: which BG-* plate goes at the +X end for each variant.
-# Feeders have no BG plate (the BESS lands on the primary).
+# Reason: which BG plate goes at the +X end. Only dc-ext takes battery
+# power into the container (ADR-016).
 _BG_PLATE_BY_VARIANT: Final[dict[str, str | None]] = {
-    "commercial-ac": "BG-AC",
+    "commercial-ac": None,
     "commercial-dc-ext": "BG-DC",
-    "defense-ac": "BG-AC",
+    "defense-ac": None,
     "feeder": None,
     "defense-feeder": None,
     "dc-ext-feeder": "BG-DC",
@@ -213,7 +211,7 @@ def build_grid_container(
 
 
 def _add_plates(assy: cq.Assembly, *, variant: Variant, exploded: bool) -> None:
-    """Place CG (always) + BG-* (per variant). AC feeders skip BG entirely.
+    """Place CG (always) + BG-DC (dc-ext variants only).
 
     Defense variants pull -defense.step artifacts via plate_loader's
     deployment_context arg; commercial variants pull plate.step.
@@ -239,7 +237,7 @@ def _add_plates(assy: cq.Assembly, *, variant: Variant, exploded: bool) -> None:
         if exploded:
             base = cq.Vector(*BG_MATING_FRAME.toTuple()[0])
             bg_loc = cq.Location(
-                base + _explode.bg_ac_plate_offset(), cq.Vector(0, 1, 0), -90
+                base + _explode.bg_plate_offset(), cq.Vector(0, 1, 0), -90
             )
         assy.add(
             bg_plate,

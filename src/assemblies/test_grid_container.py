@@ -76,11 +76,11 @@ def test_bom_has_xfm_and_swg_and_cg_plate() -> None:
     assert plates_by_id["CG"] == 1
 
 
-def test_bom_plates_match_4_plate_fleet() -> None:
+def test_ac_grid_container_has_no_bess_plate() -> None:
     # arrange
     plate_ids = {p["id"] for p in COMMERCIAL_AC_BOM["plates"]}
-    # act / assert — commercial-ac grid container has 2 plates: CG + BG-AC
-    assert plate_ids == {"CG", "BG-AC"}
+    # act / assert — AC batteries tie in at 13.8 kV outside the container (ADR-016)
+    assert plate_ids == {"CG"}
 
 
 def test_feeder_bom_drops_the_poi_meter_and_bess_plate() -> None:
@@ -107,19 +107,19 @@ def test_dc_ext_feeder_carries_its_own_pcs_but_not_the_poi_meter() -> None:
     assert (parts, plates) == (expected_parts, {"CG", "BG-DC"})
 
 
-def test_bg_ac_plate_placed_at_positive_x_end() -> None:
-    # arrange — BG-AC at +X end (BESS pad), opposite from CG at -X (compute)
+def test_bg_plate_placed_at_positive_x_end() -> None:
+    # arrange — BG-DC at +X end (BESS pad), opposite from CG at -X (compute)
     expected_x = +L_EXT_MM / 2
     actual_x = BG_MATING_FRAME.toTuple()[0][0]
     assert math.isclose(actual_x, expected_x, abs_tol=0.1)
 
 
-def test_bg_ac_plate_in_assembly() -> None:
+def test_ac_assembly_has_no_bess_plate() -> None:
     # arrange / act
     assy = build_grid_container(variant="commercial-ac")
     child_names = {c.name for c in assy.children}
     # assert
-    assert "ARC-PLT-BG-AC" in child_names
+    assert not any(n.startswith("ARC-PLT-BG") for n in child_names)
 
 
 def test_exploded_xfm_lifted_in_z() -> None:
@@ -152,7 +152,7 @@ def test_dc_ext_bom_has_pcs_and_bg_dc() -> None:
     # arrange
     parts_by_id = {p["equipment_id"]: p["qty"] for p in COMMERCIAL_DC_EXT_BOM["parts"]}
     plate_ids = {p["id"] for p in COMMERCIAL_DC_EXT_BOM["plates"]}
-    # act / assert — two PCS (417 kW each at 415 V), BG-DC instead of BG-AC
+    # act / assert — two PCS (417 kW each at 415 V) fed through BG-DC
     assert parts_by_id["GRD-PCS-001"] == 2
     assert plate_ids == {"CG", "BG-DC"}
 
@@ -164,11 +164,10 @@ def test_dc_ext_assembly_includes_pcs_and_bg_dc_plate() -> None:
     # assert
     assert {"GRD-PCS-001#1", "GRD-PCS-001#2"} <= child_names
     assert "ARC-PLT-BG-DC" in child_names
-    assert "ARC-PLT-BG-AC" not in child_names
 
 
-def test_dc_ext_bg_plate_at_same_position_as_ac() -> None:
-    # arrange — BG-AC and BG-DC share the +X end mating frame (same wall slot)
+def test_dc_ext_bg_plate_sits_on_the_bg_mating_frame() -> None:
+    # arrange — BG-DC on the +X end mating frame (BESS-facing wall)
     expected_pos = BG_MATING_FRAME.toTuple()[0]
     # act
     assy = build_grid_container(variant="commercial-dc-ext")
@@ -237,12 +236,12 @@ def test_defense_ac_bom_carries_deployment_context() -> None:
     assert DEFENSE_AC_BOM["plates"] == COMMERCIAL_AC_BOM["plates"]
 
 
-def test_defense_ac_assembly_builds_with_bg_ac_plate() -> None:
+def test_defense_ac_assembly_builds_with_cg_only() -> None:
     # arrange / act
     assy = build_grid_container(variant="defense-ac")
     child_names = {c.name for c in assy.children}
-    # assert — same plate set as commercial-ac (CG + BG-AC); fetch routes
-    # to -defense.step artifacts (plate_loader tests cover the routing).
+    # assert — same plate set as commercial-ac (CG only, ADR-016); fetch
+    # routes to -defense.step artifacts (plate_loader tests cover the routing).
     assert "ARC-PLT-CG" in child_names
-    assert "ARC-PLT-BG-AC" in child_names
+    assert not any(n.startswith("ARC-PLT-BG") for n in child_names)
     assert not any(n.startswith("GRD-PCS-001") for n in child_names)

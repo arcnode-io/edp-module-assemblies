@@ -42,7 +42,7 @@ def _filename_for(deployment_context: str) -> str:
 # edp-interface-plates repo. Used by `poe sync-plates` to seed the cache
 # via symlink. CI ignores this and relies on S3 download (cache miss path).
 _PLATES_REPO: Final[Path] = REPO_ROOT.parent / "edp-interface-plates" / "cad" / "specs"
-PLATE_IDS: Final[tuple[str, ...]] = ("CG", "BG-AC", "BG-DC", "CD")
+PLATE_IDS: Final[tuple[str, ...]] = ("CG", "BG-DC", "CD")
 _DEPLOYMENT_CONTEXTS_TO_SYNC: Final[tuple[str, ...]] = ("commercial", "defense_forward")
 LOCAL_PLATE_SOURCES: Final[dict[tuple[str, str, str], Path]] = {
     (pid, "v1", ctx): _PLATES_REPO / pid / _filename_for(ctx)
