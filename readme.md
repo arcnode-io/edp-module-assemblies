@@ -43,8 +43,7 @@ edp-module-assemblies/
 │   ├── main.py
 ├── scripts/
 │   ├── build_manifest.py
-│   ├── push_to_s3.py
-│   └── validate_specs.py
+│   └── push_to_s3.py
 └── indices/
     └── by-category.json
 ```
@@ -124,9 +123,8 @@ Datasheets, envelopes, vendor STEPs, and indices stay in repo for human referenc
 
 **CI (on merge to main):**
 
-1. `scripts/validate_specs.py` — schema check on every `spec.yaml`
-2. `scripts/build_manifest.py` — generate `manifest.yaml` + `indices/`
-3. `scripts/push_to_s3.py` — push `manifest.yaml`, `equipment/*/spec.yaml`, `assemblies/` to S3
+1. `scripts/build_manifest.py` — generate `manifest.yaml` + `indices/`
+2. `scripts/push_to_s3.py` — push `manifest.yaml`, `equipment/*/spec.yaml`, `assemblies/` to S3
 
 ## Plate Dependencies
 

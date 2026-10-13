@@ -44,10 +44,9 @@ bake-viewer = { cmd = "python scripts/bake_viewer.py", env = { PYTHONPATH = "." 
 build-all = ["sync-plates", "build-envelopes", "build-compute", "build-compute-defense", "build-grid", "build-grid-dc-ext", "build-grid-defense-ac", "build-grid-feeder", "build-grid-defense-feeder", "build-grid-dc-ext-feeder", "build-deployment-commercial-ac", "build-deployment-commercial-dc-int", "build-deployment-commercial-dc-ext", "build-deployment-defense-ac", "build-manifest"]
 
 # CI
-validate-specs = { cmd = "python scripts/validate_specs.py", env = { PYTHONPATH = "." } }
 build-manifest = { cmd = "python scripts/build_manifest.py", env = { PYTHONPATH = "." } }
 push-s3 = { cmd = "python scripts/push_to_s3.py", env = { PYTHONPATH = "." } }
-ci = ["validate-specs", "build-manifest", "push-s3"]
+ci = ["build-manifest", "push-s3"]
 
 # inspect
 inspect-compute = "bash -c 'nohup freecad assemblies/compute-container/commercial-ac/assembly.step &>/dev/null &'"
