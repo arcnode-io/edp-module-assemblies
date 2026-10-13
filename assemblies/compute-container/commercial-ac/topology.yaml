@@ -41,7 +41,7 @@ devices:
     description: NVIDIA Spectrum-X SN5600 800GbE (CMP-SWITCH-001)
     connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
 
-  # 6x PDUs — Raritan PX4 2U, SNMP (PDU2-MIB); 2N, 3 per feed
+  # 6x PDUs — Raritan PX4 2U, SNMP (PDU2-MIB); A/B dual-path, 3 per path
   - template: pdu
     description: Raritan PX4 2U 60A 3ph #1 A-feed (CMP-PDU-001)
     connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }

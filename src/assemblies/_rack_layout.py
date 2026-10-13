@@ -17,7 +17,7 @@ EQUIPMENT_DIR: Final[Path] = Path(__file__).resolve().parents[2] / "equipment"
 NODE_PITCH_MM: Final[float] = 178.0  # 4U
 SWITCH_HALF_HEIGHT_MM: Final[float] = 22.0  # half of 1U
 PDU_PITCH_MM: Final[float] = 88.0  # 2U
-PDU_COUNT: Final[int] = 6  # 2N, 3 per feed
+PDU_COUNT: Final[int] = 6  # A/B dual-path, 3 per path (ADR-005)
 
 
 def _import_envelope(equipment_id: str) -> cq.Workplane:

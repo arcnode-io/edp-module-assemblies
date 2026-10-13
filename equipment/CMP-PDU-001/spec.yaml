@@ -46,8 +46,8 @@ spec:
     mounting: rack_19in
     mounting_notes: |
       2U horizontal in the rack U space (RACK-KIT-PX-2U). The rack's
-      zero-U channels take only 4 PDUs, so the 6 needed for 2N go in U
-      space. ARCNODE Compute Container uses 6× PDUs in 2N (3× A-side,
+      zero-U channels take only 4 PDUs, so the 6 needed for A/B dual-path
+      go in U space. ARCNODE Compute Container uses 6× PDUs (3× A-side,
       3× B-side): ~13.3 kW each normally; on single-feed failure the
       surviving 3 carry the full ~80 kW at ~26.7 kW each, within the
       34.5 kVA rating. Enabled by 415V LV from GRD-XFM-001 secondary.
@@ -147,7 +147,7 @@ provenance:
 
 notes: |
   Raritan PX4 2U horizontal is the reference rack PDU for the ARCNODE
-  Compute Container. The rack (CMP-RACK-001) has 4 zero-U PDU bays; 2N at
+  Compute Container. The rack (CMP-RACK-001) has 4 zero-U PDU bays; A/B dual-path at
   80 kW on 34.5 kVA PDUs needs 6, so all 6 go in U space as one model.
   PRO3X was dropped (415V tops out at 17.3 kW); PRO4X C4G36RC matches
   electrically but is 0U-only.
@@ -156,7 +156,7 @@ notes: |
   - 6× PX4 per Compute Container (3× A-side feed, 3× B-side feed)
   - Normal balanced operation: ~13.3 kW per PDU
   - Single-feed failure mode: surviving 3 PDUs carry full 80 kW = 26.7 kW
-    each, within 34.5 kVA rating. TRUE 2N redundancy.
+    each, within 34.5 kVA rating. Dual-path from one source, not 2N (ADR-005).
   - Headroom for B300/Blackwell Ultra upgrade (10% higher TDP per node):
     surviving-side load at ~88 kW = 29.3 kW per PDU, still within rating.
 

@@ -3,7 +3,7 @@ schema_version: "1"
 category: transformer
 vendor: Schneider Electric
 model_number: Trihal TRI100013684152509 (1000 kVA, 13.8 kV / 415V, dyn11, IP31, copper, AN, side-entry HV+LV, off-load taps ±2.5/±5%, louvered top)
-description: Cast-resin dry-type step-up transformer, 1 MVA, 415Y/240V LV / 13.8kV HV, dyn11, indoor IP31
+description: Cast-resin dry-type step-down transformer, 1 MVA, 13.8 kV HV / 415Y/240 V LV, Dyn11, indoor IP31
 datasheet_url: https://www.schneider-electric.com/en/product/TRI100013684152509/trihal-cast-resin-dry-type-transformer-1000-kva-13.8-kv-iec-dyn11-ip31/
 datasheet_hash: TBD_compute_at_pipeline_run
 step_source: null
@@ -178,11 +178,10 @@ notes: |
   loads directly. 415V LV is non-standard in US (480V is convention) but
   is the AI datacenter trend for higher-density rack PDU economics.
 
-  Bidirectional operation: transformer is inherently bidirectional. Used
-  as step-up when ARCNODE exports to grid (BESS dispatch, PCS dispatch in
-  DC-coupled profile), step-down when ARCNODE imports from grid (initial
-  charging, grid-tied operation). The "step-up" framing is conventional
-  — physically the transformer is symmetric.
+  Role: step-down, 13.8 kV site bus to the 415Y/240 V LV bus. Power flows
+  back up through it only on dc_ext sites when the PCS pair exports
+  (ADR-022); AC batteries tie in at 13.8 kV through their own step-up
+  transformer, by others (ADR-016).
 
   Cooling: AN (natural air) is standard. AF (forced air with fans) is an
   option that extends capacity by 40% and enables shorter ride-through of

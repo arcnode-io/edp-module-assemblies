@@ -133,7 +133,7 @@ notes: |
     power budget
 
   Power distribution: the rear zero-U channels take at most 4 rPDUs, so
-  ARCNODE's 6× 2U horizontal PDUs (CMP-PDU-001, 2N, 3 per feed) mount in
+  ARCNODE's 6× 2U horizontal PDUs (CMP-PDU-001, A/B dual-path, 3 per path) mount in
   U space instead.
 
   Ganging: side panels removable for adjacent rack ganging if multi-rack
