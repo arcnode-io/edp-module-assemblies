@@ -26,8 +26,8 @@ MAT_SPECS: Final[list[MatSpec]] = [
     MatSpec(
         "platform",
         # Reason: all interface plates render with the same brushed-aluminum
-        # look — CG, BG-DC, CD share the 6061-T6 finish in v1.
-        re.compile(r"^ARC-PLT-(CG|BG-DC|CD)$"),
+        # look — CG, BG-AC, CD share the 6061-T6 finish in v1.
+        re.compile(r"^ARC-PLT-(CG|BG-AC|CD)$"),
         "#6b7280",
         0.6,
         0.45,
@@ -66,9 +66,6 @@ MAT_SPECS: Final[list[MatSpec]] = [
     ),
     MatSpec(
         "swg", re.compile(r"^GRD-SWG-001$"), "#b8482a", 0.3, 0.55, 1.0, blend=False
-    ),
-    MatSpec(
-        "pcs", re.compile(r"^GRD-PCS-001#\d+$"), "#5b8c6a", 0.4, 0.50, 1.0, blend=False
     ),
     # ── DLR carrier PCB groups ──
     # Reason: scene graph from dlr-pcb has parent group
@@ -265,7 +262,7 @@ _GRID_BASE: Final[list[HotspotCopy]] = [
 # preserved in source assemblies.
 HIDDEN_NODES: Final[dict[str, list[str]]] = {
     "compute": ["ARC-PLT-CD"],
-    "grid-dc-ext": ["ARC-PLT-BG-DC"],
+    "grid-dc-ext": ["ARC-PLT-BG-AC"],
     # Daughterboard scaffolding (ADR-013) — marketing view shows the Lepton
     # only; bracket + small PCB + socket pedestal stay out of the scene.
     "dlr-carrier": [
@@ -300,10 +297,7 @@ HOTSPOT_COPY: Final[dict[str, list[HotspotCopy]]] = {
         _PLATE_CG_FROM_COMPUTE,
     ],
     "grid": _GRID_BASE,
-    "grid-dc-ext": [
-        *_GRID_BASE,
-        HotspotCopy("pcs", re.compile(r"^GRD-PCS-001#1$"), "PCS", "DC → AC, 2x 417 kW"),
-    ],
+    "grid-dc-ext": _GRID_BASE,
     # PCB-only viewer ships with no permanent hotspots — hover-labels carry
     # the per-material callouts. Lepton aim hotspot lives on the kit variant
     # viewers below where the bracket context makes the tilt meaningful.

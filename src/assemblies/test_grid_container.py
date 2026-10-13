@@ -96,19 +96,19 @@ def test_dc_ext_feeder_carries_its_own_pcs_but_not_the_poi_meter() -> None:
     # arrange
     parts = {p["equipment_id"]: p["qty"] for p in DC_EXT_FEEDER_BOM["parts"]}
     plates = {p["id"] for p in DC_EXT_FEEDER_BOM["plates"]}
-    # act / assert — each dc-ext container converts its own BESS DC, so it
-    # needs its own PCS pair and BG-DC; the one POI meter stays on the primary
+    # act / assert — each dc-ext container takes its own PCS pair's AC through
+    # BG-AC (ADR-022); the one POI meter stays on the primary
     expected_parts = {
         "GRD-XFM-001": 1,
         "GRD-SWG-001": 1,
         "GRD-RLY-001": 1,
         "GRD-PCS-001": 2,
     }
-    assert (parts, plates) == (expected_parts, {"CG", "BG-DC"})
+    assert (parts, plates) == (expected_parts, {"CG", "BG-AC"})
 
 
 def test_bg_plate_placed_at_positive_x_end() -> None:
-    # arrange — BG-DC at +X end (BESS pad), opposite from CG at -X (compute)
+    # arrange — BG-AC at +X end (battery pad), opposite from CG at -X (compute)
     expected_x = +L_EXT_MM / 2
     actual_x = BG_MATING_FRAME.toTuple()[0][0]
     assert math.isclose(actual_x, expected_x, abs_tol=0.1)
@@ -148,31 +148,31 @@ def test_exploded_cg_plate_offset_outward_in_negative_x() -> None:
     assert actual_x < base_x
 
 
-def test_dc_ext_bom_has_pcs_and_bg_dc() -> None:
+def test_dc_ext_bom_has_pcs_and_bg_ac() -> None:
     # arrange
     parts_by_id = {p["equipment_id"]: p["qty"] for p in COMMERCIAL_DC_EXT_BOM["parts"]}
     plate_ids = {p["id"] for p in COMMERCIAL_DC_EXT_BOM["plates"]}
-    # act / assert — two PCS (417 kW each at 415 V) fed through BG-DC
+    # act / assert — two PCS (417 kW each at 415 V) on the pad, AC in via BG-AC
     assert parts_by_id["GRD-PCS-001"] == 2
-    assert plate_ids == {"CG", "BG-DC"}
+    assert plate_ids == {"CG", "BG-AC"}
 
 
-def test_dc_ext_assembly_includes_pcs_and_bg_dc_plate() -> None:
-    # arrange / act
+def test_dc_ext_pcs_lives_on_the_pad_not_in_the_container() -> None:
+    # arrange / act — ADR-022
     assy = build_grid_container(variant="commercial-dc-ext")
     child_names = {c.name for c in assy.children}
     # assert
-    assert {"GRD-PCS-001#1", "GRD-PCS-001#2"} <= child_names
-    assert "ARC-PLT-BG-DC" in child_names
+    assert not any(n.startswith("GRD-PCS-001") for n in child_names)
+    assert "ARC-PLT-BG-AC" in child_names
 
 
 def test_dc_ext_bg_plate_sits_on_the_bg_mating_frame() -> None:
-    # arrange — BG-DC on the +X end mating frame (BESS-facing wall)
+    # arrange — BG-AC on the +X end mating frame (battery-pad wall)
     expected_pos = BG_MATING_FRAME.toTuple()[0]
     # act
     assy = build_grid_container(variant="commercial-dc-ext")
-    bg_dc = next(c for c in assy.children if c.name == "ARC-PLT-BG-DC")
-    actual_pos = bg_dc.loc.toTuple()[0]
+    bg = next(c for c in assy.children if c.name == "ARC-PLT-BG-AC")
+    actual_pos = bg.loc.toTuple()[0]
     # assert
     for axis, (actual, expected) in enumerate(
         zip(actual_pos, expected_pos, strict=True)
@@ -188,40 +188,10 @@ def test_dc_ext_bbox_matches_container_envelope() -> None:
     # act
     assy = build_grid_container(variant="commercial-dc-ext")
     bbox = assy.toCompound().BoundingBox()
-    # assert — same shell as commercial-ac, PCS sits inside
+    # assert — same shell as commercial-ac
     assert abs(bbox.xlen - L_EXT_MM) < bbox_tolerance_mm
     assert abs(bbox.ylen - W_EXT_MM) < bbox_tolerance_mm
     assert abs(bbox.zlen - H_EXT_MM) < bbox_tolerance_mm
-
-
-@pytest.mark.parametrize("variant", ["commercial-dc-ext", "dc-ext-feeder"])
-def test_dc_ext_equipment_does_not_clash(variant: str) -> None:
-    """Pairwise bbox-overlap check on the equipment (XFM, SWG, 2x PCS).
-
-    Caught in conversation 2026-05-09: PCS was placed at +X + -Y wall which
-    clashed with SafeGear's rotated 2159 mm depth. Bbox-overlap test prevents
-    the regression.
-    """
-    # arrange
-    equipment_names = {"GRD-XFM-001", "GRD-SWG-001", "GRD-PCS-001#1", "GRD-PCS-001#2"}
-    # act
-    assy = build_grid_container(variant=variant)
-    children = [c for c in assy.children if c.name in equipment_names]
-    bboxes = {c.name: c.toCompound().BoundingBox() for c in children}
-    # assert — all present
-    assert set(bboxes.keys()) == equipment_names
-    # assert — no pairwise overlap
-    for name_a, bb_a in bboxes.items():
-        for name_b, bb_b in bboxes.items():
-            if name_a >= name_b:
-                continue
-            x_overlap = (bb_a.xmin < bb_b.xmax) and (bb_b.xmin < bb_a.xmax)
-            y_overlap = (bb_a.ymin < bb_b.ymax) and (bb_b.ymin < bb_a.ymax)
-            z_overlap = (bb_a.zmin < bb_b.zmax) and (bb_b.zmin < bb_a.zmax)
-            assert not (x_overlap and y_overlap and z_overlap), (
-                f"clash: {name_a} bbox=({bb_a.xmin:.0f}..{bb_a.xmax:.0f}, "
-                f"{bb_a.ymin:.0f}..{bb_a.ymax:.0f}) overlaps {name_b}"
-            )
 
 
 # --- Defense variants (per PM 2026-05-09, #18) ---

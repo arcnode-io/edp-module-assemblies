@@ -3,10 +3,7 @@
 v1 layout (Q6-B):
 - Trihal at -X end, anchored to -Y wall
 - SafeGear at +X end, rotated 90° about Z, depth spans nearly full Y width
-- PCS pair (dc-ext variants): #1 at -X end on the +Y wall (opposite Trihal);
-  #2 beside it, turned 90° so its 530 mm width runs along X and it stops
-  short of SafeGear. +X end is fully booked by SafeGear's rotated 2159 mm
-  depth. DC bus runs across the container to the BG-DC plate at +X.
+- The dc-ext PCS pair lives on the battery pad, not in here (ADR-022).
 RLY is inside SafeGear's LV compartment (Q7-A); MTR ships loose to the POI
 (ADR-020). Both are bom-only, no geometry.
 """
@@ -37,19 +34,6 @@ SWG_L_MM: Final[float] = 2159.0  # depth (Y axis after rotation)
 SWG_W_MM: Final[float] = 914.0  # width (X axis after rotation)
 SWG_H_MM: Final[float] = 2413.0
 
-# PCS envelope per GRD-PCS-001 spec (EPC PD500/AC-480, 417 kW at 415 V, liquid-cooled).
-# Vendor canonical: H x W x D = 670 x 530 x 1045 mm. Place with depth along X
-# (sticks out from +X wall toward container center), width along Y.
-PCS_L_MM: Final[float] = 1045.0  # depth (X axis after placement)
-PCS_W_MM: Final[float] = 530.0  # width (Y axis after placement)
-PCS_H_MM: Final[float] = 670.0  # height (Z axis)
-PCS_GAP_MM: Final[float] = 100.0  # service gap between the two PCS
-
-# Reason: dc-ext primaries and feeders both carry the PCS pair.
-VARIANTS_WITH_PCS: Final[frozenset[str]] = frozenset(
-    {"commercial-dc-ext", "dc-ext-feeder"}
-)
-
 
 def _import_envelope(equipment_id: str) -> cq.Workplane:
     """Import equipment envelope STEP from equipment/{id}/envelope.step."""
@@ -76,37 +60,8 @@ def safegear_position() -> cq.Vector:
     return cq.Vector(x, y, z)
 
 
-def pcs_position() -> cq.Vector:
-    """PCS anchored to -X end + +Y wall, on the floor (opposite Trihal).
-
-    Constraint: SafeGear (rotated 2159 mm depth) consumes nearly all Y at +X end,
-    leaving no clear floor space there. PCS goes to -X end on the +Y wall,
-    diagonally opposite Trihal (-X + -Y wall). DC bus from BG-DC plate at +X
-    wall runs along ceiling/cable tray to PCS DC input (~3 m run).
-    """
-    x = -(L_INT_MM / 2 - PCS_L_MM / 2)
-    y = +(W_INT_MM / 2 - PCS_W_MM / 2)
-    z = PCS_H_MM / 2
-    return cq.Vector(x, y, z)
-
-
-def second_pcs_position() -> cq.Vector:
-    """PCS #2: +Y wall, just past PCS #1 in +X, turned 90° about Z.
-
-    Turned, its 530 mm width runs along X, so it ends well short of SafeGear
-    (starts at x = +510) and its 1045 mm depth runs along Y, clear of Trihal
-    on the -Y wall.
-    """
-    x = -(L_INT_MM / 2) + PCS_L_MM + PCS_GAP_MM + PCS_W_MM / 2
-    y = +(W_INT_MM / 2 - PCS_L_MM / 2)
-    z = PCS_H_MM / 2
-    return cq.Vector(x, y, z)
-
-
-def place_grid_equipment(
-    assy: cq.Assembly, *, variant: str = "commercial-ac", exploded: bool = False
-) -> None:
-    """Add Trihal + SafeGear (always); the PCS pair for dc-ext variants."""
+def place_grid_equipment(assy: cq.Assembly, *, exploded: bool = False) -> None:
+    """Add Trihal + SafeGear. Every variant has the same interior gear."""
     xfm_pos = trihal_position()
     if exploded:
         xfm_pos = xfm_pos.add(_explode.xfm_offset())
@@ -128,17 +83,3 @@ def place_grid_equipment(
         loc=cq.Location(swg_pos, cq.Vector(0, 0, 1), 90),
         color=cq.Color(0.3, 0.3, 0.5),
     )
-
-    if variant in VARIANTS_WITH_PCS:
-        placements = [
-            (pcs_position(), 0),
-            (second_pcs_position(), 90),
-        ]
-        for n, (base, angle) in enumerate(placements, start=1):
-            pos = base.add(_explode.pcs_offset()) if exploded else base
-            assy.add(
-                _import_envelope("GRD-PCS-001"),
-                name=f"GRD-PCS-001#{n}",
-                loc=cq.Location(pos, cq.Vector(0, 0, 1), angle),
-                color=cq.Color(0.4, 0.5, 0.3),
-            )

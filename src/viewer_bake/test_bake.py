@@ -69,15 +69,14 @@ def test_bake_hotspots_emits_meter_scale_centroids(tmp_path: Path) -> None:
                 ), f"{kind}/{h['id']} centroid {c} out of meter range"
 
 
-def test_bake_grid_dc_ext_has_pcs_material_matched(tmp_path: Path) -> None:
+def test_bake_grid_dc_ext_plates_get_the_platform_material(tmp_path: Path) -> None:
     # arrange / act
     src = ASSEMBLIES / "grid-container" / "commercial-dc-ext"
     out = bake_module("grid-dc-ext", src, tmp_path)
     g = GLTF2().load_binary(str(out))
-    # assert — pcs material exists in the spec set, no warnings emitted
+    # assert
     material_names = {m.name for m in g.materials}
-    assert "pcs" in material_names
-    assert "platform" in material_names  # CG + BG-DC plates
+    assert "platform" in material_names  # CG + BG-AC plates
 
 
 def test_bake_compute_hides_drycooler_plate(tmp_path: Path) -> None:
@@ -93,12 +92,12 @@ def test_bake_compute_hides_drycooler_plate(tmp_path: Path) -> None:
 
 
 def test_bake_grid_hides_bess_plate(tmp_path: Path) -> None:
-    # dc-ext → BG-DC hidden; CG kept.
+    # dc-ext → BG-AC hidden; CG kept.
     out_dc = bake_module(
         "grid-dc-ext", ASSEMBLIES / "grid-container" / "commercial-dc-ext", tmp_path
     )
     g_dc = GLTF2().load_binary(str(out_dc))
-    bg_dc_node = next(n for n in g_dc.nodes if n.name == "ARC-PLT-BG-DC")
+    bg_dc_node = next(n for n in g_dc.nodes if n.name == "ARC-PLT-BG-AC")
     cg_dc_node = next(n for n in g_dc.nodes if n.name == "ARC-PLT-CG")
     assert bg_dc_node.mesh is None
     assert cg_dc_node.mesh is not None
@@ -117,11 +116,10 @@ def test_bake_hotspots_covers_all_grid_variants(tmp_path: Path) -> None:
     # assert
     assert set(manifest.keys()) == {"compute", "grid", "grid-dc-ext"}
     # Web viewer labels the inter-container CG plate only; BESS plates (BG-*)
-    # are intentionally unlabeled. dc-ext still surfaces PCS.
+    # are intentionally unlabeled. dc-ext's PCS is on the pad, so no PCS label.
     assert {h["id"] for h in manifest["grid"]} == {"xfm", "swg", "plt-cg"}
     assert {h["id"] for h in manifest["grid-dc-ext"]} == {
         "xfm",
         "swg",
-        "pcs",
         "plt-cg",
     }

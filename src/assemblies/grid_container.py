@@ -10,12 +10,13 @@ plus -exploded.{step,glb} per Q8.
 Variants:
 - commercial-ac: CG (-X) only. AC batteries tie in at 13.8 kV outside the
   container (ADR-016).
-- commercial-dc-ext: CG (-X) + BG-DC (+X). PCS lives in grid container,
-  BESS pad outputs raw DC strings. Two PD500s (834 kW at 415 V).
+- commercial-dc-ext: CG (-X) + BG-AC (+X). The PCS pair (2x PD500, 834 kW
+  at 415 V) sits on the battery pad and feeds AC in through BG-AC (ADR-022);
+  it's on this BOM because ARCNODE supplies it.
 - feeder: commercial-ac minus the POI meter. Sites past one transformer add
   N-1 of these beside the primary; a site has one POI, so one meter.
 - dc-ext-feeder: commercial-dc-ext minus the POI meter (keeps its PCS pair
-  + BG-DC, since each container converts its own BESS strings).
+  + BG-AC, since each container takes its own share of the battery).
 - defense-ac / defense-feeder: same equipment as the
   commercial counterpart but plates are 5083-H116 marine grade, 10 mm
   thick, with hard anodize + EPDM secondary seal. Plate fetcher pulls
@@ -54,7 +55,7 @@ CG_MATING_FRAME: Final[cq.Location] = cq.Location(
     +90,
 )
 
-# Reason: BG-DC plate at +X end (BESS-facing) on the dc-ext variants.
+# Reason: BG-AC plate at +X end (battery-pad wall) on the dc-ext variants.
 # Plate built normal +Z; rotation -90° about Y → normal +X.
 BG_MATING_FRAME: Final[cq.Location] = cq.Location(
     cq.Vector(+L_EXT_MM / 2, 0.0, PLATE_CENTER_Z_MM),
@@ -111,7 +112,7 @@ COMMERCIAL_DC_EXT_BOM: Final[dict] = {
     ],
     "plates": [
         {"id": "CG", "version": "v1", "qty": 1},
-        {"id": "BG-DC", "version": "v1", "qty": 1},
+        {"id": "BG-AC", "version": "v1", "qty": 1},
     ],
 }
 
@@ -124,7 +125,7 @@ FEEDER_BOM: Final[dict] = {
 }
 
 # Reason: each dc-ext container converts its own BESS strings, so a feeder
-# keeps the PCS pair and BG-DC; it only drops the site's one POI meter.
+# keeps the PCS pair and BG-AC; it only drops the site's one POI meter.
 DC_EXT_FEEDER_BOM: Final[dict] = {
     **FEEDER_BOM,
     "parts": [*FEEDER_BOM["parts"], _PCS],
@@ -155,14 +156,14 @@ BOM_BY_VARIANT: Final[dict[str, dict]] = {
 }
 
 # Reason: which BG plate goes at the +X end. Only dc-ext takes battery
-# power into the container (ADR-016).
+# power into the container, as PCS AC through BG-AC (ADR-016, ADR-022).
 _BG_PLATE_BY_VARIANT: Final[dict[str, str | None]] = {
     "commercial-ac": None,
-    "commercial-dc-ext": "BG-DC",
+    "commercial-dc-ext": "BG-AC",
     "defense-ac": None,
     "feeder": None,
     "defense-feeder": None,
-    "dc-ext-feeder": "BG-DC",
+    "dc-ext-feeder": "BG-AC",
 }
 
 
@@ -204,14 +205,14 @@ def build_grid_container(
         color=cq.Color(0.85, 0.85, 0.85, 0.15),
     )
 
-    _grid_layout.place_grid_equipment(assy, variant=variant, exploded=exploded)
+    _grid_layout.place_grid_equipment(assy, exploded=exploded)
 
     _add_plates(assy, variant=variant, exploded=exploded)
     return assy
 
 
 def _add_plates(assy: cq.Assembly, *, variant: Variant, exploded: bool) -> None:
-    """Place CG (always) + BG-DC (dc-ext variants only).
+    """Place CG (always) + BG-AC (dc-ext variants only).
 
     Defense variants pull -defense.step artifacts via plate_loader's
     deployment_context arg; commercial variants pull plate.step.
