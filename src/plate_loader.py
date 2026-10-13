@@ -100,8 +100,7 @@ def sync_local() -> None:
         target = cache_path(plate_id, version, ctx)
         if not source.exists():
             logger.warning(
-                f"sync-plates: source missing for {plate_id} {version} {ctx}: "
-                f"{source}"
+                f"sync-plates: source missing for {plate_id} {version} {ctx}: {source}"
             )
             continue
         target.parent.mkdir(parents=True, exist_ok=True)

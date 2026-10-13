@@ -1,0 +1,98 @@
+equipment_id: GRD-LVS-001
+schema_version: "1"
+category: switchgear
+vendor: TBD
+model_number: TBD (UL 891 switchboard, engineered to order)
+description: 415Y/240 V 3-phase 4-wire LV switchboard, 1600 A bus, 1600 A 100%-rated LSIG main, up to 11 compute feeders at 175 A plus 2 PCS feeders at 800 A (dc_ext), front-accessible
+datasheet_url: null
+datasheet_hash: null
+step_source: null
+fab_tier: dod_eligible
+restricted_entities: null
+install_video_url: null
+lead_time_weeks: null
+unit_cost_usd: null
+
+spec:
+  electrical:
+    voltage_v: 415.0                  # 415Y/240 V, 480 V-class equipment
+    voltage_range_v: [380.0, 440.0]
+    current_a: 1600.0                 # bus + main frame
+    phase: 3ph
+    frequency_hz: 60.0
+    power_kw: null
+    power_factor_range: null
+    efficiency_pct: null
+    breaker_size_a: 1600.0            # main, 100%-rated: Trihal FLA 1391 A continuous
+    aic_rating_ka: 65.0               # Trihal 1000 kVA ~6% Z gives ~23 kA bolted; 65 kA SCCR with margin
+    thd_pct: null
+    fault_current_contribution_pu: null
+
+  thermal: null
+
+  mechanical:
+    weight_kg: null
+    dimensions_mm: [762, 1829, 2324]  # reserved envelope D x W x H (L x W x H here)
+    container_type: 10ft_ISO_high_cube
+    mounting: floor
+    mounting_notes: |
+      Front-accessible, front against the +Y wall behind a louvered double
+      door (ADR-015, ADR-017): serviced from outside, NEC 110.26 working
+      space is outside the doors.
+    rack_units: null
+    ip_rating: null
+    lift_points: null
+    ambient_temp_range_c: null
+    max_elevation_m: null
+    noise_dba_at_1m: null
+
+  ports: []
+
+  control:
+    protocol: null
+    register_map_url: null
+    command_latency_ms: null
+    step_response_ms: null
+    control_modes: []
+    black_start_capable: null
+
+geometry:
+  source: synthesized
+  fidelity: bounding_box
+  equipment_envelope_path: geometry/envelopes/GRD-LVS-001-equipment.step
+  service_envelope_path: null
+  bounding_box:
+    L_mm: 762.0
+    W_mm: 1829.0
+    H_mm: 2324.0
+  service_clearance:
+    front: 1067.0                     # NEC 110.26 condition 2, outside the doors
+    rear: 0.0
+    left: 0.0
+    right: 0.0
+    top: 0.0
+    bottom: 0.0
+    install_clearance: null
+
+provenance:
+  authored_by: power-engineer
+  authored_date: 2026-10-12
+  reviewed_by: TBD_pending_human_review
+  reviewed_date: null
+  confidence_flags:
+    - field: model_number
+      flag: missing
+      note: Part selection pending (ADR-017). Engineered to order; outline comes from the vendor submittal.
+    - field: spec.mechanical.dimensions_mm
+      flag: assumed_default
+      note: Reserved envelope. Width/height from a public 1600 A Square D QED-2 bid record (2 x 36" sections, 72" W x 24" D x 91.5" H); depth taken at 30" for margin. Confirm on submittal.
+    - field: spec.mechanical.weight_kg
+      flag: missing
+
+notes: |
+  Requirement spec, not a selected part (ADR-017). Main on the Trihal
+  secondary (FLA 1000 kVA / (sqrt(3) x 415 V) = 1391 A) needs a 100%-rated
+  1600 A breaker; compute feeders are 86 kW = 121 A continuous x 1.25 =
+  151 A, so 175 A breakers (ADR-021); dc_ext adds two PCS feeders at
+  602 A x 1.25 = 753 A, so 800 A breakers (ADR-022). Candidates: Square D
+  QED-2, Eaton Pow-R-Line C, Siemens SB1.

@@ -3,6 +3,10 @@
 v1 layout (Q6-B):
 - Trihal at -X end, anchored to -Y wall
 - SafeGear at +X end, rotated 90° about Z, depth spans nearly full Y width
+- LV switchboard (ADR-017) on the +Y wall from the -X end, front to the wall
+  behind a louvered double door (serviced from outside, ADR-015).
+- Management switch enclosure (ADR-019) on the -Y wall in the gap between
+  the Trihal and SafeGear.
 - The dc-ext PCS pair lives on the battery pad, not in here (ADR-022).
 RLY is inside SafeGear's LV compartment (Q7-A); MTR ships loose to the POI
 (ADR-020). Both are bom-only, no geometry.
@@ -60,6 +64,33 @@ def safegear_position() -> cq.Vector:
     return cq.Vector(x, y, z)
 
 
+# GRD-LVS-001 reserved envelope, front (1829 wide) along the +Y wall
+SWBD_W_MM: Final[float] = 1829.0
+SWBD_D_MM: Final[float] = 762.0
+SWBD_H_MM: Final[float] = 2324.0
+# GRD-SWITCH-001 reserved DIN enclosure
+GRID_SW_W_MM: Final[float] = 300.0
+GRID_SW_D_MM: Final[float] = 200.0
+GRID_SW_H_MM: Final[float] = 500.0
+GRID_SW_BOTTOM_Z_MM: Final[float] = 1400.0
+
+
+def lv_switchboard_position() -> cq.Vector:
+    """Switchboard against the +Y wall, starting at the -X end wall."""
+    x = -(L_INT_MM / 2) + SWBD_W_MM / 2
+    y = +(W_INT_MM / 2 - SWBD_D_MM / 2)
+    return cq.Vector(x, y, SWBD_H_MM / 2)
+
+
+def grid_switch_position() -> cq.Vector:
+    """Switch enclosure on the -Y wall, centered in the Trihal-SafeGear gap."""
+    trihal_end_x = -(L_INT_MM / 2) + XFM_L_MM
+    safegear_start_x = L_INT_MM / 2 - SWG_W_MM
+    x = (trihal_end_x + safegear_start_x) / 2
+    y = -(W_INT_MM / 2 - GRID_SW_D_MM / 2)
+    return cq.Vector(x, y, GRID_SW_BOTTOM_Z_MM + GRID_SW_H_MM / 2)
+
+
 def place_grid_equipment(assy: cq.Assembly, *, exploded: bool = False) -> None:
     """Add Trihal + SafeGear. Every variant has the same interior gear."""
     xfm_pos = trihal_position()
@@ -83,3 +114,16 @@ def place_grid_equipment(assy: cq.Assembly, *, exploded: bool = False) -> None:
         loc=cq.Location(swg_pos, cq.Vector(0, 0, 1), 90),
         color=cq.Color(0.3, 0.3, 0.5),
     )
+
+    # Reason: envelopes are built L (depth) along X; turn 90° so the wide
+    # front runs along the wall.
+    for equipment_id, pos in (
+        ("GRD-LVS-001", lv_switchboard_position()),
+        ("GRD-SWITCH-001", grid_switch_position()),
+    ):
+        assy.add(
+            _import_envelope(equipment_id),
+            name=equipment_id,
+            loc=cq.Location(pos, cq.Vector(0, 0, 1), 90),
+            color=cq.Color(0.45, 0.45, 0.5),
+        )

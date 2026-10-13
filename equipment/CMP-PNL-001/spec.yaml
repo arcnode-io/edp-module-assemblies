@@ -1,0 +1,93 @@
+equipment_id: CMP-PNL-001
+schema_version: "1"
+category: switchgear
+vendor: TBD
+model_number: TBD (UL 67 panelboard)
+description: Compute container 415Y/240 V 3-phase 4-wire panelboard, 225 A bus, 175 A main breaker, 6x 60 A 3P PDU branches + CDU + dry cooler branches
+datasheet_url: null
+datasheet_hash: null
+step_source: null
+fab_tier: dod_eligible
+restricted_entities: null
+install_video_url: null
+lead_time_weeks: null
+unit_cost_usd: null
+
+spec:
+  electrical:
+    voltage_v: 415.0
+    voltage_range_v: [380.0, 440.0]
+    current_a: 225.0                  # bus
+    phase: 3ph
+    frequency_hz: 60.0
+    power_kw: null
+    power_factor_range: null
+    efficiency_pct: null
+    breaker_size_a: 175.0             # main = local disconnect for the structure (NEC 225.31)
+    aic_rating_ka: 35.0               # downstream of the 175 A feeder; confirm by short-circuit study
+    thd_pct: null
+    fault_current_contribution_pu: null
+
+  thermal: null
+
+  mechanical:
+    weight_kg: null
+    dimensions_mm: [200, 508, 1600]   # reserved envelope D x W x H
+    container_type: 10ft_ISO_high_cube
+    mounting: wall
+    mounting_notes: |
+      Wall-mounted on the +Y wall beyond the rack's end, with NEC 110.26
+      working space (914 mm) clear in front inside the container.
+    rack_units: null
+    ip_rating: null
+    lift_points: null
+    ambient_temp_range_c: null
+    max_elevation_m: null
+    noise_dba_at_1m: null
+
+  ports: []
+
+  control:
+    protocol: null
+    register_map_url: null
+    command_latency_ms: null
+    step_response_ms: null
+    control_modes: []
+    black_start_capable: null
+
+geometry:
+  source: synthesized
+  fidelity: bounding_box
+  equipment_envelope_path: geometry/envelopes/CMP-PNL-001-equipment.step
+  service_envelope_path: null
+  bounding_box:
+    L_mm: 200.0
+    W_mm: 508.0
+    H_mm: 1600.0
+  service_clearance:
+    front: 914.0                      # NEC 110.26 condition 1, 151-600 V
+    rear: 0.0
+    left: 0.0
+    right: 0.0
+    top: 0.0
+    bottom: 0.0
+    install_clearance: null
+
+provenance:
+  authored_by: power-engineer
+  authored_date: 2026-10-12
+  reviewed_by: TBD_pending_human_review
+  reviewed_date: null
+  confidence_flags:
+    - field: model_number
+      flag: missing
+      note: Part selection pending (ADR-017).
+    - field: spec.mechanical.dimensions_mm
+      flag: assumed_default
+      note: Reserved envelope (20" W panelboard class); confirm on selection.
+
+notes: |
+  Requirement spec, not a selected part (ADR-017). The compute container
+  is a separate structure fed from the grid container, so it needs its own
+  disconnecting means: the 175 A main. Branches: 6x 60 A 3P for the PDUs
+  (A1-A3, B1-B3), one for the CDU, one for the outdoor dry cooler.

@@ -5,11 +5,15 @@ shell:
     lift loaded, so not cut down from a 20ft. ARCNODE cuts the plate penetrations
     and louvers.'
 parts:
-- equipment_id: GRD-XFM-001
-  qty: 1
 - equipment_id: GRD-SWG-001
   qty: 1
 - equipment_id: GRD-RLY-001
+  qty: 1
+- equipment_id: GRD-XFM-001
+  qty: 1
+- equipment_id: GRD-LVS-001
+  qty: 1
+- equipment_id: GRD-SWITCH-001
   qty: 1
 plates:
 - id: CG

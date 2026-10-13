@@ -3,6 +3,7 @@ specs:
   CMP-CDU-001: s3://arcnode-artifacts/equipment/CMP-CDU-001/spec.yaml
   CMP-NODE-001: s3://arcnode-artifacts/equipment/CMP-NODE-001/spec.yaml
   CMP-PDU-001: s3://arcnode-artifacts/equipment/CMP-PDU-001/spec.yaml
+  CMP-PNL-001: s3://arcnode-artifacts/equipment/CMP-PNL-001/spec.yaml
   CMP-RACK-001: s3://arcnode-artifacts/equipment/CMP-RACK-001/spec.yaml
   CMP-SWITCH-001: s3://arcnode-artifacts/equipment/CMP-SWITCH-001/spec.yaml
   CMP-SWITCH-002: s3://arcnode-artifacts/equipment/CMP-SWITCH-002/spec.yaml
@@ -11,10 +12,12 @@ specs:
   EXT-BESS-002: s3://arcnode-artifacts/equipment/EXT-BESS-002/spec.yaml
   EXT-DC-001: s3://arcnode-artifacts/equipment/EXT-DC-001/spec.yaml
   EXT-DC-002: s3://arcnode-artifacts/equipment/EXT-DC-002/spec.yaml
+  GRD-LVS-001: s3://arcnode-artifacts/equipment/GRD-LVS-001/spec.yaml
   GRD-MTR-001: s3://arcnode-artifacts/equipment/GRD-MTR-001/spec.yaml
   GRD-PCS-001: s3://arcnode-artifacts/equipment/GRD-PCS-001/spec.yaml
   GRD-RLY-001: s3://arcnode-artifacts/equipment/GRD-RLY-001/spec.yaml
   GRD-SWG-001: s3://arcnode-artifacts/equipment/GRD-SWG-001/spec.yaml
+  GRD-SWITCH-001: s3://arcnode-artifacts/equipment/GRD-SWITCH-001/spec.yaml
   GRD-XFM-001: s3://arcnode-artifacts/equipment/GRD-XFM-001/spec.yaml
 geometry:
   CMP-CDU-001:
@@ -25,6 +28,9 @@ geometry:
     vendor_step: null
   CMP-PDU-001:
     envelope: s3://arcnode-artifacts/equipment/CMP-PDU-001/envelope.step
+    vendor_step: null
+  CMP-PNL-001:
+    envelope: s3://arcnode-artifacts/equipment/CMP-PNL-001/envelope.step
     vendor_step: null
   CMP-RACK-001:
     envelope: s3://arcnode-artifacts/equipment/CMP-RACK-001/envelope.step
@@ -50,6 +56,9 @@ geometry:
   EXT-DC-002:
     envelope: s3://arcnode-artifacts/equipment/EXT-DC-002/envelope.step
     vendor_step: null
+  GRD-LVS-001:
+    envelope: s3://arcnode-artifacts/equipment/GRD-LVS-001/envelope.step
+    vendor_step: null
   GRD-MTR-001:
     envelope: s3://arcnode-artifacts/equipment/GRD-MTR-001/envelope.step
     vendor_step: null
@@ -61,6 +70,9 @@ geometry:
     vendor_step: null
   GRD-SWG-001:
     envelope: s3://arcnode-artifacts/equipment/GRD-SWG-001/envelope.step
+    vendor_step: null
+  GRD-SWITCH-001:
+    envelope: s3://arcnode-artifacts/equipment/GRD-SWITCH-001/envelope.step
     vendor_step: null
   GRD-XFM-001:
     envelope: s3://arcnode-artifacts/equipment/GRD-XFM-001/envelope.step
@@ -80,7 +92,7 @@ assemblies:
       glb: s3://arcnode-artifacts/assemblies/compute-container/defense-ac/assembly.glb
       glb_exploded: s3://arcnode-artifacts/assemblies/compute-container/defense-ac/assembly-exploded.glb
       step_exploded: s3://arcnode-artifacts/assemblies/compute-container/defense-ac/assembly-exploded.step
-      topology_yaml: null
+      topology_yaml: s3://arcnode-artifacts/assemblies/compute-container/defense-ac/topology.yaml
   deployment:
     commercial_ac:
       bom: s3://arcnode-artifacts/assemblies/deployment/commercial_ac/bom.yaml
@@ -124,28 +136,28 @@ assemblies:
       glb: s3://arcnode-artifacts/assemblies/grid-container/commercial-dc-ext/assembly.glb
       glb_exploded: s3://arcnode-artifacts/assemblies/grid-container/commercial-dc-ext/assembly-exploded.glb
       step_exploded: s3://arcnode-artifacts/assemblies/grid-container/commercial-dc-ext/assembly-exploded.step
-      topology_yaml: null
+      topology_yaml: s3://arcnode-artifacts/assemblies/grid-container/commercial-dc-ext/topology.yaml
     dc-ext-feeder:
       bom: s3://arcnode-artifacts/assemblies/grid-container/dc-ext-feeder/bom.yaml
       step: s3://arcnode-artifacts/assemblies/grid-container/dc-ext-feeder/assembly.step
       glb: s3://arcnode-artifacts/assemblies/grid-container/dc-ext-feeder/assembly.glb
       glb_exploded: s3://arcnode-artifacts/assemblies/grid-container/dc-ext-feeder/assembly-exploded.glb
       step_exploded: s3://arcnode-artifacts/assemblies/grid-container/dc-ext-feeder/assembly-exploded.step
-      topology_yaml: null
+      topology_yaml: s3://arcnode-artifacts/assemblies/grid-container/dc-ext-feeder/topology.yaml
     defense-ac:
       bom: s3://arcnode-artifacts/assemblies/grid-container/defense-ac/bom.yaml
       step: s3://arcnode-artifacts/assemblies/grid-container/defense-ac/assembly.step
       glb: s3://arcnode-artifacts/assemblies/grid-container/defense-ac/assembly.glb
       glb_exploded: s3://arcnode-artifacts/assemblies/grid-container/defense-ac/assembly-exploded.glb
       step_exploded: s3://arcnode-artifacts/assemblies/grid-container/defense-ac/assembly-exploded.step
-      topology_yaml: null
+      topology_yaml: s3://arcnode-artifacts/assemblies/grid-container/defense-ac/topology.yaml
     defense-feeder:
       bom: s3://arcnode-artifacts/assemblies/grid-container/defense-feeder/bom.yaml
       step: s3://arcnode-artifacts/assemblies/grid-container/defense-feeder/assembly.step
       glb: s3://arcnode-artifacts/assemblies/grid-container/defense-feeder/assembly.glb
       glb_exploded: s3://arcnode-artifacts/assemblies/grid-container/defense-feeder/assembly-exploded.glb
       step_exploded: s3://arcnode-artifacts/assemblies/grid-container/defense-feeder/assembly-exploded.step
-      topology_yaml: null
+      topology_yaml: s3://arcnode-artifacts/assemblies/grid-container/defense-feeder/topology.yaml
     feeder:
       bom: s3://arcnode-artifacts/assemblies/grid-container/feeder/bom.yaml
       step: s3://arcnode-artifacts/assemblies/grid-container/feeder/assembly.step

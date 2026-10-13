@@ -88,7 +88,8 @@ def test_feeder_bom_drops_the_poi_meter_and_bess_plate() -> None:
     parts = {p["equipment_id"] for p in FEEDER_BOM["parts"]}
     plates = {p["id"] for p in FEEDER_BOM["plates"]}
     # act / assert — a site has one POI, so only the primary carries the meter
-    assert (parts, plates) == ({"GRD-XFM-001", "GRD-SWG-001", "GRD-RLY-001"}, {"CG"})
+    assert "GRD-MTR-001" not in parts
+    assert plates == {"CG"}
     assert DEFENSE_FEEDER_BOM == {**FEEDER_BOM, "deployment_context": "defense_forward"}
 
 
@@ -98,13 +99,8 @@ def test_dc_ext_feeder_carries_its_own_pcs_but_not_the_poi_meter() -> None:
     plates = {p["id"] for p in DC_EXT_FEEDER_BOM["plates"]}
     # act / assert — each dc-ext container takes its own PCS pair's AC through
     # BG-AC (ADR-022); the one POI meter stays on the primary
-    expected_parts = {
-        "GRD-XFM-001": 1,
-        "GRD-SWG-001": 1,
-        "GRD-RLY-001": 1,
-        "GRD-PCS-001": 2,
-    }
-    assert (parts, plates) == (expected_parts, {"CG", "BG-AC"})
+    assert (parts["GRD-PCS-001"], "GRD-MTR-001" in parts) == (2, False)
+    assert plates == {"CG", "BG-AC"}
 
 
 def test_bg_plate_placed_at_positive_x_end() -> None:

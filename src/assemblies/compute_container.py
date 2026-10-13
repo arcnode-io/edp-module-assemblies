@@ -22,6 +22,8 @@ import cadquery as cq
 import yaml
 
 from src import plate_loader
+from src.assemblies.equipment_list import COMPUTE, bom_parts, write_topology
+from src.assemblies._grid_layout import W_INT_MM
 from src.assemblies import _decorations, _explode, _rack_layout
 
 logger = logging.getLogger(__name__)
@@ -73,20 +75,12 @@ SHELL: Final[dict] = {
     ),
 }
 
-# v1 commercial-ac BOM — multiplied by container count downstream by edp-api.
-# Per ADR-009: split parts: + plates: sections.
+# BOM — multiplied by container count downstream by edp-api. Per ADR-009:
+# split parts: + plates: sections. Parts are the equipment list counted, so
+# the BOM and topology.yaml come from one source.
 COMMERCIAL_AC_BOM: Final[dict] = {
     "shell": SHELL,
-    "parts": [
-        {"equipment_id": "CMP-NODE-001", "qty": 7},
-        {"equipment_id": "CMP-RACK-001", "qty": 1},
-        {"equipment_id": "CMP-CDU-001", "qty": 1},
-        {"equipment_id": "CMP-SWITCH-001", "qty": 1},
-        {"equipment_id": "CMP-SWITCH-003", "qty": 1},  # ADR-019 management switch
-        {"equipment_id": "CMP-PDU-001", "qty": 6},  # ADR-005: A/B dual-path, 3 per path
-        # Outdoor on the customer's pad; rejects this container's CDU loop heat.
-        {"equipment_id": "EXT-DC-001", "qty": 1},
-    ],
+    "parts": bom_parts(COMPUTE["commercial-ac"]),
     "plates": [
         {"id": "CG", "version": "v1", "qty": 1},
         {"id": "CD", "version": "v1", "qty": 1},
@@ -98,10 +92,7 @@ COMMERCIAL_AC_BOM: Final[dict] = {
 # -defense.step artifacts.
 DEFENSE_AC_BOM: Final[dict] = {
     **COMMERCIAL_AC_BOM,
-    "parts": [
-        {**p, "equipment_id": "EXT-DC-002"} if p["equipment_id"] == "EXT-DC-001" else p
-        for p in COMMERCIAL_AC_BOM["parts"]
-    ],
+    "parts": bom_parts(COMPUTE["defense-ac"]),
     "deployment_context": "defense_forward",
 }
 
@@ -109,6 +100,20 @@ BOM_BY_VARIANT: Final[dict[str, dict]] = {
     "commercial-ac": COMMERCIAL_AC_BOM,
     "defense-ac": DEFENSE_AC_BOM,
 }
+
+
+# CMP-PNL-001 reserved envelope; interior is the shared 10ft HC shell
+PNL_W_MM: Final[float] = 508.0
+PNL_D_MM: Final[float] = 200.0
+PNL_H_MM: Final[float] = 1600.0
+PNL_CENTER_X_MM: Final[float] = 1000.0
+PNL_BOTTOM_Z_MM: Final[float] = 200.0
+
+
+def panelboard_position() -> cq.Vector:
+    """Panelboard on the +Y wall, past the rack's +X end."""
+    y = W_INT_MM / 2 - PNL_D_MM / 2
+    return cq.Vector(PNL_CENTER_X_MM, y, PNL_BOTTOM_Z_MM + PNL_H_MM / 2)
 
 
 def _deployment_context_for(variant: str) -> str:
@@ -167,6 +172,15 @@ def build_compute_container(
 
     _rack_layout.place_rack_equipment(assy, exploded=exploded)
 
+    # Panelboard (ADR-017) on the +Y wall past the rack's +X end, with its
+    # NEC 110.26 working space clear of the rack.
+    assy.add(
+        _import_envelope("CMP-PNL-001"),
+        name="CMP-PNL-001",
+        loc=cq.Location(panelboard_position(), cq.Vector(0, 0, 1), 90),
+        color=cq.Color(0.45, 0.45, 0.5),
+    )
+
     cg_plate_step = plate_loader.fetch("CG", "v1", deployment_context)
     cg_plate = cq.importers.importStep(str(cg_plate_step))
     cg_loc = CG_MATING_FRAME
@@ -215,6 +229,7 @@ def emit_artifacts(
     assy.export(str(paths["step"]))
     assy.export(str(paths["glb"]))
     paths["bom"].write_text(yaml.safe_dump(BOM_BY_VARIANT[variant], sort_keys=False))
+    write_topology(COMPUTE[variant], out_dir / "topology.yaml")
 
     if exploded_assy is not None:
         paths["glb_exploded"] = out_dir / "assembly-exploded.glb"

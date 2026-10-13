@@ -1,19 +1,28 @@
-# Feeder grid container: the primary's gear minus the POI meter. A site has
-# one point of interconnection, so only the primary grid container meters it.
-# Trihal is passive — same reason as commercial-ac/topology.yaml.
-
+# Generated from src/assemblies/equipment_list.py — edit there.
 devices:
-  - template: switchgear
-    description: ABB SafeGear 15kV cell (GRD-SWG-001) — passive, no connection
-
-  - template: protective_relay
-    description: SEL-351-7 distribution feeder relay (GRD-RLY-001)
-    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
-
-# AC bus: protective_relay watches the switchgear's line for trip logic.
+- template: switchgear
+  tag: SWG-1
+  description: ABB SafeGear 15kV / 1200A / 50kA (GRD-SWG-001)
+- template: protective_relay
+  tag: RLY-1
+  description: Schweitzer Engineering Laboratories (SEL) SEL-351-7 (GRD-RLY-001)
+  connection:
+    host: PROVISIONED_AT_COMMISSIONING
+    port: PROVISIONED_AT_COMMISSIONING
+- template: transformer
+  tag: T1
+  description: Schneider Electric Trihal TRI100013684152509 (GRD-XFM-001)
+- template: lv_switchboard
+  tag: SWBD-1
+  description: TBD TBD (GRD-LVS-001)
+- template: grid_mgmt_switch
+  tag: SW-MGMT-1
+  description: TBD TBD (GRD-SWITCH-001)
 buses:
-  - bus_id: ac_main
-    type: ac
-    members:
-      - { device_template: switchgear, port: line_out }
-      - { device_template: protective_relay, port: line_in }
+- bus_id: ac_main
+  type: ac
+  members:
+  - device_template: switchgear
+    port: line_out
+  - device_template: protective_relay
+    port: line_in

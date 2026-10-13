@@ -5,6 +5,7 @@ Every equipment child of an assembly is turned into its placed solid
 plates sit in the walls, so they're left out. Rack-mounted gear (CMP-*
 except the rack) lives inside CMP-RACK-001 by design: it's checked against
 other rack gear and for containment in the rack, never against the rack.
+Wall gear (panelboard) is checked like any other equipment.
 """
 
 from dataclasses import dataclass
@@ -14,6 +15,12 @@ from typing import Final
 import cadquery as cq
 
 RACK: Final[str] = "CMP-RACK-001"
+_RACK_MOUNTED: Final[tuple[str, ...]] = (
+    "CMP-NODE-",
+    "CMP-CDU-",
+    "CMP-SWITCH-",
+    "CMP-PDU-",
+)
 _SKIP_PREFIXES: Final[tuple[str, ...]] = ("container_shell", "ARC-PLT-")
 # Reason: OCCT booleans on touching faces can leave sliver volumes; anything
 # under 1 mm³ is numerical noise, not a clash.
@@ -70,7 +77,7 @@ def _equipment(assy: cq.Assembly) -> dict[str, cq.Shape]:
 
 
 def _rack_mounted(name: str) -> bool:
-    return name.startswith("CMP-") and name != RACK
+    return name.startswith(_RACK_MOUNTED)
 
 
 def _bounds(shape: cq.Shape) -> Bounds:

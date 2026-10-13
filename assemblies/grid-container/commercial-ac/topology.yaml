@@ -1,30 +1,36 @@
-# Per-assembly grid-container device topology (PR 2 shape).
-# SafeGear MV cells, SEL relay, ION9000 meter. Trihal is passive — its
-# integrated thermometer is Modbus RTU which DTM v1 schema doesn't model
-# (no MODBUS_RTU enum); add when a Modbus RTU/TCP gateway is selected.
-#
-# TODO: dnp3_master_external (utility DNP3 master) — deferred until
-# edp-module-assemblies grows equipment/GRD-UTM-001/spec.yaml. The
-# corresponding leaf template (`dnp3_master_external`) will land alongside.
-
+# Generated from src/assemblies/equipment_list.py — edit there.
 devices:
-  - template: switchgear
-    description: ABB SafeGear 15kV cell (GRD-SWG-001) — passive, no connection
-
-  - template: protective_relay
-    description: SEL-351-7 distribution feeder relay (GRD-RLY-001)
-    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
-
-  - template: poi_meter
-    description: Schneider PowerLogic ION9000 (GRD-MTR-001)
-    connection: { host: PROVISIONED_AT_COMMISSIONING, port: PROVISIONED_AT_COMMISSIONING }
-
-# AC interconnect bus: switchgear feeds poi_meter via ION9000's voltage_in
-# port; protective_relay shares the same line for trip permissive logic.
+- template: switchgear
+  tag: SWG-1
+  description: ABB SafeGear 15kV / 1200A / 50kA (GRD-SWG-001)
+- template: protective_relay
+  tag: RLY-1
+  description: Schweitzer Engineering Laboratories (SEL) SEL-351-7 (GRD-RLY-001)
+  connection:
+    host: PROVISIONED_AT_COMMISSIONING
+    port: PROVISIONED_AT_COMMISSIONING
+- template: transformer
+  tag: T1
+  description: Schneider Electric Trihal TRI100013684152509 (GRD-XFM-001)
+- template: lv_switchboard
+  tag: SWBD-1
+  description: TBD TBD (GRD-LVS-001)
+- template: grid_mgmt_switch
+  tag: SW-MGMT-1
+  description: TBD TBD (GRD-SWITCH-001)
+- template: poi_meter
+  tag: MTR-POI
+  description: Schneider Electric PowerLogic ION9000 (GRD-MTR-001)
+  connection:
+    host: PROVISIONED_AT_COMMISSIONING
+    port: PROVISIONED_AT_COMMISSIONING
 buses:
-  - bus_id: ac_main
-    type: ac
-    members:
-      - { device_template: switchgear, port: line_out }
-      - { device_template: poi_meter, port: voltage_in }
-      - { device_template: protective_relay, port: line_in }
+- bus_id: ac_main
+  type: ac
+  members:
+  - device_template: switchgear
+    port: line_out
+  - device_template: poi_meter
+    port: voltage_in
+  - device_template: protective_relay
+    port: line_in

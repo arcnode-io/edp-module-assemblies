@@ -32,6 +32,7 @@ import cadquery as cq
 import yaml
 
 from src import plate_loader
+from src.assemblies.equipment_list import GRID, bom_parts, write_topology
 from src.assemblies import _decorations, _explode, _grid_layout
 
 logger = logging.getLogger(__name__)
@@ -83,53 +84,31 @@ SHELL: Final[dict] = {
     ),
 }
 
-_PARTS: Final[list[dict]] = [
-    {"equipment_id": "GRD-XFM-001", "qty": 1},
-    {"equipment_id": "GRD-SWG-001", "qty": 1},
-    {"equipment_id": "GRD-RLY-001", "qty": 1},  # in SafeGear LV (Q7-A)
-    {"equipment_id": "GRD-MTR-001", "qty": 1},  # ships loose to the POI (ADR-020)
-]
+# Parts are each variant's equipment list counted (equipment_list.py), so
+# the BOM and topology.yaml come from one source.
+_CG_ONLY: Final[list[dict]] = [{"id": "CG", "version": "v1", "qty": 1}]
+# ADR-022: the dc-ext PCS pair's 415 V AC comes in through BG-AC
+_CG_AND_BG: Final[list[dict]] = [*_CG_ONLY, {"id": "BG-AC", "version": "v1", "qty": 1}]
 
 COMMERCIAL_AC_BOM: Final[dict] = {
     "shell": SHELL,
-    "parts": _PARTS,
-    "plates": [
-        {"id": "CG", "version": "v1", "qty": 1},
-    ],
+    "parts": bom_parts(GRID["commercial-ac"]),
+    "plates": _CG_ONLY,
 }
-
-# Reason: on our 415 V bus the PD500 runs its 400 V setting, 417 kW each
-# (EPC PD Family datasheet), so two per dc-ext grid container = 834 kW.
-# edp-api sizes dc_ext sites on that number. A third would have to stack.
-PCS_PER_GRID_CONTAINER: Final[int] = 2
-_PCS: Final[dict] = {"equipment_id": "GRD-PCS-001", "qty": PCS_PER_GRID_CONTAINER}
-
 COMMERCIAL_DC_EXT_BOM: Final[dict] = {
     "shell": SHELL,
-    "parts": [
-        *_PARTS,
-        _PCS,
-    ],
-    "plates": [
-        {"id": "CG", "version": "v1", "qty": 1},
-        {"id": "BG-AC", "version": "v1", "qty": 1},
-    ],
+    "parts": bom_parts(GRID["commercial-dc-ext"]),
+    "plates": _CG_AND_BG,
 }
-
 FEEDER_BOM: Final[dict] = {
     "shell": SHELL,
-    "parts": [p for p in _PARTS if p["equipment_id"] != "GRD-MTR-001"],
-    "plates": [
-        {"id": "CG", "version": "v1", "qty": 1},
-    ],
+    "parts": bom_parts(GRID["feeder"]),
+    "plates": _CG_ONLY,
 }
-
-# Reason: each dc-ext container converts its own BESS strings, so a feeder
-# keeps the PCS pair and BG-AC; it only drops the site's one POI meter.
 DC_EXT_FEEDER_BOM: Final[dict] = {
-    **FEEDER_BOM,
-    "parts": [*FEEDER_BOM["parts"], _PCS],
-    "plates": COMMERCIAL_DC_EXT_BOM["plates"],
+    "shell": SHELL,
+    "parts": bom_parts(GRID["dc-ext-feeder"]),
+    "plates": _CG_AND_BG,
 }
 
 # Reason: defense variants share equipment + plate IDs with their commercial
@@ -197,7 +176,11 @@ def build_grid_container(
 
     # Shell with louver + side door cuts (Q5). Door X = SafeGear X.
     safegear_x = _grid_layout.safegear_position().x
-    shell = _decorations.build_grid_shell(top_open=exploded, safegear_x=safegear_x)
+    shell = _decorations.build_grid_shell(
+        top_open=exploded,
+        safegear_x=safegear_x,
+        switchboard_x=_grid_layout.lv_switchboard_position().x,
+    )
     assy.add(
         shell,
         name="container_shell",
@@ -263,6 +246,7 @@ def emit_artifacts(
     assy.export(str(paths["step"]))
     assy.export(str(paths["glb"]))
     paths["bom"].write_text(yaml.safe_dump(BOM_BY_VARIANT[variant], sort_keys=False))
+    write_topology(GRID[variant], out_dir / "topology.yaml")
 
     if exploded_assy is not None:
         paths["glb_exploded"] = out_dir / "assembly-exploded.glb"

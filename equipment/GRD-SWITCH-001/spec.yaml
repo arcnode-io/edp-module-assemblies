@@ -1,0 +1,93 @@
+equipment_id: GRD-SWITCH-001
+schema_version: "1"
+category: network_switch
+vendor: TBD
+model_number: TBD (IEC 61850-3 / IEEE 1613 managed switch)
+description: Grid container 1 GbE managed switch, IEC 61850-3 hardened, about 24 ports (16+ SFP for fiber compute uplinks), dual power input
+datasheet_url: null
+datasheet_hash: null
+step_source: null
+fab_tier: dod_eligible
+restricted_entities: null
+install_video_url: null
+lead_time_weeks: null
+unit_cost_usd: null
+
+spec:
+  electrical:
+    voltage_v: 240.0
+    voltage_range_v: null
+    current_a: null
+    phase: 1ph
+    frequency_hz: 60.0
+    power_kw: null
+    power_factor_range: null
+    efficiency_pct: null
+    breaker_size_a: null
+    aic_rating_ka: null
+    thd_pct: null
+    fault_current_contribution_pu: null
+
+  thermal: null
+
+  mechanical:
+    weight_kg: null
+    dimensions_mm: [200, 300, 500]    # reserved DIN wall enclosure D x W x H (switches + fiber tray)
+    container_type: 10ft_ISO_high_cube
+    mounting: wall
+    mounting_notes: |
+      DIN-rail wall enclosure on the -Y wall in the 354 mm gap between the
+      Trihal and SafeGear; DIN switches (e.g. 2-3 Moxa PT-G510 class) fit.
+    rack_units: null
+    ip_rating: null
+    lift_points: null
+    ambient_temp_range_c: null
+    max_elevation_m: null
+    noise_dba_at_1m: null
+
+  ports: []
+
+  control:
+    protocol: snmp
+    register_map_url: null
+    command_latency_ms: null
+    step_response_ms: null
+    control_modes: []
+    black_start_capable: null
+
+geometry:
+  source: synthesized
+  fidelity: bounding_box
+  equipment_envelope_path: geometry/envelopes/GRD-SWITCH-001-equipment.step
+  service_envelope_path: null
+  bounding_box:
+    L_mm: 200.0
+    W_mm: 300.0
+    H_mm: 500.0
+  service_clearance:
+    front: 600.0
+    rear: 0.0
+    left: 0.0
+    right: 0.0
+    top: 0.0
+    bottom: 0.0
+    install_clearance: null
+
+provenance:
+  authored_by: power-engineer
+  authored_date: 2026-10-12
+  reviewed_by: TBD_pending_human_review
+  reviewed_date: null
+  confidence_flags:
+    - field: model_number
+      flag: missing
+      note: Part selection pending (ADR-019). Moxa PT-G510 (IEC 61850-3, 10 SFP) verified but too few ports.
+    - field: spec.mechanical.dimensions_mm
+      flag: assumed_default
+      note: Reserved wall-enclosure envelope; confirm on selection.
+
+notes: |
+  Requirement spec, not a selected part (ADR-019). Ports: up to 11 compute
+  fiber uplinks (ADR-021), G2-GM switch uplinks, relay, POI meter, 2 PCS,
+  BESS controller, EMS gateway; about 20 used, so 24 with spares. Fiber
+  between containers avoids ground-potential differences.

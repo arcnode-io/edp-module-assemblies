@@ -1,0 +1,105 @@
+# Generated from src/assemblies/equipment_list.py — edit there.
+devices:
+- template: rack
+  tag: RACK-1
+  description: Schneider Electric (APC brand) NetShelter SX Advanced AR9658 (CMP-RACK-001)
+- template: panelboard
+  tag: PNL-1
+  description: TBD TBD (CMP-PNL-001)
+- template: gpu_node
+  tag: NODE-1
+  description: Supermicro (Super Micro Computer Inc.) SYS-421GE-NBRT-LCC (CMP-NODE-001)
+  connection:
+    host: PROVISIONED_AT_COMMISSIONING
+    port: PROVISIONED_AT_COMMISSIONING
+- template: gpu_node
+  tag: NODE-2
+  description: Supermicro (Super Micro Computer Inc.) SYS-421GE-NBRT-LCC (CMP-NODE-001)
+  connection:
+    host: PROVISIONED_AT_COMMISSIONING
+    port: PROVISIONED_AT_COMMISSIONING
+- template: gpu_node
+  tag: NODE-3
+  description: Supermicro (Super Micro Computer Inc.) SYS-421GE-NBRT-LCC (CMP-NODE-001)
+  connection:
+    host: PROVISIONED_AT_COMMISSIONING
+    port: PROVISIONED_AT_COMMISSIONING
+- template: gpu_node
+  tag: NODE-4
+  description: Supermicro (Super Micro Computer Inc.) SYS-421GE-NBRT-LCC (CMP-NODE-001)
+  connection:
+    host: PROVISIONED_AT_COMMISSIONING
+    port: PROVISIONED_AT_COMMISSIONING
+- template: gpu_node
+  tag: NODE-5
+  description: Supermicro (Super Micro Computer Inc.) SYS-421GE-NBRT-LCC (CMP-NODE-001)
+  connection:
+    host: PROVISIONED_AT_COMMISSIONING
+    port: PROVISIONED_AT_COMMISSIONING
+- template: gpu_node
+  tag: NODE-6
+  description: Supermicro (Super Micro Computer Inc.) SYS-421GE-NBRT-LCC (CMP-NODE-001)
+  connection:
+    host: PROVISIONED_AT_COMMISSIONING
+    port: PROVISIONED_AT_COMMISSIONING
+- template: gpu_node
+  tag: NODE-7
+  description: Supermicro (Super Micro Computer Inc.) SYS-421GE-NBRT-LCC (CMP-NODE-001)
+  connection:
+    host: PROVISIONED_AT_COMMISSIONING
+    port: PROVISIONED_AT_COMMISSIONING
+- template: cdu
+  tag: CDU-1
+  description: Motivair (a Schneider Electric company) MCDU-10 (CMP-CDU-001)
+  connection:
+    host: PROVISIONED_AT_COMMISSIONING
+    port: PROVISIONED_AT_COMMISSIONING
+- template: network_switch
+  tag: SW-DATA-1
+  description: NVIDIA (Mellanox) Spectrum-X SN5600 (CMP-SWITCH-001)
+  connection:
+    host: PROVISIONED_AT_COMMISSIONING
+    port: PROVISIONED_AT_COMMISSIONING
+- template: mgmt_switch
+  tag: SW-MGMT-1
+  description: NVIDIA (Mellanox) SN2201 (CMP-SWITCH-003)
+- template: pdu
+  tag: PDU-A1
+  description: Raritan (Legrand) PX4-56A8I2R-C8E8F5V2 (CMP-PDU-001)
+  connection:
+    host: PROVISIONED_AT_COMMISSIONING
+    port: PROVISIONED_AT_COMMISSIONING
+- template: pdu
+  tag: PDU-A2
+  description: Raritan (Legrand) PX4-56A8I2R-C8E8F5V2 (CMP-PDU-001)
+  connection:
+    host: PROVISIONED_AT_COMMISSIONING
+    port: PROVISIONED_AT_COMMISSIONING
+- template: pdu
+  tag: PDU-A3
+  description: Raritan (Legrand) PX4-56A8I2R-C8E8F5V2 (CMP-PDU-001)
+  connection:
+    host: PROVISIONED_AT_COMMISSIONING
+    port: PROVISIONED_AT_COMMISSIONING
+- template: pdu
+  tag: PDU-B1
+  description: Raritan (Legrand) PX4-56A8I2R-C8E8F5V2 (CMP-PDU-001)
+  connection:
+    host: PROVISIONED_AT_COMMISSIONING
+    port: PROVISIONED_AT_COMMISSIONING
+- template: pdu
+  tag: PDU-B2
+  description: Raritan (Legrand) PX4-56A8I2R-C8E8F5V2 (CMP-PDU-001)
+  connection:
+    host: PROVISIONED_AT_COMMISSIONING
+    port: PROVISIONED_AT_COMMISSIONING
+- template: pdu
+  tag: PDU-B3
+  description: Raritan (Legrand) PX4-56A8I2R-C8E8F5V2 (CMP-PDU-001)
+  connection:
+    host: PROVISIONED_AT_COMMISSIONING
+    port: PROVISIONED_AT_COMMISSIONING
+- template: dc_external_dod
+  tag: DC-1
+  description: EVAPCO Inc. eco-Air EAW-DD (EXT-DC-002)
+buses: []
