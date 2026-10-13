@@ -20,7 +20,7 @@ spec:
     current_a: null
     phase: 3ph
     frequency_hz: 60.0
-    power_kw: null                    # deployment-specific; function of selected size
+    power_kw: 6.0                     # design allowance (ADR-021) until a GPC selection
     power_factor_range: null
     efficiency_pct: null
     breaker_size_a: null
@@ -136,8 +136,8 @@ provenance:
   reviewed_date: null
   confidence_flags:
     - field: spec.electrical.power_kw
-      flag: missing
-      note: Fan power is model-dependent. Sizing engine selects specific GFD model by heat rejection capacity; fan power follows from model selection.
+      flag: assumed_default
+      note: 6 kW design allowance (2 EC fans, conservative) used by edp-api sizing (ADR-021). Güntner publishes fan input power only through its GPC configurator; replace with the selection's value at the 80 kW design point.
     - field: spec.thermal.heat_rejection_kw
       flag: missing
       note: Model-dependent. Güntner GPS software generates project-specific selection. Sizing engine drives this selection.

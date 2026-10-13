@@ -20,7 +20,7 @@ spec:
     current_a: null
     phase: 3ph
     frequency_hz: 60.0
-    power_kw: null                    # model-dependent
+    power_kw: 6.0                     # design allowance (ADR-021) until model selection
     power_factor_range: null
     efficiency_pct: null
     breaker_size_a: null
@@ -128,8 +128,8 @@ provenance:
   reviewed_date: null
   confidence_flags:
     - field: spec.electrical.power_kw
-      flag: missing
-      note: NEMA motor ratings are model-dependent. ECM/multi-wing fan option also available per 2023 HVAC Insider article.
+      flag: assumed_default
+      note: 6 kW design allowance used by edp-api sizing (ADR-021); replace with the selected model's motor input power. NEMA motor ratings are model-dependent. ECM/multi-wing fan option also available per 2023 HVAC Insider article.
     - field: spec.thermal.heat_rejection_kw
       flag: missing
       note: Model-dependent. Sizing engine drives EVAPCO selection tool; specific model populated at design time.

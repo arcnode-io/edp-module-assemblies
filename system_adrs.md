@@ -101,3 +101,7 @@ Each container gets a 1 GbE managed switch for device management: server BMCs, P
 ## ADR-020 — POI meter sits at the utility service
 
 The ION9000 (GRD-MTR-001) meters the point of interconnection: the utility service ahead of the 13.8 kV site bus. Inside G1 it would miss the MV-tied BESS (ADR-016) and every other grid container (ADR-018), so the EMS would read the wrong site import/export. It ships loose with G1 (one per site, on G1's BOM) and is installed at the service with revenue-class CTs/PTs by the site MV contractor, along with any utility-required interconnection protection. Its Ethernet runs to G1's management switch (ADR-019).
+
+## ADR-021 — Grid containers sized to 80% of the Trihal
+
+Each grid container carries at most 800 kVA of continuous load, 80% of the Trihal's 1000 kVA. The Trihal runs on natural convection in a closed container with no overhead margin (ADR-013) and no in-container ambient derating data, so it isn't loaded to nameplate. Site load per compute container is its 80 kW (B200) or 62.6 kW (H100) plus the dry cooler's fans, a 6 kW allowance until a Güntner selection gives the real figure (EXT-DC-001/-002 `power_kw`, flagged). B200: 9 compute containers per grid container; H100: 11. The dc-ext PCS pair (834 kW) is above 800 kVA, so the transformer governs every coupling. Each compute feeder carries 86 kW ≈ 121 A at 415 V; continuous × 1.25 = 151 A, so feeder breakers are 175 A (ADR-017).
