@@ -6,7 +6,6 @@ are written from it, so the two can't disagree. edp-api prefixes the
 container (C1, G2) to make each tag site-unique.
 """
 
-from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Final
@@ -89,9 +88,15 @@ GRID: Final[dict[str, list[Instance]]] = {
 
 
 def bom_parts(instances: list[Instance]) -> list[dict]:
-    """bom.yaml `parts`: qty per equipment_id, in first-seen order."""
-    counts = Counter(i.equipment_id for i in instances)
-    return [{"equipment_id": eid, "qty": qty} for eid, qty in counts.items()]
+    """bom.yaml `parts`: qty and tags per equipment_id, in first-seen order.
+
+    Tags become the BOM line's reference designators, so the BOM names the
+    same devices the drawings and device data do.
+    """
+    tags: dict[str, list[str]] = {}
+    for inst in instances:
+        tags.setdefault(inst.equipment_id, []).append(inst.tag)
+    return [{"equipment_id": eid, "qty": len(t), "tags": t} for eid, t in tags.items()]
 
 
 def topology(instances: list[Instance], module_template: str | None = None) -> dict:

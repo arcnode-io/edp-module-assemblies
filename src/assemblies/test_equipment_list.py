@@ -10,6 +10,7 @@ from src.assemblies.equipment_list import (
     EQUIPMENT_DIR,
     GRID,
     Instance,
+    bom_parts,
     topology,
 )
 
@@ -76,3 +77,18 @@ def test_topology_lists_every_device_with_its_tag() -> None:
     assert len(devices) == len(instances)
     assert "connection" not in by_tag["PNL-1"]
     assert by_tag["PDU-B3"]["connection"]["host"] == "PROVISIONED_AT_COMMISSIONING"
+
+
+def test_bom_parts_carry_the_tags_of_their_devices() -> None:
+    # Act
+    parts = {p["equipment_id"]: p["tags"] for p in bom_parts(COMPUTE["commercial-ac"])}
+
+    # Assert
+    assert parts["CMP-PDU-001"] == [
+        "PDU-A1",
+        "PDU-A2",
+        "PDU-A3",
+        "PDU-B1",
+        "PDU-B2",
+        "PDU-B3",
+    ]

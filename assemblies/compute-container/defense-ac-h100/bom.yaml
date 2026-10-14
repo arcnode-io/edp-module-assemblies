@@ -7,20 +7,47 @@ shell:
 parts:
 - equipment_id: CMP-RACK-001
   qty: 1
+  tags:
+  - RACK-1
 - equipment_id: CMP-PNL-001
   qty: 1
+  tags:
+  - PNL-1
 - equipment_id: CMP-NODE-002
   qty: 7
+  tags:
+  - NODE-1
+  - NODE-2
+  - NODE-3
+  - NODE-4
+  - NODE-5
+  - NODE-6
+  - NODE-7
 - equipment_id: CMP-CDU-001
   qty: 1
+  tags:
+  - CDU-1
 - equipment_id: CMP-SWITCH-001
   qty: 1
+  tags:
+  - SW-DATA-1
 - equipment_id: CMP-SWITCH-003
   qty: 1
+  tags:
+  - SW-MGMT-1
 - equipment_id: CMP-PDU-001
   qty: 6
+  tags:
+  - PDU-A1
+  - PDU-A2
+  - PDU-A3
+  - PDU-B1
+  - PDU-B2
+  - PDU-B3
 - equipment_id: EXT-DC-002
   qty: 1
+  tags:
+  - DC-1
 plates:
 - id: CG
   version: v1
