@@ -2,6 +2,7 @@ version: 0.1.0
 specs:
   CMP-CDU-001: s3://arcnode-artifacts/equipment/CMP-CDU-001/spec.yaml
   CMP-NODE-001: s3://arcnode-artifacts/equipment/CMP-NODE-001/spec.yaml
+  CMP-NODE-002: s3://arcnode-artifacts/equipment/CMP-NODE-002/spec.yaml
   CMP-PDU-001: s3://arcnode-artifacts/equipment/CMP-PDU-001/spec.yaml
   CMP-PNL-001: s3://arcnode-artifacts/equipment/CMP-PNL-001/spec.yaml
   CMP-RACK-001: s3://arcnode-artifacts/equipment/CMP-RACK-001/spec.yaml
@@ -25,6 +26,9 @@ geometry:
     vendor_step: null
   CMP-NODE-001:
     envelope: s3://arcnode-artifacts/equipment/CMP-NODE-001/envelope.step
+    vendor_step: null
+  CMP-NODE-002:
+    envelope: s3://arcnode-artifacts/equipment/CMP-NODE-002/envelope.step
     vendor_step: null
   CMP-PDU-001:
     envelope: s3://arcnode-artifacts/equipment/CMP-PDU-001/envelope.step
@@ -86,6 +90,13 @@ assemblies:
       glb_exploded: s3://arcnode-artifacts/assemblies/compute-container/commercial-ac/assembly-exploded.glb
       step_exploded: s3://arcnode-artifacts/assemblies/compute-container/commercial-ac/assembly-exploded.step
       topology_yaml: s3://arcnode-artifacts/assemblies/compute-container/commercial-ac/topology.yaml
+    commercial-ac-h100:
+      bom: s3://arcnode-artifacts/assemblies/compute-container/commercial-ac-h100/bom.yaml
+      step: s3://arcnode-artifacts/assemblies/compute-container/commercial-ac-h100/assembly.step
+      glb: s3://arcnode-artifacts/assemblies/compute-container/commercial-ac-h100/assembly.glb
+      glb_exploded: s3://arcnode-artifacts/assemblies/compute-container/commercial-ac-h100/assembly-exploded.glb
+      step_exploded: s3://arcnode-artifacts/assemblies/compute-container/commercial-ac-h100/assembly-exploded.step
+      topology_yaml: s3://arcnode-artifacts/assemblies/compute-container/commercial-ac-h100/topology.yaml
     defense-ac:
       bom: s3://arcnode-artifacts/assemblies/compute-container/defense-ac/bom.yaml
       step: s3://arcnode-artifacts/assemblies/compute-container/defense-ac/assembly.step
@@ -93,6 +104,13 @@ assemblies:
       glb_exploded: s3://arcnode-artifacts/assemblies/compute-container/defense-ac/assembly-exploded.glb
       step_exploded: s3://arcnode-artifacts/assemblies/compute-container/defense-ac/assembly-exploded.step
       topology_yaml: s3://arcnode-artifacts/assemblies/compute-container/defense-ac/topology.yaml
+    defense-ac-h100:
+      bom: s3://arcnode-artifacts/assemblies/compute-container/defense-ac-h100/bom.yaml
+      step: s3://arcnode-artifacts/assemblies/compute-container/defense-ac-h100/assembly.step
+      glb: s3://arcnode-artifacts/assemblies/compute-container/defense-ac-h100/assembly.glb
+      glb_exploded: s3://arcnode-artifacts/assemblies/compute-container/defense-ac-h100/assembly-exploded.glb
+      step_exploded: s3://arcnode-artifacts/assemblies/compute-container/defense-ac-h100/assembly-exploded.step
+      topology_yaml: s3://arcnode-artifacts/assemblies/compute-container/defense-ac-h100/topology.yaml
   deployment:
     commercial_ac:
       bom: s3://arcnode-artifacts/assemblies/deployment/commercial_ac/bom.yaml
@@ -184,6 +202,9 @@ plates:
 profiles:
   commercial_ac:
     compute_container: commercial-ac
+    compute_container_by_gpu:
+      b200: commercial-ac
+      h100_sxm: commercial-ac-h100
     grid_container: commercial-ac
     grid_feeder_container: feeder
     interface_plates:
@@ -191,6 +212,9 @@ profiles:
     - CD
   commercial_dc_int:
     compute_container: commercial-ac
+    compute_container_by_gpu:
+      b200: commercial-ac
+      h100_sxm: commercial-ac-h100
     grid_container: commercial-ac
     grid_feeder_container: feeder
     interface_plates:
@@ -198,6 +222,9 @@ profiles:
     - CD
   commercial_dc_ext:
     compute_container: commercial-ac
+    compute_container_by_gpu:
+      b200: commercial-ac
+      h100_sxm: commercial-ac-h100
     grid_container: commercial-dc-ext
     grid_feeder_container: dc-ext-feeder
     interface_plates:
@@ -206,6 +233,9 @@ profiles:
     - CD
   defense_ac:
     compute_container: defense-ac
+    compute_container_by_gpu:
+      b200: defense-ac
+      h100_sxm: defense-ac-h100
     grid_container: defense-ac
     grid_feeder_container: defense-feeder
     interface_plates:

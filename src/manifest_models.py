@@ -45,6 +45,8 @@ class ProfileAssemblies(BaseModel):
     """Profile→asset selection. References ids/keys defined elsewhere in the manifest."""
 
     compute_container: str  # variant key, e.g. "commercial-ac"
+    # Ordered GPU type (edp-api GpuVariant value) → compute container variant
+    compute_container_by_gpu: dict[str, str] = Field(default_factory=dict)
     grid_container: str  # variant key; every site has a BESS, so a grid container
     # Added per extra transformer a site needs; same gear minus the POI meter.
     grid_feeder_container: str | None = None

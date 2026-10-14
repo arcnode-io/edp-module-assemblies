@@ -139,11 +139,15 @@ def _validate_profile_refs(manifest: Manifest) -> list[str]:
     warnings: list[str] = []
     for profile_name, profile in manifest.profiles.items():
         cc_variants = manifest.assemblies.get("compute_container", {})
-        if profile.compute_container not in cc_variants:
-            warnings.append(
-                f"profile '{profile_name}': compute_container variant "
-                f"'{profile.compute_container}' not found in assemblies"
+        warnings.extend(
+            f"profile '{profile_name}': compute_container variant "
+            f"'{variant}' not found in assemblies"
+            for variant in (
+                profile.compute_container,
+                *profile.compute_container_by_gpu.values(),
             )
+            if variant not in cc_variants
+        )
         gc_variants = manifest.assemblies.get("grid_container", {})
         warnings.extend(
             f"profile '{profile_name}': grid_container variant "

@@ -15,6 +15,7 @@ from src.assemblies._interference import (
     outside_interior,
     outside_rack,
 )
+from src.assemblies import compute_container
 from src.assemblies.compute_container import build_compute_container
 from src.assemblies.grid_container import BOM_BY_VARIANT, build_grid_container
 
@@ -39,7 +40,7 @@ def test_grid_equipment_fits_inside_the_container(variant: str) -> None:
     assert actual == []
 
 
-@pytest.mark.parametrize("variant", ["commercial-ac", "defense-ac"])
+@pytest.mark.parametrize("variant", sorted(compute_container.BOM_BY_VARIANT))
 def test_compute_equipment_does_not_overlap_and_fits(variant: str) -> None:
     # Arrange
     assy = build_compute_container(variant)

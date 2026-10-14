@@ -30,6 +30,8 @@ sync-plates = { cmd = "python src/plate_loader.py", env = { PYTHONPATH = "." } }
 build-envelopes = { cmd = "python src/envelopes/build_envelope.py", env = { PYTHONPATH = "." } }
 build-compute = { cmd = "python src/assemblies/compute_container.py --variant commercial-ac", env = { PYTHONPATH = "." } }
 build-compute-defense = { cmd = "python src/assemblies/compute_container.py --variant defense-ac", env = { PYTHONPATH = "." } }
+build-compute-h100 = { cmd = "python src/assemblies/compute_container.py --variant commercial-ac-h100", env = { PYTHONPATH = "." } }
+build-compute-defense-h100 = { cmd = "python src/assemblies/compute_container.py --variant defense-ac-h100", env = { PYTHONPATH = "." } }
 build-grid = { cmd = "python src/assemblies/grid_container.py --variant commercial-ac", env = { PYTHONPATH = "." } }
 build-grid-dc-ext = { cmd = "python src/assemblies/grid_container.py --variant commercial-dc-ext", env = { PYTHONPATH = "." } }
 build-grid-defense-ac = { cmd = "python src/assemblies/grid_container.py --variant defense-ac", env = { PYTHONPATH = "." } }
@@ -41,7 +43,7 @@ build-deployment-commercial-dc-int = { cmd = "python src/assemblies/deployment.p
 build-deployment-commercial-dc-ext = { cmd = "python src/assemblies/deployment.py --profile commercial_dc_ext", env = { PYTHONPATH = "." } }
 build-deployment-defense-ac = { cmd = "python src/assemblies/deployment.py --profile defense_ac", env = { PYTHONPATH = "." } }
 bake-viewer = { cmd = "python scripts/bake_viewer.py", env = { PYTHONPATH = "." } }
-build-all = ["sync-plates", "build-envelopes", "build-compute", "build-compute-defense", "build-grid", "build-grid-dc-ext", "build-grid-defense-ac", "build-grid-feeder", "build-grid-defense-feeder", "build-grid-dc-ext-feeder", "build-deployment-commercial-ac", "build-deployment-commercial-dc-int", "build-deployment-commercial-dc-ext", "build-deployment-defense-ac", "build-manifest"]
+build-all = ["sync-plates", "build-envelopes", "build-compute", "build-compute-defense", "build-compute-h100", "build-compute-defense-h100", "build-grid", "build-grid-dc-ext", "build-grid-defense-ac", "build-grid-feeder", "build-grid-defense-feeder", "build-grid-dc-ext-feeder", "build-deployment-commercial-ac", "build-deployment-commercial-dc-int", "build-deployment-commercial-dc-ext", "build-deployment-defense-ac", "build-manifest"]
 
 # CI
 build-manifest = { cmd = "python scripts/build_manifest.py", env = { PYTHONPATH = "." } }

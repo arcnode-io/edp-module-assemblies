@@ -25,11 +25,14 @@ def _import_envelope(equipment_id: str) -> cq.Workplane:
     return cq.importers.importStep(str(EQUIPMENT_DIR / equipment_id / "envelope.step"))
 
 
-def place_rack_equipment(assy: cq.Assembly, *, exploded: bool = False) -> None:
+def place_rack_equipment(
+    assy: cq.Assembly, *, node_id: str, exploded: bool = False
+) -> None:
     """Add nodes + CDU + switch + PDUs to the assembly.
 
     Args:
         assy: Assembly being populated.
+        node_id: GPU node equipment id (B200 or H100, per variant).
         exploded: If True, apply Q3-C explode offsets per part type.
     """
     node_count = 7
@@ -39,8 +42,8 @@ def place_rack_equipment(assy: cq.Assembly, *, exploded: bool = False) -> None:
         if exploded:
             pos = pos.add(_explode.node_offset(i))
         assy.add(
-            _import_envelope("CMP-NODE-001"),
-            name=f"CMP-NODE-001#{i + 1}",
+            _import_envelope(node_id),
+            name=f"{node_id}#{i + 1}",
             loc=cq.Location(pos),
             color=cq.Color(0.2, 0.4, 0.7),
         )

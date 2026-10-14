@@ -8,6 +8,7 @@
 # grid container (ADR-016); only dc_ext brings battery power in, as the PCS
 # pair's 415 V AC through BG-AC (ADR-022).
 # Every site has a BESS, so every profile has a grid container.
+# compute_container_by_gpu: the order's GPU type picks the compute variant.
 #
 # Defense is AC only: both DC couplings need CATL EnerOne+, which is on
 # DOD 1260H. edp-api rejects federal + either DC coupling at ingress.
@@ -16,6 +17,7 @@ profiles:
   commercial_ac:
     # AC-coupled BESS (Tesla Megapack), tied in at 13.8 kV (ADR-016).
     compute_container: commercial-ac
+    compute_container_by_gpu: { b200: commercial-ac, h100_sxm: commercial-ac-h100 }
     grid_container: commercial-ac
     grid_feeder_container: feeder
     interface_plates: [CG, CD]
@@ -24,6 +26,7 @@ profiles:
     # DC strings, but PCS lives in BESS pad, so it outputs AC and ties in
     # at 13.8 kV like commercial_ac (ADR-016). Same containers and plates.
     compute_container: commercial-ac
+    compute_container_by_gpu: { b200: commercial-ac, h100_sxm: commercial-ac-h100 }
     grid_container: commercial-ac
     grid_feeder_container: feeder
     interface_plates: [CG, CD]
@@ -33,6 +36,7 @@ profiles:
     # into the grid container's LV switchboard through BG-AC. Feeders keep a
     # PCS pair each so every container takes its own share.
     compute_container: commercial-ac
+    compute_container_by_gpu: { b200: commercial-ac, h100_sxm: commercial-ac-h100 }
     grid_container: commercial-dc-ext
     grid_feeder_container: dc-ext-feeder
     interface_plates: [CG, BG-AC, CD]
@@ -41,6 +45,7 @@ profiles:
     # AC-coupled BESS, defense forward deployment. Same hardware as
     # commercial_ac but plates are 5083-H116 marine grade, 10 mm thick.
     compute_container: defense-ac
+    compute_container_by_gpu: { b200: defense-ac, h100_sxm: defense-ac-h100 }
     grid_container: defense-ac
     grid_feeder_container: defense-feeder
     interface_plates: [CG, CD]

@@ -1,0 +1,134 @@
+equipment_id: CMP-NODE-002
+schema_version: "1"
+category: gpu_node
+vendor: Supermicro (Super Micro Computer Inc.)
+model_number: SYS-421GE-TNHR2-LCC
+description: 4U liquid-cooled GPU server, dual Intel Xeon, NVIDIA HGX H100 8-GPU SXM (NVLink/NVSwitch), direct-to-chip cold plates
+datasheet_url: https://www.supermicro.com/en/products/system/gpu/4u/sys-421ge-tnhr2-lcc
+datasheet_hash: TBD_compute_at_pipeline_run
+step_source: null
+fab_tier: dod_eligible
+restricted_entities: null
+install_video_url: null
+lead_time_weeks: null
+unit_cost_usd: null
+
+spec:
+  electrical:
+    voltage_v: 240.0                  # phase-to-neutral on 415Y/240V wye
+    voltage_range_v: [200.0, 240.0]   # datasheet: 200-240 Vac, 50-60 Hz
+    current_a: 33.1                   # 7.94 kW / 240 V
+    phase: 1ph
+    frequency_hz: 60.0
+    power_kw: 7.94                    # sizing basis (edp-api CONTAINER_KW, H100_SXM)
+    power_factor_range: [0.99, 1.0]
+    efficiency_pct: 96.0              # datasheet: Titanium level (96%)
+    breaker_size_a: null
+    aic_rating_ka: null
+    thd_pct: null
+    fault_current_contribution_pu: null
+
+  thermal:
+    heat_load_kw: 7.5
+    heat_rejection_kw: null
+    coolant_compatibility:
+      - dei_water
+      - pgw_25
+    flow_rate_lpm: null
+    supply_temp_c: null
+    return_temp_c: null
+    pump_head_kpa: null
+    internal_pressure_drop_kpa: null
+    port_size_dn: null
+
+  mechanical:
+    weight_kg: 80.0                   # datasheet: net 80 kg (gross 98 kg)
+    dimensions_mm: [895.35, 449, 174] # datasheet: 174 H x 449 W x 895.35 D (L x W x H here)
+    container_type: 10ft_ISO_high_cube
+    mounting: rack_19in
+    mounting_notes: |
+      4U 19" rack-mount (chassis CSE-GP403TS-R000NFP). Supermicro sells
+      this system only with complete liquid-cooled rack integration and
+      onsite liquid-cooling service (datasheet), same procurement path as
+      CMP-NODE-001.
+    rack_units: 4
+    ip_rating: null
+    lift_points: null
+    ambient_temp_range_c: [10, 35]    # datasheet: operating 10-35 °C
+    max_elevation_m: null
+    noise_dba_at_1m: null
+
+  ports:
+    - port_id: PWR
+      type: ac_power
+      role: input
+      connector_spec: per PSU inlet, 4x 5250 W Titanium PSUs (2+2 redundant)
+      mating_part: null
+      qty: 4
+    - port_id: MGMT
+      type: ethernet
+      role: bidirectional
+      connector_spec: RJ45 (dedicated BMC/IPMI)
+      mating_part: null
+      qty: 1
+    - port_id: HOST_NET
+      type: ethernet
+      role: bidirectional
+      connector_spec: RJ45 10GbE (Intel X710-AT2)
+      mating_part: null
+      qty: 2
+
+  control:
+    protocol: redfish
+    register_map_url: https://docs.nvidia.com/dgx/dgxb200-user-guide/redfish-api-supp.html  # same X13 BMC + HGX baseboard tree as CMP-NODE-001
+    command_latency_ms: null
+    step_response_ms: null
+    control_modes:
+      - autonomous_local
+      - external_setpoint
+      - last_known_value_fallback
+    black_start_capable: null
+
+geometry:
+  source: synthesized
+  fidelity: bounding_box
+  equipment_envelope_path: geometry/envelopes/CMP-NODE-002-equipment.step
+  service_envelope_path: geometry/envelopes/CMP-NODE-002-service.step
+  bounding_box:
+    L_mm: 895.35
+    W_mm: 449.0
+    H_mm: 174.0
+  service_clearance:
+    front: 1000.0
+    rear: 800.0
+    left: 0.0
+    right: 0.0
+    top: 0.0
+    bottom: 0.0
+    install_clearance: null
+
+provenance:
+  authored_by: power-engineer
+  authored_date: 2026-10-13
+  reviewed_by: TBD_pending_human_review
+  reviewed_date: null
+  confidence_flags:
+    - field: model_number
+      flag: conflicts_with_product_page
+      note: The product page title says HGX H100/H200; its spec table lists HGX H200 8-GPU (141GB). Confirm the H100 SXM configuration at quote.
+    - field: spec.electrical.power_kw
+      flag: assumed_default
+      note: 7.94 kW from edp-api's H100 sizing (B200 first-principles with 700 W GPU TDP). Not a vendor figure.
+    - field: spec.ports.PWR.connector_spec
+      flag: missing
+      note: PSU inlet connector type not on the product page.
+    - field: spec.thermal.flow_rate_lpm
+      flag: missing
+      note: Cold-plate flow per node not published; comes with Supermicro's rack integration.
+
+notes: |
+  H100 counterpart of CMP-NODE-001 (B200): same Supermicro X13 platform
+  (X13DEG-M), 4U, direct-to-chip liquid cooling, sold only as part of a
+  liquid-cooled rack. Selected by edp-api when the order's gpu_variant is
+  h100_sxm. Datasheet: 4x 5250 W (2+2) Titanium PSUs, 200-240 Vac; net
+  80 kg; operating 10-35 °C.

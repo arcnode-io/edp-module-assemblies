@@ -94,3 +94,26 @@ def test_manifest_pydantic_roundtrip(tmp_path: Path) -> None:
     # assert
     assert actual.version == manifest.version
     assert set(actual.specs.keys()) == set(manifest.specs.keys())
+
+
+def test_every_profile_maps_each_gpu_type_to_a_container_with_that_gpu() -> None:
+    # Arrange — an H100 order must get H100 nodes (QA: B200s shipped instead)
+    from src.assemblies.equipment_list import COMPUTE
+
+    node_for = {"b200": "CMP-NODE-001", "h100_sxm": "CMP-NODE-002"}
+    manifest = build_manifest()
+
+    # Act
+    actual = {
+        (name, gpu): {
+            i.equipment_id for i in COMPUTE[variant] if i.tag.startswith("NODE")
+        }
+        for name, prof in manifest.profiles.items()
+        for gpu, variant in prof.compute_container_by_gpu.items()
+    }
+
+    # Assert
+    expected = {
+        (name, gpu): {node_for[gpu]} for name in manifest.profiles for gpu in node_for
+    }
+    assert actual == expected

@@ -22,7 +22,12 @@ import cadquery as cq
 import yaml
 
 from src import plate_loader
-from src.assemblies.equipment_list import COMPUTE, bom_parts, write_topology
+from src.assemblies.equipment_list import (
+    COMPUTE,
+    MODULE_TEMPLATE,
+    bom_parts,
+    write_topology,
+)
 from src.assemblies._grid_layout import W_INT_MM
 from src.assemblies import _decorations, _explode, _rack_layout
 
@@ -62,7 +67,9 @@ CD_MATING_FRAME: Final[cq.Location] = cq.Location(
     -90,
 )
 
-Variant = Literal["commercial-ac", "defense-ac"]
+Variant = Literal[
+    "commercial-ac", "commercial-ac-h100", "defense-ac", "defense-ac-h100"
+]
 
 # Reason: built-to-order line, like the plates. The box vendor comes from an
 # RFQ against these requirements; nobody sells this shell off the shelf.
@@ -98,7 +105,15 @@ DEFENSE_AC_BOM: Final[dict] = {
 
 BOM_BY_VARIANT: Final[dict[str, dict]] = {
     "commercial-ac": COMMERCIAL_AC_BOM,
+    "commercial-ac-h100": {
+        **COMMERCIAL_AC_BOM,
+        "parts": bom_parts(COMPUTE["commercial-ac-h100"]),
+    },
     "defense-ac": DEFENSE_AC_BOM,
+    "defense-ac-h100": {
+        **DEFENSE_AC_BOM,
+        "parts": bom_parts(COMPUTE["defense-ac-h100"]),
+    },
 }
 
 
@@ -170,7 +185,8 @@ def build_compute_container(
         color=rack_color,
     )
 
-    _rack_layout.place_rack_equipment(assy, exploded=exploded)
+    node_id = next(i.equipment_id for i in COMPUTE[variant] if i.tag == "NODE-1")
+    _rack_layout.place_rack_equipment(assy, node_id=node_id, exploded=exploded)
 
     # Panelboard (ADR-017) on the +Y wall past the rack's +X end, with its
     # NEC 110.26 working space clear of the rack.
@@ -229,7 +245,9 @@ def emit_artifacts(
     assy.export(str(paths["step"]))
     assy.export(str(paths["glb"]))
     paths["bom"].write_text(yaml.safe_dump(BOM_BY_VARIANT[variant], sort_keys=False))
-    write_topology(COMPUTE[variant], out_dir / "topology.yaml")
+    write_topology(
+        COMPUTE[variant], out_dir / "topology.yaml", MODULE_TEMPLATE.get(variant)
+    )
 
     if exploded_assy is not None:
         paths["glb_exploded"] = out_dir / "assembly-exploded.glb"
