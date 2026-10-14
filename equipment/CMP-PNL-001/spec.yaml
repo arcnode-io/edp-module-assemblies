@@ -1,8 +1,9 @@
 equipment_id: CMP-PNL-001
 schema_version: "1"
 category: switchgear
-vendor: TBD
-model_number: TBD (UL 67 panelboard)
+vendor: Schneider Electric (Square D)
+model_number: NF panelboard, interior NF430L2C + main kit N250MJ, box MH50, trim NC50S
+procurement_path: engineered_to_order
 description: Compute container 415Y/240 V 3-phase 4-wire panelboard, 225 A bus, 175 A main breaker, 6x 60 A 3P PDU branches + CDU + dry cooler branches
 datasheet_url: null
 datasheet_hash: null
@@ -32,7 +33,7 @@ spec:
 
   mechanical:
     weight_kg: null
-    dimensions_mm: [200, 508, 1600]   # reserved envelope D x W x H
+    dimensions_mm: [146, 508, 1270]   # MH50 box 5.75 D x 20 W x 50 H in
     container_type: 10ft_ISO_high_cube
     mounting: wall
     mounting_notes: |
@@ -61,9 +62,9 @@ geometry:
   equipment_envelope_path: geometry/envelopes/CMP-PNL-001-equipment.step
   service_envelope_path: null
   bounding_box:
-    L_mm: 200.0
+    L_mm: 146.0
     W_mm: 508.0
-    H_mm: 1600.0
+    H_mm: 1270.0
   service_clearance:
     front: 914.0                      # NEC 110.26 condition 1, 151-600 V
     rear: 0.0
@@ -80,14 +81,17 @@ provenance:
   reviewed_date: null
   confidence_flags:
     - field: model_number
-      flag: missing
-      note: Part selection pending (ADR-017).
+      flag: assumed_default
+      note: Square D NF reference design. Main JJA36175 (65 kA); JGA36175 also fits but its NF-mount suffix is unverified. Branches 6x EJB34060 (or EGB34060) + 2x E-frame 3P (CDU, dry cooler). Surface trim NC50S, flush NC50F. Assembled by the distributor; confirm the bill of material at quote.
     - field: spec.mechanical.dimensions_mm
       flag: assumed_default
-      note: Reserved envelope (20" W panelboard class); confirm on selection.
+      note: MH50 box, 20 W x 50 H x 5.75 D in. Confirm on submittal.
+    - field: spec.mechanical.weight_kg
+      flag: missing
+      note: Not published for the assembled panelboard.
 
 notes: |
-  Requirement spec, not a selected part (ADR-017). The compute container
+  Engineered to order against this spec; the model is the reference design (ADR-017). The compute container
   is a separate structure fed from the grid container, so it needs its own
   disconnecting means: the 175 A main. Branches: 6x 60 A 3P for the PDUs
   (A1-A3, B1-B3), one for the CDU, one for the outdoor dry cooler.

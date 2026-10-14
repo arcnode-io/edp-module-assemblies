@@ -64,9 +64,9 @@ def safegear_position() -> cq.Vector:
     return cq.Vector(x, y, z)
 
 
-# GRD-LVS-001 reserved envelope, front (1829 wide) along the +Y wall
+# GRD-LVS-001 QED-2 lineup, front (1829 wide) along the +Y wall
 SWBD_W_MM: Final[float] = 1829.0
-SWBD_D_MM: Final[float] = 762.0
+SWBD_D_MM: Final[float] = 610.0
 SWBD_H_MM: Final[float] = 2324.0
 # GRD-SWITCH-001 reserved DIN enclosure
 GRID_SW_W_MM: Final[float] = 300.0

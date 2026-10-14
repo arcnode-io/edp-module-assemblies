@@ -206,8 +206,11 @@ provenance:
   reviewed_date: null
   confidence_flags:
     - field: spec.electrical.voltage_v
-      flag: assumed_default
-      note: 480V 3ph assumed per Motivair convention. Verify with full datasheet at procurement.
+      flag: conflicts_with_product_page
+      note: Motivair documents the MCDU-10 as a 48 VDC ORV3 in-rack unit, not 480 V 3ph. Published FLA conflicts (40.8 A vs 76 A). The NetShelter 19 in rack has no 48 V power shelf, so the CDU power path is open.
+    - field: spec.ports.PWR.connector_spec
+      flag: missing
+      note: Follows the CDU power-path decision (48 VDC busbar or an AC-powered CDU).
     - field: spec.electrical.power_kw
       flag: missing
       note: Pump + control panel auxiliary load not stated. Estimate ~3-5 kW for 210 kW class CDU.
@@ -238,7 +241,7 @@ provenance:
       flag: missing
     - field: spec.ports.PRI_SUPPLY.connector_spec
       flag: missing
-      note: Quick-disconnect connector type not stated. Applies to all four liquid ports.
+      note: Motivair states 1-1/2 in rear connections; fitting type (thread, cam-lock or QD) not stated. Applies to all four liquid ports.
     - field: control.register_map_url
       flag: missing
       note: Redfish schema is standardized; vendor-specific OEM extensions may exist.

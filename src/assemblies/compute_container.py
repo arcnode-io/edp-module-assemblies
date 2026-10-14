@@ -117,10 +117,10 @@ BOM_BY_VARIANT: Final[dict[str, dict]] = {
 }
 
 
-# CMP-PNL-001 reserved envelope; interior is the shared 10ft HC shell
+# CMP-PNL-001 MH50 box; interior is the shared 10ft HC shell
 PNL_W_MM: Final[float] = 508.0
-PNL_D_MM: Final[float] = 200.0
-PNL_H_MM: Final[float] = 1600.0
+PNL_D_MM: Final[float] = 146.0
+PNL_H_MM: Final[float] = 1270.0
 PNL_CENTER_X_MM: Final[float] = 1000.0
 PNL_BOTTOM_Z_MM: Final[float] = 200.0
 

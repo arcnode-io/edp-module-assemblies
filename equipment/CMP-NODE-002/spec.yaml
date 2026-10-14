@@ -115,13 +115,13 @@ provenance:
   confidence_flags:
     - field: model_number
       flag: conflicts_with_product_page
-      note: The product page title says HGX H100/H200; its spec table lists HGX H200 8-GPU (141GB). Confirm the H100 SXM configuration at quote.
+      note: The product page title says HGX H100/H200; its spec table lists HGX H200 8-GPU (141GB) only. H100 SXM orderability not published (checked 2026-10-14); confirm at quote.
     - field: spec.electrical.power_kw
       flag: assumed_default
       note: 7.94 kW from edp-api's H100 sizing (B200 first-principles with 700 W GPU TDP). Not a vendor figure.
     - field: spec.ports.PWR.connector_spec
       flag: missing
-      note: PSU inlet connector type not on the product page.
+      note: PSUs are PWS-5K26G-2R; likely 2x C20 inlets per PSU (8 per node), not confirmed by Supermicro.
     - field: spec.thermal.flow_rate_lpm
       flag: missing
       note: Cold-plate flow per node not published; comes with Supermicro's rack integration.

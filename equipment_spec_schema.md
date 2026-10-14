@@ -78,8 +78,11 @@ ARCNODE is a two-container product. The `EXT` prefix is used for customer-suppli
 equipment_id: string              # GRD-PCS-001
 schema_version: string            # "1"
 category: enum                    # see §4.2
-vendor: string
+vendor: string                    # TBD = vendor open, bought by RFQ
 model_number: string
+procurement_path: engineered_to_order | null
+                                  # set when vendor/model is a reference design
+                                  # but the part is bought by RFQ against this spec
 description: string               # one-line summary
 datasheet_url: url                # vendor source PDF
 datasheet_hash: string            # SHA-256, for refresh detection

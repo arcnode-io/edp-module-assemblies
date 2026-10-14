@@ -1,9 +1,10 @@
 equipment_id: GRD-SWITCH-001
 schema_version: "1"
 category: network_switch
-vendor: TBD
-model_number: TBD (IEC 61850-3 / IEEE 1613 managed switch)
-description: Grid container 1 GbE managed switch, IEC 61850-3 hardened, about 24 ports (16+ SFP for fiber compute uplinks), dual power input
+vendor: Moxa
+model_number: MDS-G4028-T with 4x LM-7000H-4GSFP + 2x LM-7000H-4GTX + PWR-HV, in a DIN wall enclosure
+procurement_path: engineered_to_order
+description: Grid container 1 GbE modular managed switch, IEC 61850-3 / IEEE 1613, 16 SFP (fiber compute uplinks) + 8 RJ45, SNMPv3, in a 300 x 500 x 200 mm wall enclosure
 datasheet_url: null
 datasheet_hash: null
 step_source: null
@@ -20,7 +21,7 @@ spec:
     current_a: null
     phase: 1ph
     frequency_hz: 60.0
-    power_kw: null
+    power_kw: 0.0458                  # Moxa: 45.8 W max with this module set
     power_factor_range: null
     efficiency_pct: null
     breaker_size_a: null
@@ -36,12 +37,14 @@ spec:
     container_type: 10ft_ISO_high_cube
     mounting: wall
     mounting_notes: |
-      DIN-rail wall enclosure on the -Y wall in the 354 mm gap between the
-      Trihal and SafeGear; DIN switches (e.g. 2-3 Moxa PT-G510 class) fit.
+      Wall enclosure on the -Y wall in the 354 mm gap between the Trihal
+      and SafeGear. The switch body is 218 W x 115 H x 163.25 D mm, so
+      about 37 mm stays free in depth for the fiber bend; keep side-entry
+      patching.
     rack_units: null
     ip_rating: null
     lift_points: null
-    ambient_temp_range_c: null
+    ambient_temp_range_c: [-40, 75]  # -T model
     max_elevation_m: null
     noise_dba_at_1m: null
 
@@ -80,14 +83,14 @@ provenance:
   reviewed_date: null
   confidence_flags:
     - field: model_number
-      flag: missing
-      note: Part selection pending (ADR-019). Moxa PT-G510 (IEC 61850-3, 10 SFP) verified but too few ports.
+      flag: assumed_default
+      note: Moxa MDS-G4028-T, 218 x 115 x 163.25 mm, -40 to 75 C, IEC 61850-3, IEEE 1613, SNMPv3, 45.8 W. Alternate 3x PT-G510 (DIN). PT-G7728 does not fit the enclosure. Enclosure part by the panel builder.
     - field: spec.mechanical.dimensions_mm
       flag: assumed_default
-      note: Reserved wall-enclosure envelope; confirm on selection.
+      note: Enclosure envelope; the switch fits with about 37 mm spare in depth. Confirm enclosure part at build.
 
 notes: |
-  Requirement spec, not a selected part (ADR-019). Ports: up to 11 compute
+  Engineered to order against this spec; the model is the reference design (ADR-019). Ports: up to 11 compute
   fiber uplinks (ADR-021), G2-GM switch uplinks, relay, POI meter, 2 PCS,
   BESS controller, EMS gateway; about 20 used, so 24 with spares. Fiber
   between containers avoids ground-potential differences.

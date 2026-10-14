@@ -14,10 +14,11 @@ devices:
   description: Schneider Electric Trihal TRI100013684152509 (GRD-XFM-001)
 - template: lv_switchboard
   tag: SWBD-1
-  description: TBD TBD (GRD-LVS-001)
+  description: Schneider Electric (Square D) QED-2 switchboard, 2 sections (GRD-LVS-001)
 - template: grid_mgmt_switch
   tag: SW-MGMT-1
-  description: TBD TBD (GRD-SWITCH-001)
+  description: Moxa MDS-G4028-T with 4x LM-7000H-4GSFP + 2x LM-7000H-4GTX + PWR-HV,
+    in a DIN wall enclosure (GRD-SWITCH-001)
 - template: pcs
   tag: PCS-1
   description: EPC Power PD500/AC-480 (GRD-PCS-001)

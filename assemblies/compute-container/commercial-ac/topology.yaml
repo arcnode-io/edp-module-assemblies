@@ -5,7 +5,8 @@ devices:
   description: Schneider Electric (APC brand) NetShelter SX Advanced AR9658 (CMP-RACK-001)
 - template: panelboard
   tag: PNL-1
-  description: TBD TBD (CMP-PNL-001)
+  description: Schneider Electric (Square D) NF panelboard, interior NF430L2C + main
+    kit N250MJ, box MH50, trim NC50S (CMP-PNL-001)
 - template: gpu_node
   tag: NODE-1
   description: Supermicro (Super Micro Computer Inc.) SYS-421GE-NBRT-LCC (CMP-NODE-001)
