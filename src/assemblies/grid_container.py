@@ -8,15 +8,10 @@ Emits assemblies/grid-container/{variant}/{assembly.step,assembly.glb,bom.yaml}
 plus -exploded.{step,glb} per Q8.
 
 Variants:
-- commercial-ac: CG (-X) only. AC batteries tie in at 13.8 kV outside the
-  container (ADR-016).
-- commercial-dc-ext: CG (-X) + BG-AC (+X). The PCS pair (2x PD500, 834 kW
-  at 415 V) sits on the battery pad and feeds AC in through BG-AC (ADR-022);
-  it's on this BOM because ARCNODE supplies it.
+- commercial-ac: CG (-X) only. Every battery ties in at 13.8 kV outside the
+  container (ADR-016, ADR-022), so this serves every coupling.
 - feeder: commercial-ac minus the POI meter. Sites past one transformer add
   N-1 of these beside the primary; a site has one POI, so one meter.
-- dc-ext-feeder: commercial-dc-ext minus the POI meter (keeps its PCS pair
-  + BG-AC, since each container takes its own share of the battery).
 - defense-ac / defense-feeder: same equipment as the
   commercial counterpart but plates are 5083-H116 marine grade, 10 mm
   thick, with hard anodize + EPDM secondary seal. Plate fetcher pulls
@@ -56,21 +51,11 @@ CG_MATING_FRAME: Final[cq.Location] = cq.Location(
     +90,
 )
 
-# Reason: BG-AC plate at +X end (battery-pad wall) on the dc-ext variants.
-# Plate built normal +Z; rotation -90° about Y → normal +X.
-BG_MATING_FRAME: Final[cq.Location] = cq.Location(
-    cq.Vector(+L_EXT_MM / 2, 0.0, PLATE_CENTER_Z_MM),
-    cq.Vector(0, 1, 0),
-    -90,
-)
-
 Variant = Literal[
     "commercial-ac",
-    "commercial-dc-ext",
     "defense-ac",
     "feeder",
     "defense-feeder",
-    "dc-ext-feeder",
 ]
 
 # Reason: built-to-order line, like the plates. The box vendor comes from an
@@ -87,30 +72,17 @@ SHELL: Final[dict] = {
 # Parts are each variant's equipment list counted (equipment_list.py), so
 # the BOM and topology.yaml come from one source.
 _CG_ONLY: Final[list[dict]] = [{"id": "CG", "version": "v1", "qty": 1}]
-# ADR-022: the dc-ext PCS pair's 415 V AC comes in through BG-AC
-_CG_AND_BG: Final[list[dict]] = [*_CG_ONLY, {"id": "BG-AC", "version": "v1", "qty": 1}]
 
 COMMERCIAL_AC_BOM: Final[dict] = {
     "shell": SHELL,
     "parts": bom_parts(GRID["commercial-ac"]),
     "plates": _CG_ONLY,
 }
-COMMERCIAL_DC_EXT_BOM: Final[dict] = {
-    "shell": SHELL,
-    "parts": bom_parts(GRID["commercial-dc-ext"]),
-    "plates": _CG_AND_BG,
-}
 FEEDER_BOM: Final[dict] = {
     "shell": SHELL,
     "parts": bom_parts(GRID["feeder"]),
     "plates": _CG_ONLY,
 }
-DC_EXT_FEEDER_BOM: Final[dict] = {
-    "shell": SHELL,
-    "parts": bom_parts(GRID["dc-ext-feeder"]),
-    "plates": _CG_AND_BG,
-}
-
 # Reason: defense variants share equipment + plate IDs with their commercial
 # counterparts; the difference is the deployment_context flag at the BOM root,
 # which routes plate_loader.fetch to the -defense.step artifacts (5083-H116
@@ -127,22 +99,9 @@ DEFENSE_FEEDER_BOM: Final[dict] = {
 
 BOM_BY_VARIANT: Final[dict[str, dict]] = {
     "commercial-ac": COMMERCIAL_AC_BOM,
-    "commercial-dc-ext": COMMERCIAL_DC_EXT_BOM,
     "defense-ac": DEFENSE_AC_BOM,
     "feeder": FEEDER_BOM,
     "defense-feeder": DEFENSE_FEEDER_BOM,
-    "dc-ext-feeder": DC_EXT_FEEDER_BOM,
-}
-
-# Reason: which BG plate goes at the +X end. Only dc-ext takes battery
-# power into the container, as PCS AC through BG-AC (ADR-016, ADR-022).
-_BG_PLATE_BY_VARIANT: Final[dict[str, str | None]] = {
-    "commercial-ac": None,
-    "commercial-dc-ext": "BG-AC",
-    "defense-ac": None,
-    "feeder": None,
-    "defense-feeder": None,
-    "dc-ext-feeder": "BG-AC",
 }
 
 
@@ -195,7 +154,7 @@ def build_grid_container(
 
 
 def _add_plates(assy: cq.Assembly, *, variant: Variant, exploded: bool) -> None:
-    """Place CG (always) + BG-AC (dc-ext variants only).
+    """Place the CG plate at the -X end.
 
     Defense variants pull -defense.step artifacts via plate_loader's
     deployment_context arg; commercial variants pull plate.step.
@@ -211,24 +170,6 @@ def _add_plates(assy: cq.Assembly, *, variant: Variant, exploded: bool) -> None:
             base + _explode.cg_plate_grid_offset(), cq.Vector(0, 1, 0), +90
         )
     assy.add(cg_plate, name="ARC-PLT-CG", loc=cg_loc, color=cq.Color(0.6, 0.6, 0.7))
-
-    bg_plate_id = _BG_PLATE_BY_VARIANT[variant]
-    if bg_plate_id is not None:
-        bg_plate = cq.importers.importStep(
-            str(plate_loader.fetch(bg_plate_id, "v1", deployment_context))
-        )
-        bg_loc = BG_MATING_FRAME
-        if exploded:
-            base = cq.Vector(*BG_MATING_FRAME.toTuple()[0])
-            bg_loc = cq.Location(
-                base + _explode.bg_plate_offset(), cq.Vector(0, 1, 0), -90
-            )
-        assy.add(
-            bg_plate,
-            name=f"ARC-PLT-{bg_plate_id}",
-            loc=bg_loc,
-            color=cq.Color(0.7, 0.5, 0.3),
-        )
 
 
 def emit_artifacts(

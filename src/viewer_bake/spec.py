@@ -26,8 +26,8 @@ MAT_SPECS: Final[list[MatSpec]] = [
     MatSpec(
         "platform",
         # Reason: all interface plates render with the same brushed-aluminum
-        # look — CG, BG-AC, CD share the 6061-T6 finish in v1.
-        re.compile(r"^ARC-PLT-(CG|BG-AC|CD)$"),
+        # look — CG and CD share the 6061-T6 finish in v1.
+        re.compile(r"^ARC-PLT-(CG|CD)$"),
         "#6b7280",
         0.6,
         0.45,
@@ -262,7 +262,6 @@ _GRID_BASE: Final[list[HotspotCopy]] = [
 # preserved in source assemblies.
 HIDDEN_NODES: Final[dict[str, list[str]]] = {
     "compute": ["ARC-PLT-CD"],
-    "grid-dc-ext": ["ARC-PLT-BG-AC"],
     # Daughterboard scaffolding (ADR-013) — marketing view shows the Lepton
     # only; bracket + small PCB + socket pedestal stay out of the scene.
     "dlr-carrier": [
@@ -297,7 +296,6 @@ HOTSPOT_COPY: Final[dict[str, list[HotspotCopy]]] = {
         _PLATE_CG_FROM_COMPUTE,
     ],
     "grid": _GRID_BASE,
-    "grid-dc-ext": _GRID_BASE,
     # PCB-only viewer ships with no permanent hotspots — hover-labels carry
     # the per-material callouts. Lepton aim hotspot lives on the kit variant
     # viewers below where the bracket context makes the tilt meaningful.

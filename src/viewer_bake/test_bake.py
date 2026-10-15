@@ -69,16 +69,6 @@ def test_bake_hotspots_emits_meter_scale_centroids(tmp_path: Path) -> None:
                 ), f"{kind}/{h['id']} centroid {c} out of meter range"
 
 
-def test_bake_grid_dc_ext_plates_get_the_platform_material(tmp_path: Path) -> None:
-    # arrange / act
-    src = ASSEMBLIES / "grid-container" / "commercial-dc-ext"
-    out = bake_module("grid-dc-ext", src, tmp_path)
-    g = GLTF2().load_binary(str(out))
-    # assert
-    material_names = {m.name for m in g.materials}
-    assert "platform" in material_names  # CG + BG-AC plates
-
-
 def test_bake_compute_hides_drycooler_plate(tmp_path: Path) -> None:
     # Web viewer hides the external-facing CD plate while keeping it in source.
     out = bake_module(
@@ -89,37 +79,3 @@ def test_bake_compute_hides_drycooler_plate(tmp_path: Path) -> None:
     cg_node = next(n for n in g.nodes if n.name == "ARC-PLT-CG")
     assert cd_node.mesh is None, "CD plate should be hidden from web viewer"
     assert cg_node.mesh is not None, "CG plate must remain visible"
-
-
-def test_bake_grid_hides_bess_plate(tmp_path: Path) -> None:
-    # dc-ext → BG-AC hidden; CG kept.
-    out_dc = bake_module(
-        "grid-dc-ext", ASSEMBLIES / "grid-container" / "commercial-dc-ext", tmp_path
-    )
-    g_dc = GLTF2().load_binary(str(out_dc))
-    bg_dc_node = next(n for n in g_dc.nodes if n.name == "ARC-PLT-BG-AC")
-    cg_dc_node = next(n for n in g_dc.nodes if n.name == "ARC-PLT-CG")
-    assert bg_dc_node.mesh is None
-    assert cg_dc_node.mesh is not None
-
-
-def test_bake_hotspots_covers_all_grid_variants(tmp_path: Path) -> None:
-    # arrange — bake all 4 kinds, then read hotspots manifest
-    bake_module("compute", ASSEMBLIES / "compute-container" / "commercial-ac", tmp_path)
-    bake_module("grid", ASSEMBLIES / "grid-container" / "commercial-ac", tmp_path)
-    bake_module(
-        "grid-dc-ext", ASSEMBLIES / "grid-container" / "commercial-dc-ext", tmp_path
-    )
-    # act
-    out = bake_hotspots(tmp_path, kinds=["compute", "grid", "grid-dc-ext"])
-    manifest = json.loads(out.read_text())
-    # assert
-    assert set(manifest.keys()) == {"compute", "grid", "grid-dc-ext"}
-    # Web viewer labels the inter-container CG plate only; BESS plates (BG-*)
-    # are intentionally unlabeled. dc-ext's PCS is on the pad, so no PCS label.
-    assert {h["id"] for h in manifest["grid"]} == {"xfm", "swg", "plt-cg"}
-    assert {h["id"] for h in manifest["grid-dc-ext"]} == {
-        "xfm",
-        "swg",
-        "plt-cg",
-    }

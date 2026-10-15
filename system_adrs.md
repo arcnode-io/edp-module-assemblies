@@ -58,7 +58,7 @@ Procurement-time check: confirm the procured Schneider SKU encodes this sub-conf
 
 ## ADR-014 — Slotted bolt holes for thermal-expansion accommodation
 
-All v1 plates (CG, BG-AC, BG-DC, CD) use **radially-slotted bolt holes** at the 4 corners + 2 long-axis midpoints (6 of 8 perimeter bolts). 13 mm slot × 11 mm Ø. Short-axis midpoints stay round.
+All v1 plates (CG, CD) use **radially-slotted bolt holes** at the 4 corners + 2 long-axis midpoints (6 of 8 perimeter bolts). 13 mm slot × 11 mm Ø. Short-axis midpoints stay round.
 
 **Per-bolt thermal offset analysis** (6061-T6 plate vs A36 receiver frame, Δα = 11.9e-6/K, commercial ΔT = 85 K):
 
@@ -82,13 +82,13 @@ Slot length is encoded in `mounting_bolts.slot_length_mm` in each plate's `cad/s
 
 SafeGear is worked from outside through the container's side doors, not from inside. The interior is not a working space, so the Trihal may sit in front of SafeGear's face (NEC 110.34 working space is outside the doors).
 
-## ADR-016 — AC-output BESS ties in at 13.8 kV
+## ADR-016 — Every BESS ties in at 13.8 kV
 
-AC-output batteries (Tesla Megapack 2 XL, 480 V; CATL with its own PCS) connect to the site 13.8 kV bus through a customer-supplied step-up transformer and MV disconnect (BYOB, ADR-001). They don't land on the grid container's 415 V bus: Megapack's 480 V can't parallel a 415Y/240V bus, and a 480/415 transformer doesn't fit the grid container. AC grid containers have no battery plate; dc_ext is covered by ADR-022.
+Batteries connect to the site 13.8 kV bus through a customer-supplied step-up transformer and MV disconnect (BYOB, ADR-001): Tesla Megapack 2 XL (480 V), CATL with its own PCS, and CATL behind ARCNODE's PCS on dc_ext (ADR-022). None lands on the grid container's 415 V bus: a 480 V source can't parallel a 415Y/240 V bus, and a 480/415 transformer doesn't fit the grid container. Grid containers have no battery plate.
 
 ## ADR-017 — LV protection
 
-Grid container: a 415 V LV switchboard (GRD-LVS-001) with a main breaker on the Trihal secondary and one feeder breaker per compute container it feeds (plus one per PCS on dc_ext). Compute container: a panelboard (CMP-PNL-001) with one branch breaker per PDU, the CDU and the dry cooler. Parts are pending selection, datasheet check and CAD fit.
+Grid container: a 415 V LV switchboard (GRD-LVS-001) with a main breaker on the Trihal secondary and one feeder breaker per compute container it feeds; the Trihal is its only source (ADR-022). Compute container: a panelboard (CMP-PNL-001) with one branch breaker per PDU, the CDU and the dry cooler. Both are engineered to order against their specs, with Square D QED-2 and NF as reference designs.
 
 ## ADR-018 — Compute containers split evenly over grid containers
 
@@ -104,8 +104,12 @@ The ION9000 (GRD-MTR-001) meters the point of interconnection: the utility servi
 
 ## ADR-021 — Grid containers sized to 80% of the Trihal
 
-Each grid container carries at most 800 kVA of continuous load, 80% of the Trihal's 1000 kVA. The Trihal runs on natural convection in a closed container with no overhead margin (ADR-013) and no in-container ambient derating data, so it isn't loaded to nameplate. Site load per compute container is its 80 kW (B200) or 62.6 kW (H100) plus the dry cooler's fans, a 6 kW allowance until a Güntner selection gives the real figure (EXT-DC-001/-002 `power_kw`, flagged). B200: 9 compute containers per grid container; H100: 11. The dc-ext PCS pair (834 kW) is above 800 kVA, so the transformer governs every coupling. Each compute feeder carries 86 kW ≈ 121 A at 415 V; continuous × 1.25 = 151 A, so feeder breakers are 175 A (ADR-017).
+Each grid container carries at most 800 kVA of continuous load, 80% of the Trihal's 1000 kVA. The Trihal runs on natural convection in a closed container with no overhead margin (ADR-013) and no in-container ambient derating data, so it isn't loaded to nameplate. Site load per compute container is its 80 kW (B200) or 62.6 kW (H100) plus the dry cooler's fans, a 6 kW allowance until a Güntner selection gives the real figure (EXT-DC-001/-002 `power_kw`, flagged). B200: 9 compute containers per grid container; H100: 11. Each compute feeder carries 86 kW ≈ 121 A at 415 V; continuous × 1.25 = 151 A, so feeder breakers are 175 A (ADR-017).
 
-## ADR-022 — dc_ext PCS pair lives on the battery pad
+## ADR-022 — dc_ext PCS on the battery pad, tied in at 13.8 kV
 
-The two PD500s (GRD-PCS-001) move out of the dc-ext grid container onto the customer's battery pad beside the CATL EnerOne+ cabinets. Their 415 V AC output (2 × 602 A continuous, 753 A design each) comes into the LV switchboard through BG-AC; BG-DC retires. Reason: with the PCS pair inside, the 1600 A LV switchboard (ADR-017, ~1829 mm wide) had no wall to stand on. With it out, every grid container variant has the same interior: Trihal, SafeGear, LV switchboard. The PCS stays on the dc-ext grid container's BOM (ARCNODE supplies it) and ships loose to the pad. Open: the PD500 is a liquid-cooled rack module, so it needs an outdoor enclosure with its own cooling; EPC Power publishes enclosure ratings only through sales (pending).
+On dc_ext the customer's CATL EnerOne+ DC strings feed ARCNODE's PCS on the battery pad: one EPC CAB1000 (GRD-PCS-001, 1043 kW at 480 V, outdoor IP55 / NEMA 3R) per grid container, so the PCS fleet covers the 800 kVA each grid container carries (ADR-021). Its 480 V AC ties in at 13.8 kV through a customer-supplied step-up and MV disconnect, the same as Megapack (ADR-016). Every coupling therefore uses the same grid containers and plates (CG, CD), with no battery plate. The PCS is a site line on the BOM (ARCNODE supplies it) and sits under the battery module in the device data.
+
+Reason: tied in at 415 V, the PCS would be a second ~1400 A source on the 1600 A switchboard bus. Its breaker exceeds the I-Line distribution section's 1200 A frame (QED-2 Table 21), the extra section doesn't fit the container wall, and two sources fail the NEC 705.12 bus rule. Tied in at 13.8 kV, the switchboard keeps the Trihal as its only source and the 415Y/240 V neutral comes from the Trihal.
+
+Open: the CAB1000 Modbus TCP map, and whether it can black-start the site by energizing the step-up and the Trihals (both asked of EPC). The CATL maximum DC voltage (1497.6 V) sits 2 V under the CAB1000's 1500 V limit; confirm cold open-circuit voltage with CATL.

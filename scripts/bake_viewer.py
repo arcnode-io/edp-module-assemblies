@@ -36,15 +36,8 @@ def main() -> None:
     bake_module(
         "compute", ASSEMBLIES_DIR / "compute-container" / "commercial-ac", args.out
     )
-    # Reason: `grid.glb` stays pinned to commercial-ac for backward compat with
-    # arc-node.html. The DC-ext variant ships as an additional asset the
-    # website can reference when it wires variant switching.
+    # Every coupling uses the commercial-ac grid container (ADR-022).
     bake_module("grid", ASSEMBLIES_DIR / "grid-container" / "commercial-ac", args.out)
-    bake_module(
-        "grid-dc-ext",
-        ASSEMBLIES_DIR / "grid-container" / "commercial-dc-ext",
-        args.out,
-    )
     bake_module(
         "dlr-carrier",
         DLR_PCB_OUT,
@@ -75,7 +68,6 @@ def main() -> None:
         kinds=[
             "compute",
             "grid",
-            "grid-dc-ext",
             "dlr-carrier",
             "dlr-carrier-hw",
             "dlr-carrier-lw",

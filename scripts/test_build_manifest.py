@@ -71,7 +71,7 @@ def test_grid_profiles_name_a_feeder_variant_without_the_poi_meter() -> None:
     # assert
     assert feeders["commercial_ac"] == "feeder"
     assert feeders["defense_ac"] == "defense-feeder"
-    assert feeders["commercial_dc_ext"] == "dc-ext-feeder"
+    assert feeders["commercial_dc_ext"] == "feeder"
     assert all(feeders.values())
 
 

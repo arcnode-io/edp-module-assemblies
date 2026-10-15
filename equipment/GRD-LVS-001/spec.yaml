@@ -2,9 +2,9 @@ equipment_id: GRD-LVS-001
 schema_version: "1"
 category: switchgear
 vendor: Schneider Electric (Square D)
-model_number: QED-2 switchboard, 2 sections (RK-C 1600 A main + I-Line distribution, 2000 A interior)
+model_number: QED-2 switchboard, 2 sections (RK-C 1600 A main + I-Line distribution)
 procurement_path: engineered_to_order
-description: 415Y/240 V 3-phase 4-wire LV switchboard, 1600 A bus, 1600 A 100%-rated LSIG main, up to 11 compute feeders at 175 A plus 2 PCS feeders at 800 A (dc_ext), front-accessible
+description: 415Y/240 V 3-phase 4-wire LV switchboard, 1600 A bus, 1600 A 100%-rated LSIG main, up to 11 compute feeders at 175 A, front-accessible
 datasheet_url: https://download.se.com/files?p_Doc_Ref=2700CT1101&p_File_Name=QED_2_Catalog_2700CT1101_7_2026.pdf&p_enDocType=Catalog
 datasheet_hash: null
 step_source: null
@@ -83,7 +83,7 @@ provenance:
   confidence_flags:
     - field: model_number
       flag: assumed_default
-      note: Reference design from QED-2 catalog 2700CT1101 (Jul 2026). Section 1 is a 36 in RK-C 1600 A individually-mounted main (65 kA); section 2 a 36 in single-row I-Line distribution section, 2000 A interior, 72 in mounting space (Table 21), holding 11x JJ 175 A (4.5 in) + 2x MJ 800 A (9 in) = 67.5 in (Table 20). The 2000 A interior is from UL 891 unknown loading (Table 21 note 27, >12 devices so interior >= 50% of the sum of ratings = 1762.5 A on dc_ext). Max MJ per section not published. A single 48 in combination main + distribution section (Table 22) may also fit; asked Schneider 2026-10-15.
+      note: Reference design from QED-2 catalog 2700CT1101 (Jul 2026). Section 1 is a 36 in RK-C 1600 A individually-mounted main (65 kA); section 2 a 36 in single-row I-Line distribution section, 72 in mounting space (Table 21), holding 11x JJ 175 A at 4.5 in = 49.5 in (Table 20). With 11 devices the UL 891 unknown-loading rule (Table 21 note 27, more than 12 devices) does not apply. A single 48 in combination main + distribution section (Table 22, 63 in mounting space) may also fit; asked Schneider 2026-10-15.
     - field: spec.mechanical.dimensions_mm
       flag: assumed_default
       note: Catalog section sizes, 2 x 36 in W x 24 in D x 91.5 in H. Width and height have 0 margin, depth 152 mm spare to the reserved 762. Breaks if line and load land on the same side (60 in depth), a utility pull section is required (+42 in W), feeders need a 48 in double-row section (84 in W), or NEMA 3R (+12 in D). Confirm on submittal.
@@ -98,7 +98,7 @@ notes: |
   Engineered to order against this spec; the model is the reference design (ADR-017). Main on the Trihal
   secondary (FLA 1000 kVA / (sqrt(3) x 415 V) = 1391 A) needs a 100%-rated
   1600 A breaker; compute feeders are 86 kW = 121 A continuous x 1.25 =
-  151 A, so 175 A breakers (ADR-021); dc_ext adds two PCS feeders at
-  602 A x 1.25 = 753 A, so 800 A breakers (ADR-022). Reference design is
+  151 A, so 175 A breakers (ADR-021). The Trihal is the only source; every
+  battery ties in at 13.8 kV (ADR-016, ADR-022). Reference design is
   Square D QED-2; Siemens SB1 is the alternate. Eaton Pow-R-Line C is
   discontinued.

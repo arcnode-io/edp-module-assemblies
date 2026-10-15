@@ -148,20 +148,6 @@ assemblies:
       glb_exploded: s3://arcnode-artifacts/assemblies/grid-container/commercial-ac/assembly-exploded.glb
       step_exploded: s3://arcnode-artifacts/assemblies/grid-container/commercial-ac/assembly-exploded.step
       topology_yaml: s3://arcnode-artifacts/assemblies/grid-container/commercial-ac/topology.yaml
-    commercial-dc-ext:
-      bom: s3://arcnode-artifacts/assemblies/grid-container/commercial-dc-ext/bom.yaml
-      step: s3://arcnode-artifacts/assemblies/grid-container/commercial-dc-ext/assembly.step
-      glb: s3://arcnode-artifacts/assemblies/grid-container/commercial-dc-ext/assembly.glb
-      glb_exploded: s3://arcnode-artifacts/assemblies/grid-container/commercial-dc-ext/assembly-exploded.glb
-      step_exploded: s3://arcnode-artifacts/assemblies/grid-container/commercial-dc-ext/assembly-exploded.step
-      topology_yaml: s3://arcnode-artifacts/assemblies/grid-container/commercial-dc-ext/topology.yaml
-    dc-ext-feeder:
-      bom: s3://arcnode-artifacts/assemblies/grid-container/dc-ext-feeder/bom.yaml
-      step: s3://arcnode-artifacts/assemblies/grid-container/dc-ext-feeder/assembly.step
-      glb: s3://arcnode-artifacts/assemblies/grid-container/dc-ext-feeder/assembly.glb
-      glb_exploded: s3://arcnode-artifacts/assemblies/grid-container/dc-ext-feeder/assembly-exploded.glb
-      step_exploded: s3://arcnode-artifacts/assemblies/grid-container/dc-ext-feeder/assembly-exploded.step
-      topology_yaml: s3://arcnode-artifacts/assemblies/grid-container/dc-ext-feeder/topology.yaml
     defense-ac:
       bom: s3://arcnode-artifacts/assemblies/grid-container/defense-ac/bom.yaml
       step: s3://arcnode-artifacts/assemblies/grid-container/defense-ac/assembly.step
@@ -189,11 +175,6 @@ plates:
     step: s3://arcnode-artifacts/plates/CG/v1/plate.step
     dxf: s3://arcnode-artifacts/plates/CG/v1/plate.dxf
     drawing_meta: s3://arcnode-artifacts/plates/CG/v1/drawing_meta.json
-  BG-AC:
-    spec: s3://arcnode-artifacts/plates/BG-AC/v1/spec.yaml
-    step: s3://arcnode-artifacts/plates/BG-AC/v1/plate.step
-    dxf: s3://arcnode-artifacts/plates/BG-AC/v1/plate.dxf
-    drawing_meta: s3://arcnode-artifacts/plates/BG-AC/v1/drawing_meta.json
   CD:
     spec: s3://arcnode-artifacts/plates/CD/v1/spec.yaml
     step: s3://arcnode-artifacts/plates/CD/v1/plate.step
@@ -225,11 +206,10 @@ profiles:
     compute_container_by_gpu:
       b200: commercial-ac
       h100_sxm: commercial-ac-h100
-    grid_container: commercial-dc-ext
-    grid_feeder_container: dc-ext-feeder
+    grid_container: commercial-ac
+    grid_feeder_container: feeder
     interface_plates:
     - CG
-    - BG-AC
     - CD
   defense_ac:
     compute_container: defense-ac

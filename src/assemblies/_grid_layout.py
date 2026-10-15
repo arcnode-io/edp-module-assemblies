@@ -7,7 +7,7 @@ v1 layout (Q6-B):
   behind a louvered double door (serviced from outside, ADR-015).
 - Management switch enclosure (ADR-019) on the -Y wall in the gap between
   the Trihal and SafeGear.
-- The dc-ext PCS pair lives on the battery pad, not in here (ADR-022).
+- The dc_ext PCS lives on the battery pad, not in here (ADR-022).
 RLY is inside SafeGear's LV compartment (Q7-A); MTR ships loose to the POI
 (ADR-020). Both are bom-only, no geometry.
 """

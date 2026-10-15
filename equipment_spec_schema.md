@@ -511,14 +511,14 @@ Notes that apply to specific categories during authoring. Not exhaustive; update
 
 - `control.control_modes` must explicitly list `grid_forming` if the vendor documents grid-forming capability. Marketing phrases like "grid support" or "voltage regulation" are not sufficient — confirm explicit GFM in datasheet or interconnect manual. Acceptable evidence includes datasheet entries for "V&f islanded mode", "grid-forming control", "virtual synchronous machine", or equivalent.
 - `electrical.fault_current_contribution_pu` is required *if vendor publishes it* for grid-forming PCS. If not published, leave null and add `confidence_flags` entry with flag `missing` — the value will be needed eventually for fault studies and is a sales-touch follow-up item.
-- `thermal` subsection required because PCS units are significant heat sources whose rejection has to integrate with the Compute Container CDU loop (cross-container coupling — see `equipment/GRD-PCS-001/spec.yaml` notes for the PD500 selection rationale).
+- `thermal` subsection required because PCS units are significant heat sources; record whether the unit rejects its own heat (outdoor, self-cooled) or needs an external loop.
 - `electrical.power_factor_range` should typically be `[-1.0, 1.0]` for modern 4-quadrant PCS. Single-quadrant or limited-range devices are unusual at this product class — flag as ambiguous if vendor docs are unclear.
 - `mounting: proprietary_oem` is common for PCS at non-standard widths. Capture vendor cabinet model in `mounting_notes` when known.
 
 ### 6.2 BESS
 
 - BESS is **external customer-supplied equipment** in ARCNODE's architecture. The equipment_spec is interface-scoped — captures only what ARCNODE needs to integrate over the DC bus and comms.
-- `electrical.voltage_range_v` must overlap with the Grid Module PCS DC input range. For PD500, that's 310–1250 VDC; for sovereign deployments using GFM-capable PCS, the BESS voltage class drives PCS selection.
+- `electrical.voltage_range_v` must overlap with the Grid Module PCS DC input range. For the CAB1000 at 480 VAC, that's 720–1500 VDC; for sovereign deployments using GFM-capable PCS, the BESS voltage class drives PCS selection.
 - `electrical.power_kw` is the rated discharge power, not the energy capacity. Energy capacity (kWh) is captured in `notes` for now — schema does not yet have an energy field. (Defer until a real sizing decision forces it.)
 - `control.protocol` — Modbus TCP is most common at the system level for utility-scale BESS (Tesla, Fluence, Sungrow, etc.). CAN exists internally but is typically not exposed to external integrators. Use `modbus_tcp` unless vendor docs state otherwise.
 - `thermal` subsection is `n/a` — the BESS handles its own thermal management externally. ARCNODE does not couple to BESS cooling.

@@ -66,7 +66,7 @@ Profile = Literal[
 _PROFILE_CONFIG: Final[dict[str, tuple[str, str, str]]] = {
     "commercial_ac": ("commercial-ac", "commercial-ac", "EXT-BESS-001"),
     "commercial_dc_int": ("commercial-ac", "commercial-ac", "EXT-BESS-002"),
-    "commercial_dc_ext": ("commercial-ac", "commercial-dc-ext", "EXT-BESS-002"),
+    "commercial_dc_ext": ("commercial-ac", "commercial-ac", "EXT-BESS-002"),
     "defense_ac": ("defense-ac", "defense-ac", "EXT-BESS-001"),
 }
 

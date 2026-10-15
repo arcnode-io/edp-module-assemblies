@@ -58,10 +58,6 @@ _GRID_FEEDER: Final[list[Instance]] = [
 ]
 # ADR-020: the POI meter ships loose with the primary, installed at the service
 _POI_METER: Final[Instance] = Instance("MTR-POI", "GRD-MTR-001", "poi_meter", True)
-# ADR-022: the dc-ext PCS pair ships with each dc-ext grid container, to the pad
-_PCS_PAIR: Final[list[Instance]] = [
-    Instance(f"PCS-{i}", "GRD-PCS-001", "pcs", False) for i in (1, 2)
-]
 
 _DC: Final[Instance] = Instance("DC-1", "EXT-DC-001", "dc_external", True)
 _DC_DOD: Final[Instance] = Instance("DC-1", "EXT-DC-002", "dc_external_dod", False)
@@ -80,10 +76,8 @@ MODULE_TEMPLATE: Final[dict[str, str]] = {
 GRID: Final[dict[str, list[Instance]]] = {
     "commercial-ac": [*_GRID_FEEDER, _POI_METER],
     "defense-ac": [*_GRID_FEEDER, _POI_METER],
-    "commercial-dc-ext": [*_GRID_FEEDER, _POI_METER, *_PCS_PAIR],
     "feeder": _GRID_FEEDER,
     "defense-feeder": _GRID_FEEDER,
-    "dc-ext-feeder": [*_GRID_FEEDER, *_PCS_PAIR],
 }
 
 

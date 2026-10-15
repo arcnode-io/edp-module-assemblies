@@ -4,9 +4,8 @@
 #
 # Profiles in this file may reference assemblies/plates that don't exist
 # yet; build_manifest.py validates and emits warnings for missing refs.
-# Plate fleet: CG, BG-AC, CD. AC batteries tie in at 13.8 kV outside the
-# grid container (ADR-016); only dc_ext brings battery power in, as the PCS
-# pair's 415 V AC through BG-AC (ADR-022).
+# Plate fleet: CG, CD. Every battery ties in at 13.8 kV outside the grid
+# container (ADR-016, ADR-022), so no battery power comes in through a plate.
 # Every site has a BESS, so every profile has a grid container.
 # compute_container_by_gpu: the order's GPU type picks the compute variant.
 #
@@ -32,14 +31,14 @@ profiles:
     interface_plates: [CG, CD]
 
   commercial_dc_ext:
-    # CATL DC strings → our PCS pair on the battery pad (ADR-022) → 415 V AC
-    # into the grid container's LV switchboard through BG-AC. Feeders keep a
-    # PCS pair each so every container takes its own share.
+    # CATL DC strings → ARCNODE's PCS on the battery pad → 13.8 kV through
+    # the customer's step-up, like commercial_ac (ADR-022). The PCS is a
+    # site line, so the containers and plates are commercial_ac's.
     compute_container: commercial-ac
     compute_container_by_gpu: { b200: commercial-ac, h100_sxm: commercial-ac-h100 }
-    grid_container: commercial-dc-ext
-    grid_feeder_container: dc-ext-feeder
-    interface_plates: [CG, BG-AC, CD]
+    grid_container: commercial-ac
+    grid_feeder_container: feeder
+    interface_plates: [CG, CD]
 
   defense_ac:
     # AC-coupled BESS, defense forward deployment. Same hardware as
