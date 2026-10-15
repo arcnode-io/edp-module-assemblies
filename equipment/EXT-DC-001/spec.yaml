@@ -2,8 +2,8 @@ equipment_id: EXT-DC-001
 schema_version: "1"
 category: dry_cooler
 vendor: Güntner (Güntner U.S. LLC)
-model_number: GFD Series (V-shape, ECM fans, fluid cooler)
-description: V-shape outdoor fluid dry cooler, EC motor fans, per-fan Modbus, BACnet MSTP, customer-pad mounted
+model_number: GFD Series (V-shape, ECM fans, fluid cooler), aicore air (GMMnext) controller
+description: V-shape outdoor fluid dry cooler, EC motor fans, GMMnext controller with native Modbus TCP, customer-pad mounted
 datasheet_url: https://myguntner.com/public/Guentner%20Manual%20GFD%20EN%202024-02.pdf
 datasheet_hash: TBD_compute_at_pipeline_run
 step_source: null
@@ -86,22 +86,16 @@ spec:
       connector_spec: terminal block (field wired)
       mating_part: null
       qty: 1
-    - port_id: COMMS_BACNET
+    - port_id: COMMS
       type: ethernet
       role: bidirectional
-      connector_spec: RS-485 (BACnet MSTP)
-      mating_part: null
-      qty: 1
-    - port_id: COMMS_MODBUS
-      type: signal_digital
-      role: bidirectional
-      connector_spec: RS-485 (Modbus RTU, per-fan)
+      connector_spec: RJ45 (GMMnext ETH1, Modbus TCP port 502)
       mating_part: null
       qty: 1
 
   control:
-    protocol: bacnet_mstp             # primary; per-fan Modbus RTU also available
-    register_map_url: null            # Güntner "Interface Specification – Modbus GMM V_3.0" (GMM EC); vendor-supplied PDF
+    protocol: modbus_tcp              # GMMnext native, ETH1 (operating instructions V1.0.0 §6.4.8.1.2)
+    register_map_url: null            # Güntner "Interface Specification – Modbus GMM V_3.0" (GMM EC), served by GMMnext in compatibility mode (§6.4.8.1.4)
     command_latency_ms: null
     step_response_ms: null
     control_modes:
@@ -157,15 +151,12 @@ provenance:
       flag: missing
     - field: spec.mechanical.max_elevation_m
       flag: missing
-    - field: spec.ports.COMMS_BACNET.connector_spec
-      flag: ambiguous
-      note: BACnet MSTP over RS-485 confirmed from Güntner spec sheet sample; verify connector termination with specific model manual.
     - field: control.register_map_url
       flag: missing
-      note: Güntner controller register map available in GFD manual (portal-gated). Required for EMS BACnet integration.
+      note: GMM V_3.0 interface specification is a vendor-supplied PDF, not public; bindings in edp-api dc_external come from it.
     - field: control.protocol
       flag: ambiguous
-      note: Which controller ships with the GFD is not published. The current controller is aicore air (formerly GMMnext, replacing GMM EC), with native Modbus RTU and Modbus TCP (GMMnext operating instructions V1.0.0 §6.4.8.1.2) and BACnet (native vs add-on not published). Legacy GMM EC reaches Modbus TCP only through the GCM (W)LAN add-on or an RS-485 gateway. Checked 2026-10-14.
+      note: Which controller ships with the GFD is not published; order it with aicore air (formerly GMMnext, which replaces GMM EC). GMMnext has native Modbus RTU and TCP (operating instructions V1.0.0 §6.4.8.1.2) and a Modbus mapping "Compatibility mode" that keeps the GMM EC interface (§6.4.8.1.4), so the GMM V_3.0 register bindings hold; set that mode at commissioning. Manual is the Güntner partner copy on solucoesguntner.com.br. Checked 2026-10-15.
     - field: control.command_latency_ms
       flag: missing
     - field: unit_cost_usd
