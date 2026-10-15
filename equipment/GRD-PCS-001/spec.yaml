@@ -167,6 +167,9 @@ provenance:
       note: Coolant port size not in public datasheet — needed for Compute Container CDU loop integration. Sales touch required.
     - field: spec.mechanical.lift_points
       flag: missing
+    - field: model_number
+      flag: conflicts_with_product_page
+      note: PD500 is no longer listed on epcpower.com (checked 2026-10-14); current products are the M System, MRACK and CAB1000. CAB1000 is a complete ~1 MW PCS at 480-690 VAC +/-10%, so it does not run at 400-415 V. Availability asked of EPC 2026-10-15.
     - field: spec.ports.connector_spec
       flag: missing
       note: Datasheet enumerates port types and counts but not connector specifications. Applies to AC1, DC1, COOL_S, COOL_R, RS485, CAN0, CTRL_PWR. Sales touch or mechanical drawing required.

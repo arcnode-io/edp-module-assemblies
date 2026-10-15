@@ -163,6 +163,9 @@ provenance:
     - field: control.register_map_url
       flag: missing
       note: Güntner controller register map available in GFD manual (portal-gated). Required for EMS BACnet integration.
+    - field: control.protocol
+      flag: ambiguous
+      note: Which controller ships with the GFD is not published. The current controller is aicore air (formerly GMMnext, replacing GMM EC), with native Modbus RTU and Modbus TCP (GMMnext operating instructions V1.0.0 §6.4.8.1.2) and BACnet (native vs add-on not published). Legacy GMM EC reaches Modbus TCP only through the GCM (W)LAN add-on or an RS-485 gateway. Checked 2026-10-14.
     - field: control.command_latency_ms
       flag: missing
     - field: unit_cost_usd

@@ -62,9 +62,9 @@ spec:
     - port_id: PWR
       type: ac_power
       role: input
-      connector_spec: per PSU inlet, 4x 5250 W Titanium PSUs (2+2 redundant)
-      mating_part: null
-      qty: 4
+      connector_spec: IEC C20, 2 per PSU, 4x PWS-5K26G-2R 5250 W Titanium (2+2); 14.5 A per inlet at 207-240 Vac
+      mating_part: C19 cord to HDOT Cx outlet (CMP-PDU-001)
+      qty: 8
     - port_id: MGMT
       type: ethernet
       role: bidirectional
@@ -115,13 +115,13 @@ provenance:
   confidence_flags:
     - field: model_number
       flag: conflicts_with_product_page
-      note: The product page title says HGX H100/H200; its spec table lists HGX H200 8-GPU (141GB) only. H100 SXM orderability not published (checked 2026-10-14); confirm at quote.
+      note: Current spec table lists HGX H200 8-GPU (141GB) only; the 2024 datasheet listed H100 80GB and H200. Supermicro does not confirm new H100 builds; H100 units are reseller stock (checked 2026-10-14). Confirm at quote.
     - field: spec.electrical.power_kw
       flag: assumed_default
       note: 7.94 kW from edp-api's H100 sizing (B200 first-principles with 700 W GPU TDP). Not a vendor figure.
     - field: spec.ports.PWR.connector_spec
       flag: missing
-      note: PSUs are PWS-5K26G-2R; likely 2x C20 inlets per PSU (8 per node), not confirmed by Supermicro.
+      note: Two AC inputs per PWS-5K26G-2R (80 PLUS report "16-14.4 x2"; user manual App. B, 3000 W at 207.1-240 Vac, 16-14.5 A per input). C20 inlet type from third-party listings only.
     - field: spec.thermal.flow_rate_lpm
       flag: missing
       note: Cold-plate flow per node not published; comes with Supermicro's rack integration.

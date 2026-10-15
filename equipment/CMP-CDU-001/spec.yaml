@@ -207,7 +207,7 @@ provenance:
   confidence_flags:
     - field: spec.electrical.voltage_v
       flag: conflicts_with_product_page
-      note: Motivair documents the MCDU-10 as a 48 VDC ORV3 in-rack unit, not 480 V 3ph. Published FLA conflicts (40.8 A vs 76 A). The NetShelter 19 in rack has no 48 V power shelf, so the CDU power path is open.
+      note: Motivair documents the MCDU-10 as a 48 VDC ORV3 in-rack unit, not 480 V 3ph. Published FLA conflicts (both footnoted FLA at 48V DC), 40.8 A in the 2026 Motivair brochure, 76 A in the 2024 brochure; no MCDU-10 datasheet exists. The NetShelter 19 in rack has no 48 V power shelf, so the CDU power path is open.
     - field: spec.ports.PWR.connector_spec
       flag: missing
       note: Follows the CDU power-path decision (48 VDC busbar or an AC-powered CDU).
