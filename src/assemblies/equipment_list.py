@@ -121,14 +121,18 @@ def write_topology(
 
 
 def _buses(instances: list[Instance]) -> list[dict]:
-    """Grid AC bus: the relay (and POI meter) watch the switchgear's line."""
-    templates = [i.template for i in instances]
-    if "switchgear" not in templates:
+    """Grid feeder bus: switchgear breaker → relay CTs/PTs → transformer HV.
+
+    Source side first. The POI meter isn't here: it watches the site's
+    utility tie, which edp-api puts on the site bus (site_mv).
+    """
+    if "switchgear" not in {i.template for i in instances}:
         return []
-    members = [{"device_template": "switchgear", "port": "line_out"}]
-    if "poi_meter" in templates:
-        members.append({"device_template": "poi_meter", "port": "voltage_in"})
-    members.append({"device_template": "protective_relay", "port": "line_in"})
+    members = [
+        {"device_template": "switchgear", "port": "line_out"},
+        {"device_template": "protective_relay", "port": "line_in"},
+        {"device_template": "transformer", "port": "hv_in"},
+    ]
     return [{"bus_id": "ac_main", "type": "ac", "members": members}]
 
 

@@ -92,3 +92,18 @@ def test_bom_parts_carry_the_tags_of_their_devices() -> None:
         "PDU-B2",
         "PDU-B3",
     ]
+
+
+def test_grid_feeder_bus_runs_switchgear_through_relay_to_transformer() -> None:
+    # Arrange — the POI meter watches the site's utility tie, not this feeder
+    instances = GRID["commercial-ac"]
+
+    # Act
+    members = topology(instances)["buses"][0]["members"]
+
+    # Assert
+    assert [(m["device_template"], m["port"]) for m in members] == [
+        ("switchgear", "line_out"),
+        ("protective_relay", "line_in"),
+        ("transformer", "hv_in"),
+    ]

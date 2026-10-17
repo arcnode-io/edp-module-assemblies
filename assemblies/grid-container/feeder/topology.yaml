@@ -27,3 +27,5 @@ buses:
     port: line_out
   - device_template: protective_relay
     port: line_in
+  - device_template: transformer
+    port: hv_in
