@@ -221,3 +221,4 @@ profiles:
     interface_plates:
     - CG
     - CD
+pricing: s3://arcnode-artifacts/pricing.yaml

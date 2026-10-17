@@ -1,3 +1,128 @@
 # Budget prices per part (src/pricing_models.py). Customers run their own
 # RFQs; these give an order-level budget with a confidence band.
-prices: {}
+# source: quote ±10%, distributor ±15%, estimate ±40% (edp-api bom_pricing).
+prices:
+  # --- compute container ---
+  CMP-NODE-001:
+    - unit_usd: 380000
+      source: estimate
+      basis: "Newegg SYS-421GE-NBRT-LCC-G1 B200 config $382,215 (out of stock); Supermicro sells only with rack integration"
+      as_of: 2026-10-17
+  CMP-NODE-002:
+    - unit_usd: 290000
+      source: estimate
+      basis: "Newegg SYS-421GE-TNHR2-LCC-G1 H200 config $293,946; comparable 8x H100 systems $276k-313k (Uvation)"
+      as_of: 2026-10-17
+  CMP-SWITCH-001:
+    - unit_usd: 62612
+      source: distributor
+      basis: "eSaitech 920-9N42F-00RI-7C0 SN5600, special order; Avendor $67,628"
+      as_of: 2026-10-17
+  CMP-SWITCH-002:
+    - unit_usd: 30000
+      source: estimate
+      basis: "QM9700 NDR switch; no US listing with a price found"
+      as_of: 2026-10-17
+  CMP-SWITCH-003:
+    - unit_usd: 4000
+      source: estimate
+      basis: "SN2201 920-9N110-00F1-0C0; Comsys NZ $10,476 (NZD), Lenovo-branded variant MSRP $2,300 (SHI)"
+      as_of: 2026-10-17
+  CMP-RACK-001:
+    - unit_usd: 3500
+      source: estimate
+      basis: "NetShelter SX family; AR3100 42U EUR 1,522 net (Bechtle), AR9658 is 52U 750 x 1200"
+      as_of: 2026-10-17
+  CMP-PDU-001:
+    - unit_usd: 3000
+      source: estimate
+      basis: "sibling PX4-56A8I2R-C8E8G4N1 $2,890 (Saitech); exact F5V2 suffix not listed"
+      as_of: 2026-10-17
+  CMP-PNL-001:
+    - unit_usd: 9000
+      source: estimate
+      basis: "NF430L2C interior $2,204 (Standard Electric Supply) + main kit, box, trim and branch breakers"
+      as_of: 2026-10-17
+  CMP-CDU-001:
+    - unit_usd: 45000
+      source: estimate
+      basis: "210 kW rack CDU; Motivair publishes no prices"
+      as_of: 2026-10-17
+  ARC-CNT-CMP-001:
+    - unit_usd: 9000
+      source: estimate
+      basis: "new 10ft one-trip box ~$3,350 (8'6\"); high cube is scarce, plus fab shop cutting plate penetrations and louvers"
+      as_of: 2026-10-17
+  # --- grid container ---
+  GRD-SWG-001:
+    - unit_usd: 120000
+      source: estimate
+      basis: "new 15 kV 1200 A metal-clad single breaker section; no list price published"
+      as_of: 2026-10-17
+  GRD-RLY-001:
+    - unit_usd: 6000
+      source: estimate
+      basis: "SEL-351 family from $3,530 (selinc.com); -7 with IEC 61850 options"
+      as_of: 2026-10-17
+  GRD-XFM-001:
+    - unit_usd: 110000
+      source: estimate
+      basis: "new Acme 1000 kVA 4160 V dry-type $73,758 (MROSupply); 13.8 kV cast resin is higher"
+      as_of: 2026-10-17
+  GRD-LVS-001:
+    - unit_usd: 55000
+      source: estimate
+      basis: "1600 A QED MLO distribution $15,000-19,250 (dealer); plus 1600 A LSIG main section"
+      as_of: 2026-10-17
+  GRD-MTR-001:
+    - unit_usd: 21378
+      source: distributor
+      basis: "Newark METSEION92040"
+      as_of: 2026-10-17
+  GRD-SWITCH-001:
+    - unit_usd: 8000
+      source: estimate
+      basis: "MDS-G4028-T EUR 3,896 (RS France) + 6 LM-7000H modules, PWR-HV and DIN enclosure"
+      as_of: 2026-10-17
+  GRD-PCS-001:
+    - unit_usd: 83000
+      source: estimate
+      basis: "~$80/kW for a US-built UL 1741 1043 kW PCS; China central PCS trades $7-9/kW (SMM)"
+      as_of: 2026-10-17
+  ARC-CNT-GRD-001:
+    - unit_usd: 9000
+      source: estimate
+      basis: "new 10ft one-trip box ~$3,350 (8'6\"); high cube is scarce, plus fab shop cutting plate penetrations and louvers"
+      as_of: 2026-10-17
+  # --- site ---
+  EXT-DC-001:
+    - unit_usd: 35000
+      source: estimate
+      basis: "~80 kW V-shape EC-fan dry cooler; Güntner publishes no prices"
+      as_of: 2026-10-17
+  EXT-DC-002:
+    - unit_usd: 35000
+      source: estimate
+      basis: "~80 kW V-coil ECM dry cooler; EVAPCO publishes no prices"
+      as_of: 2026-10-17
+  # --- interface plates, CNC'd by the customer's shop to ARCNODE drawings ---
+  ARC-PLT-CG-001:
+    - unit_usd: 2500
+      source: estimate
+      basis: "CNC-cut 6061-T6 aluminum plate, anodized, one-off shop rate"
+      as_of: 2026-10-17
+  ARC-PLT-CG-001-D:
+    - unit_usd: 3000
+      source: estimate
+      basis: "CNC-cut 5083-H116 marine aluminum plate, one-off shop rate"
+      as_of: 2026-10-17
+  ARC-PLT-CD-001:
+    - unit_usd: 2500
+      source: estimate
+      basis: "CNC-cut 6061-T6 aluminum plate, anodized, one-off shop rate"
+      as_of: 2026-10-17
+  ARC-PLT-CD-001-D:
+    - unit_usd: 3000
+      source: estimate
+      basis: "CNC-cut 5083-H116 marine aluminum plate, one-off shop rate"
+      as_of: 2026-10-17
