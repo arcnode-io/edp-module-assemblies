@@ -11,7 +11,6 @@ fab_tier: federal_civilian
 restricted_entities: null
 install_video_url: null
 lead_time_weeks: null
-unit_cost_usd: null
 
 spec:
   electrical:
@@ -125,8 +124,6 @@ provenance:
     - field: fab_tier
       flag: assumed_default
       note: Same basis as CMP-SWITCH-001 (NVIDIA design, Taiwan/Israel assembly) — federal_civilian.
-    - field: unit_cost_usd
-      flag: missing
     - field: lead_time_weeks
       flag: missing
 

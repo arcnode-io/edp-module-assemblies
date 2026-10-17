@@ -11,7 +11,6 @@ fab_tier: dod_eligible
 restricted_entities: null
 install_video_url: null  # Track A enrichment — vendor-research pass populates
 lead_time_weeks: 6
-unit_cost_usd: null
 
 spec:
   electrical:
@@ -163,8 +162,6 @@ provenance:
     - field: control.step_response_ms
       flag: missing
       note: ION9000 captures power quality events as short as 20μs and records waveforms concurrently. Per-cycle metering at 60 Hz.
-    - field: unit_cost_usd
-      flag: missing
     - field: lead_time_weeks
       flag: low_confidence_extraction
 

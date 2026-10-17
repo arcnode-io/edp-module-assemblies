@@ -11,7 +11,6 @@ fab_tier: dod_eligible
 restricted_entities: null
 install_video_url: null  # Track A enrichment — vendor-research pass populates
 lead_time_weeks: null
-unit_cost_usd: null
 
 spec:
   electrical:
@@ -205,8 +204,6 @@ provenance:
     - field: control.command_latency_ms
       flag: missing
     - field: control.step_response_ms
-      flag: missing
-    - field: unit_cost_usd
       flag: missing
     - field: lead_time_weeks
       flag: missing

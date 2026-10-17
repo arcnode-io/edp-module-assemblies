@@ -1,0 +1,3 @@
+# Budget prices per part (src/pricing_models.py). Customers run their own
+# RFQs; these give an order-level budget with a confidence band.
+prices: {}

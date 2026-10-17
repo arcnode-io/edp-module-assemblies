@@ -65,7 +65,8 @@ SHELL: Final[dict] = {
     "description": (
         f"Grid container shell: new-build 10ft ISO high-cube, {L_EXT_MM:.0f} x {W_EXT_MM:.0f} x {H_EXT_MM:.0f} mm exterior, "
         "2,680 mm interior height (ADR-004). CSC-plated and rated to lift loaded, "
-        "so not cut down from a 20ft. ARCNODE cuts the plate penetrations and louvers."
+        "so not cut down from a 20ft. A fab shop cuts the plate"
+        " penetrations and louvers to the ARCNODE drawings."
     ),
 }
 

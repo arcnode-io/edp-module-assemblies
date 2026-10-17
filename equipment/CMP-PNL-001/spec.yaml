@@ -12,7 +12,6 @@ fab_tier: dod_eligible
 restricted_entities: null
 install_video_url: null
 lead_time_weeks: null
-unit_cost_usd: null
 
 spec:
   electrical:

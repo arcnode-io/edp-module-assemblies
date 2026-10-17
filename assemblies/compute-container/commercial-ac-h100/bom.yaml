@@ -2,8 +2,8 @@ shell:
   part_number: ARC-CNT-CMP-001
   description: 'Compute container shell: new-build 10ft ISO high-cube, 2991 x 2438
     x 2896 mm exterior, 2,680 mm interior height (ADR-004). CSC-plated and rated to
-    lift loaded, so not cut down from a 20ft. ARCNODE cuts the plate penetrations
-    and louvers.'
+    lift loaded, so not cut down from a 20ft. A fab shop cuts the plate
+    penetrations and louvers to the ARCNODE drawings.'
 parts:
 - equipment_id: CMP-RACK-001
   qty: 1

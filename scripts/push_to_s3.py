@@ -126,6 +126,8 @@ def push_manifest_artifacts(manifest: Manifest) -> None:
 
     _upload_assemblies(s3, manifest)
     _upload_plates(s3, manifest)
+    if manifest.pricing:
+        _upload(s3, REPO_ROOT / "pricing.yaml", manifest.pricing)
 
 
 def main() -> None:

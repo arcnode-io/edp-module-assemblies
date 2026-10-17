@@ -30,6 +30,7 @@ EQUIPMENT_DIR: Final[Path] = REPO_ROOT / "equipment"
 ASSEMBLIES_DIR: Final[Path] = REPO_ROOT / "assemblies"
 PROFILES_FILE: Final[Path] = REPO_ROOT / "manifest_profiles.yaml"
 PLATES_FILE: Final[Path] = REPO_ROOT / "manifest_plates.yaml"
+PRICING_FILE: Final[Path] = REPO_ROOT / "pricing.yaml"
 OUTPUT_FILE: Final[Path] = REPO_ROOT / "manifest.yaml"
 
 # v1 single bucket (per ADR-012 versioning deferred).
@@ -172,6 +173,7 @@ def build_manifest() -> Manifest:
         assemblies=_collect_assemblies(),
         plates=_collect_plates(),
         profiles=_collect_profiles(),
+        pricing=f"{S3_BASE}/pricing.yaml" if PRICING_FILE.exists() else None,
     )
 
 

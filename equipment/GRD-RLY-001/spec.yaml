@@ -11,7 +11,6 @@ fab_tier: dod_eligible
 restricted_entities: null
 install_video_url: null  # Track A enrichment — vendor-research pass populates
 lead_time_weeks: 8
-unit_cost_usd: null
 
 spec:
   electrical:
@@ -159,8 +158,6 @@ provenance:
     - field: spec.thermal.heat_load_kw
       flag: assumed_default
       note: ~40 W typical for SEL-351 family.
-    - field: unit_cost_usd
-      flag: missing
     - field: lead_time_weeks
       flag: low_confidence_extraction
       note: SEL typical 8 weeks; volatile based on demand.

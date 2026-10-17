@@ -11,7 +11,6 @@ fab_tier: federal_civilian
 restricted_entities: null
 install_video_url: null  # Track A enrichment — vendor-research pass populates
 lead_time_weeks: null
-unit_cost_usd: null
 
 spec:
   electrical:
@@ -158,8 +157,6 @@ provenance:
       flag: ambiguous
       note: Which controller ships with the GFD is not published; order it with aicore air (formerly GMMnext, which replaces GMM EC). GMMnext has native Modbus RTU and TCP (operating instructions V1.0.0 §6.4.8.1.2) and a Modbus mapping "Compatibility mode" that keeps the GMM EC interface (§6.4.8.1.4), so the GMM V_3.0 register bindings hold; set that mode at commissioning. Manual is the Güntner partner copy on solucoesguntner.com.br. Checked 2026-10-15.
     - field: control.command_latency_ms
-      flag: missing
-    - field: unit_cost_usd
       flag: missing
     - field: lead_time_weeks
       flag: missing

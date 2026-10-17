@@ -10,6 +10,7 @@
 edp-module-assemblies/
 ├── readme.md
 ├── manifest.yaml
+├── pricing.yaml                      # budget price per part (src/pricing_models.py)
 ├── pyproject.toml
 ├── equipment_spec_schema.md         # shared schema for all spec.yaml files
 ├── system_adrs.md                   # collection of architecture decisions
@@ -86,7 +87,11 @@ class Manifest(BaseModel):
         dict[str, AssemblyVariant]         # variant name -> AssemblyVariant
     ]
     plates: dict[str, PlateUrls]           # plate_id -> plate URLs
+    pricing: HttpUrl | None                # budget price list (pricing.yaml)
 ```
+
+## Pricing
+`pricing.yaml` holds one budget price list per part, keyed by equipment id, container shell part number or plate part number. Each entry is a list of quantity breaks with `unit_usd`, `min_qty`, `source` (quote, distributor or estimate), `basis` (where the number came from) and `as_of`. Prices never go in `spec.yaml`. Customers run their own RFQs; edp-api turns these into a budgetary order total with a ± band per source.
 
 ## Output Files to S3
 
@@ -95,6 +100,7 @@ CI pushes the following on every merge to main:
 ```
 s3://arcnode-artifacts/
 ├── manifest.yaml                     # edp-api entry point
+├── pricing.yaml                      # budget prices, consumed by edp-api
 ├── equipment/
 │   └── {equipment_id}/
 │       └── spec.yaml                 # consumed by edp-api

@@ -96,7 +96,7 @@ install_video_url: url | null     # vendor-published install / unboxing video
                                   # for site installers; surfaced on BOM xlsx.
                                   # null = not yet researched.
 lead_time_weeks: int | null
-unit_cost_usd: float | null
+# prices live in pricing.yaml (src/pricing_models.py), not in specs
 
 spec:                             # see §4.3 — sparse per category
   electrical: {...} | null
@@ -495,11 +495,10 @@ The schema does not encode all possible restriction lists exhaustively — the g
 
 ### 5.2 Soft rules (validator warns)
 
-1. `unit_cost_usd` is null or absent — prompt during sizing engine cost estimation.
-2. `lead_time_weeks` is null or absent — prompt during procurement planning.
-3. `geometry.fidelity == bounding_box` and category is in {pcs, cdu, gpu_node} — these high-port-density categories benefit from `featured` fidelity.
-4. `confidence_flags` contains any unresolved `missing` flags.
-5. `step_source` is null but `geometry.source == extracted` — provenance contradiction.
+1. `lead_time_weeks` is null or absent — prompt during procurement planning.
+2. `geometry.fidelity == bounding_box` and category is in {pcs, cdu, gpu_node} — these high-port-density categories benefit from `featured` fidelity.
+3. `confidence_flags` contains any unresolved `missing` flags.
+4. `step_source` is null but `geometry.source == extracted` — provenance contradiction.
 
 ---
 
@@ -615,7 +614,7 @@ ARCNODE is a two-container product (Grid Container, Compute Container) per ADR-0
 | 1 | STEP file licensing per vendor | Open | Treated as cache-and-commit per user direction (public docs, non-lucrative use). Revisit if commercial licensing model changes. |
 | 2 | Confidence flag taxonomy completeness | Defined | The five flags in §4.5 are the initial set. Add as gaps appear. |
 | 3 | `control.register_map_url` for proprietary protocols | Open | Vendor-supplied register maps are often gated. Library may end up with null URL and a sales-engagement-required note. |
-| 4 | Cost field freshness | Open | `unit_cost_usd` decays in accuracy. No automated refresh; flag with `confidence_flags.assumed_default` if older than 6 months. |
+| 4 | Cost field freshness | Defined | Budget prices live in `pricing.yaml`, each with `source` and `as_of`; edp-api prints both on the BOM. |
 | 5 | Multi-port equipment with per-port heterogeneous specs | Open | E.g., a switch with mixed 1G/10G/40G ports. Current schema represents this with multiple `ports` entries differing in `connector_spec`. Verify this scales. |
 
 ---
