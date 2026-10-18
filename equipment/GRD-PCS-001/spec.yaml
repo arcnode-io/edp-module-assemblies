@@ -145,7 +145,7 @@ provenance:
       flag: missing
 
 notes: |
-  ARCNODE's PCS for dc_ext (ADR-022): one per grid container, on the
+  The dc_ext PCS (ADR-022): sized to the battery's power job, on the
   customer's battery pad. CATL EnerOne+ strings (1164-1498 V DC) land on
   its DC input; its 480 V AC goes to the customer's 480 V : 13.8 kV
   step-up and MV disconnect, like a Megapack (ADR-016). The CATL maximum
