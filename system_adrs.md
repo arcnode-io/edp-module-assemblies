@@ -115,3 +115,11 @@ The PCS meets the load only on the 13.8 kV bus, so its count follows the battery
 Reason: tied in at 415 V, the PCS would be a second ~1400 A source on the 1600 A switchboard bus. Its breaker exceeds the I-Line distribution section's 1200 A frame (QED-2 Table 21), the extra section doesn't fit the container wall, and two sources fail the NEC 705.12 bus rule. Tied in at 13.8 kV, the switchboard keeps the Trihal as its only source and the 415Y/240 V neutral comes from the Trihal.
 
 Open: how many CATL racks one CAB1000 DC input takes (combiner), and whether it can black-start the site by energizing the step-up and the Trihals (both open with EPC). The CATL maximum DC voltage (1497.6 V) sits 2 V under the CAB1000's 1500 V limit; confirm cold open-circuit voltage with CATL.
+
+## ADR-023 — Orders buy whole servers; the last compute container can be partial
+
+An order resolves to ceil(GPUs / 8) servers, not whole 56-GPU containers. Containers fill 7 servers each, so only the last can hold fewer. A partial container keeps the full shell, rack, CDU, SN5600, management switch, dry cooler and a full-size panelboard. It carries only its servers and their PDUs: ceil(servers / 3) per side, because on A/B failover one 34.5 kVA PX4 carries 3 B200 servers (31.5 kW) plus both switches (2.1 kW). The panelboard gets branch breakers for the installed PDUs, CDU and dry cooler only. Its other PDU spaces stay empty, so adding servers later means adding PDUs and bolt-on breakers, not a new panel. Site load counts servers: servers × node kW plus each container's switch/CDU/PDU overhead and dry cooler fans. A full container still comes to 80 kW (B200) or 62.6 kW (H100) plus 6 kW of fans.
+
+Reason: the server is about 95% of a container's cost (B200 $382k each), so a 1-server order shouldn't buy 7.
+
+Topology and bom.yaml describe a full container. edp-api leaves out the tags a partial one doesn't hold: NODE-k+1…NODE-7, and PDU-Ap+1… / PDU-Bp+1….
