@@ -4,9 +4,9 @@
 prices:
   # --- compute container ---
   CMP-NODE-001:
-    - unit_usd: 395000
-      source: estimate
-      basis: "LCC SKU is quote-only (rack integration required). Air-cooled 8x B200 siblings: SYS-A22GA-NBRT-G1 $384,228 and SYS-A21GE-NBRT-G1 $394,406 (Newegg, last listed), SYS-A22GA-NBRT-G1 $422,704 (Uvation, in stock); our SKU's G1 $382,215 (Newegg, stale)"
+    - unit_usd: 382215
+      source: distributor
+      basis: "SYS-421GE-NBRT-LCC-G1 8x B200: Newegg $382,215 (sold, out of stock); Ahead-IT EUR 386,238 ex VAT (no local stock); ServerSimply EUR 320,297. Unverified listings; sold only with liquid-cooled rack integration"
       as_of: 2026-10-18
   CMP-NODE-002:
     - unit_usd: 290000
