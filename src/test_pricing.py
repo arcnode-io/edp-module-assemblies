@@ -1,4 +1,7 @@
-"""pricing.yaml: one budget price list per part, every key a real part."""
+"""pricing.yaml: one budget price list per part, every key a real part.
+
+Field keys are edp-api cable/hose types; edp-api checks they match.
+"""
 
 from pathlib import Path
 
@@ -35,7 +38,8 @@ def test_every_priced_key_is_a_part_and_prices_from_qty_one() -> None:
 
     # Act
     unknown = set(book.prices) - _known_parts()
-    no_qty_one = [k for k, breaks in book.prices.items() if breaks[0].min_qty != 1]
+    lists = {**book.prices, **book.field}
+    no_qty_one = [k for k, breaks in lists.items() if breaks[0].min_qty != 1]
 
     # Assert
     assert (unknown, no_qty_one) == (set(), [])

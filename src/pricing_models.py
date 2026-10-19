@@ -1,6 +1,7 @@
 """Budget price list (`pricing.yaml`): what each part roughly costs, and why.
 
-Keyed by equipment id, container shell part number, or plate part number.
+Keyed by equipment id, container shell part number, or plate part number;
+installer-bought material sits apart under `field`, by cable/hose type.
 Each key holds quantity breaks, lowest `min_qty` first; a line buying
 `qty` uses the last break with `min_qty <= qty`. Customers run their own
 RFQs, so these are budgetary: the ± band comes from `source` (edp-api).
@@ -38,3 +39,5 @@ class PriceBook(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     prices: dict[str, list[PriceBreak]] = Field(default_factory=dict)
+    # Installer-bought material, by cable/hose type, priced per run
+    field: dict[str, list[PriceBreak]] = Field(default_factory=dict)

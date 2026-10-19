@@ -4,10 +4,10 @@
 prices:
   # --- compute container ---
   CMP-NODE-001:
-    - unit_usd: 380000
+    - unit_usd: 395000
       source: estimate
-      basis: "Newegg SYS-421GE-NBRT-LCC-G1 B200 config $382,215 (out of stock); Supermicro sells only with rack integration"
-      as_of: 2026-10-17
+      basis: "LCC SKU is quote-only (rack integration required). Air-cooled 8x B200 siblings: SYS-A22GA-NBRT-G1 $384,228 and SYS-A21GE-NBRT-G1 $394,406 (Newegg, last listed), SYS-A22GA-NBRT-G1 $422,704 (Uvation, in stock); our SKU's G1 $382,215 (Newegg, stale)"
+      as_of: 2026-10-18
   CMP-NODE-002:
     - unit_usd: 290000
       source: estimate
@@ -126,3 +126,57 @@ prices:
       source: estimate
       basis: "CNC-cut 5083-H116 marine aluminum plate, one-off shop rate"
       as_of: 2026-10-17
+
+# Installer-bought material, by edp-api cable/hose type, priced per run.
+# Lengths are field-measured, so each price assumes a typical run.
+field:
+  "C19-C20 cordset, 16 A, x4 (4 of 8 PSU inlets per path)":
+    - unit_usd: 140
+      source: estimate
+      basis: "4 cords; Tripp Lite P036-010 C19-C20 10 ft 12 AWG $41.98 (Newark); in-rack 2 m runs run a little less"
+      as_of: 2026-10-18
+  "C13-C14 cordset":
+    - unit_usd: 10
+      source: estimate
+      basis: "typical 2 m 10 A C13-C14 cord"
+      as_of: 2026-10-18
+  "60 A 4P5W cord, IEC 60309 3P+N+PE plug":
+    - unit_usd: 1300
+      source: estimate
+      basis: "Locking Power Cords 560P9W 60 A 5-wire SOOW extension, $1,123 to $2,580 over 10 to 100 ft; assumes a 10 to 15 ft run"
+      as_of: 2026-10-18
+  "3ph 4-wire + ground, field-wired":
+    - unit_usd: 400
+      source: estimate
+      basis: "assumes 50 ft of 4 x #6 THHN + #10 ground (~$1.20/ft for #6) plus conduit and fittings"
+      as_of: 2026-10-18
+  "4 x 2/0 AWG Cu + ground, 175 A (size for run length)":
+    - unit_usd: 2000
+      source: estimate
+      basis: "assumes 100 ft; 2/0 THHN Cu $3.82 to $5.28/ft (Elliott Electric) x 4, plus #6 ground and lugs"
+      as_of: 2026-10-18
+  "1500 V DC PV/BESS cable, size per CATL string count":
+    - unit_usd: 900
+      source: estimate
+      basis: "assumes one +/- pair of 4/0 Cu PV wire, 50 ft each, ~$8.80/ft (Nassau National Cable, 2 kV); string count sets the real number"
+      as_of: 2026-10-18
+  "Cat6 STP":
+    - unit_usd: 15
+      source: estimate
+      basis: "typical 5 m shielded Cat6 patch cable"
+      as_of: 2026-10-18
+  "Single-mode fiber pair, LC duplex":
+    - unit_usd: 55
+      source: estimate
+      basis: "assumes 30 m; C2G LC-LC OS2 30 m $54.99 (CDW), AddOn LC-LC 30 m MSRP $48.50 (SHI)"
+      as_of: 2026-10-18
+  "EPDM 1in PG/W rated":
+    - unit_usd: 850
+      source: estimate
+      basis: "assumes 50 ft outdoor to the dry cooler; Gates 4175EC 1 in EPDM coolant hose $15.49/ft (Motion), plus fittings"
+      as_of: 2026-10-18
+  "EPDM 0.5in DEI water rated":
+    - unit_usd: 60
+      source: estimate
+      basis: "assumes ~2 m of 1/2 in EPDM plus clamps; quick disconnects sit on the manifold and node"
+      as_of: 2026-10-18
