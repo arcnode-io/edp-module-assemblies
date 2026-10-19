@@ -114,7 +114,10 @@ The PCS meets the load only on the 13.8 kV bus, so its count follows the battery
 
 Reason: tied in at 415 V, the PCS would be a second ~1400 A source on the 1600 A switchboard bus. Its breaker exceeds the I-Line distribution section's 1200 A frame (QED-2 Table 21), the extra section doesn't fit the container wall, and two sources fail the NEC 705.12 bus rule. Tied in at 13.8 kV, the switchboard keeps the Trihal as its only source and the 415Y/240 V neutral comes from the Trihal.
 
-Open: how many CATL racks one CAB1000 DC input takes (combiner), and whether it can black-start the site by energizing the step-up and the Trihals (both open with EPC). The CATL maximum DC voltage (1497.6 V) sits 2 V under the CAB1000's 1500 V limit; confirm cold open-circuit voltage with CATL.
+Unverified (EPC and CATL not expected to answer):
+- DC side: the CAB1000 3L.2 sheet gives 1400 A max over two DC inputs (2 x 1100 A fuses). CATL racks (285 A at 1C) combine on the pad, so 4 run at full current and more share it.
+- Black start: "optional, requires external control power". Whether it can energize the step-up and the Trihals' inrush isn't published.
+- CATL voltage: the 1497.6 V maximum is the 3.6 V/cell charge cutoff. Rested LFP sits at 1.39-1.44 kV and barely moves with cold, so open-circuit voltage stays well under the 1500 V limit.
 
 ## ADR-023 — Orders buy whole servers; the last compute container can be partial
 

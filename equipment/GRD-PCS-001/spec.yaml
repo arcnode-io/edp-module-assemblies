@@ -148,9 +148,18 @@ notes: |
   The dc_ext PCS (ADR-022): sized to the battery's power job, on the
   customer's battery pad. CATL EnerOne+ strings (1164-1498 V DC) land on
   its DC input; its 480 V AC goes to the customer's 480 V : 13.8 kV
-  step-up and MV disconnect, like a Megapack (ADR-016). The CATL maximum
-  sits 2 V under the 1500 V DC limit; confirm cold open-circuit voltage
-  with CATL.
+  step-up and MV disconnect, like a Megapack (ADR-016).
+
+  DC side (CAB1000 3L.2 sheet): 1400 A max, two DC inputs on 2 x 1100 A
+  fuses, 230 kA fault current allowed per input. A CATL rack gives 285 A
+  at 1C, so 4 racks run at full rack current; more racks parallel on the
+  pad's DC combiner and share the PCS's 1400 A below 1C.
+
+  CATL maximum 1497.6 V (416 x 3.6 V charge cutoff) sits 2.4 V under the
+  1500 V limit. UNVERIFIED with CATL: LFP rests at ~3.33-3.45 V/cell
+  (1.39-1.44 kV) and its OCV moves well under 1 mV/cell/K, so cold doesn't
+  push the open-circuit voltage toward 1500 V. The 1497.6 V peak comes
+  only while charging at the BMS cutoff, which the PCS controls.
 
   Black start needs external control power: specify an independent
   control-power source (small UPS or 24 VDC battery) with the pad.
